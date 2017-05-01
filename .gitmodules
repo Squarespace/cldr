@@ -1,0 +1,9 @@
+[submodule "buildsrc/src/main/resources/data/cldr-dates-modern"]
+	path = buildsrc/src/main/resources/data/cldr-dates-modern
+	url = https://github.com/unicode-cldr/cldr-dates-modern.git
+[submodule "buildsrc/src/main/resources/data/cldr-numbers-modern"]
+	path = buildsrc/src/main/resources/data/cldr-numbers-modern
+	url = https://github.com/unicode-cldr/cldr-numbers-modern.git
+[submodule "buildsrc/src/main/resources/data/cldr-core"]
+	path = buildsrc/src/main/resources/data/cldr-core
+	url = https://github.com/unicode-cldr/cldr-core.git
