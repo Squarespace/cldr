@@ -1,0 +1,10 @@
+/build
+/bin
+
+.gradle
+.settings
+.project
+.classpath
+test-output
+
+

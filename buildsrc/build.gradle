@@ -1,0 +1,41 @@
+
+apply plugin: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'java-gradle-plugin'
+
+repositories {
+    mavenCentral()
+}
+
+project.ext {
+  gsonVersion = '2.8.0'
+  guavaVersion = '21.0'
+  javapoetVersion = '1.8.0'
+  testngVersion = '6.11'
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+
+    compile "com.google.code.gson:gson:${gsonVersion}"
+    compile "com.squareup:javapoet:${javapoetVersion}"
+    compile "com.google.guava:guava:${guavaVersion}"
+
+    testCompile "org.testng:testng:${testngVersion}"
+}
+
+//println "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+/*
+sourceSets {
+    main {
+        java {
+            srcDir 'buildsrc/src/main/java'
+        }
+        resources {
+            srcDir 'buildsrc/src/resources'
+        }
+    }
+}
+*/

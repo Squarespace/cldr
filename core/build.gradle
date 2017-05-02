@@ -1,0 +1,116 @@
+buildscript {
+  dependencies {
+    classpath files(
+      "../buildSrc/build/classes/main",
+      "../buildSrc/build/resources/main"
+    )
+  }
+}
+
+apply plugin: 'com.squarespace.cldr.codegen'
+apply plugin: 'eclipse'
+apply plugin: 'java'
+apply plugin: 'maven'
+
+repositories {
+  mavenCentral()
+}
+
+configurations {
+  tests {
+    extendsFrom testRuntime
+  }
+  animalSniffer
+  javaApiSignature
+}
+
+dependencies {
+  testCompile "org.testng:testng:${testngVersion}"
+
+	animalSniffer("org.codehaus.mojo:animal-sniffer-ant-tasks:${snifferVersion}")
+	javaApiSignature("org.codehaus.mojo.signature:java18:1.0@signature")
+}
+
+cldr {
+  outputDir = "${project.projectDir}/src/generated/java"
+}
+
+// Disable Javadoc linting under Java 8
+if (JavaVersion.current().isJava8Compatible()) {
+  allprojects {
+    tasks.withType(Javadoc) {
+      options.addStringOption('Xdoclint:none', '-quiet')
+    }
+  }
+}
+
+sourceSets.main.java.srcDirs = ['src/main/java', 'src/generated/java']
+
+task testJar(type: Jar, dependsOn: testClasses) {
+	classifier = 'tests'
+	from(
+		sourceSets.main.output,
+		sourceSets.test.output
+	)
+}
+
+task sourcesJar(type: Jar, dependsOn:classes) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+	classifier = 'javadoc'
+	from javadoc.destinationDir
+}
+
+task copyJavaApiSignature(type: Copy) {
+		from configurations.javaApiSignature
+		into "$buildDir/javaApiSignature/"
+		rename '.*signature', 'javaApi.signature'
+}
+
+task checkJavaApiSignature << {
+		ant.taskdef(
+			name: 'animalSniffer',
+			classname: 'org.codehaus.mojo.animal_sniffer.ant.CheckSignatureTask',
+			classpath: configurations.animalSniffer.asPath
+		)
+		ant.animalSniffer(
+			signature: "$buildDir/javaApiSignature/javaApi.signature",
+			classpath: configurations.compile.asPath
+		) { path(path: "$buildDir/classes/main") }
+}
+
+checkJavaApiSignature.dependsOn compileJava
+checkJavaApiSignature.dependsOn copyJavaApiSignature
+check.dependsOn checkJavaApiSignature
+
+artifacts {
+  archives sourcesJar
+  archives testJar
+  archives javadocJar
+  tests testJar
+}
+
+clean {
+  delete 'src/generated'
+}
+
+/*
+configure(install.repositories.mavenInstaller) {
+  pom.project {
+    groupId 'com.squarespace.cldr'
+    artifactId 'cldr-core'
+    inceptionYear '2017'
+    packaging 'jar'
+    licenses {
+      license {
+        name 'Apache 2.0'
+        url 'https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)'
+        distribution 'repo'
+      }
+    }
+  }
+}
+*/

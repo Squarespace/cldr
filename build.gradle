@@ -1,0 +1,26 @@
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.14'
+}
+
+project.ext {
+  snifferVersion = '1.15'
+  testngVersion = '6.11'
+}
+
+subprojects {
+  apply plugin: 'eclipse'
+  apply plugin: 'java'
+  apply plugin: 'java-gradle-plugin'
+
+  group = 'com.squarespace.cldr'
+
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+}
+
