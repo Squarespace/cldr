@@ -1,7 +1,6 @@
 package com.squarespace.cldr.dates;
 
 import java.time.ZonedDateTime;
-import java.util.Map;
 
 import com.squarespace.cldr.CLDRLocale;
 
@@ -16,7 +15,6 @@ public abstract class CLDRCalendarFormatter {
   // TODO: field order-invariant lookup
   // TODO: fuzzy skeleton matching (needed?)
 
-
   // Locale-specific data populated through code generation of the subclasses.
   protected CLDRLocale locale;
   protected int firstDay;
@@ -30,7 +28,6 @@ public abstract class CLDRCalendarFormatter {
   protected FieldVariants weekdaysStandalone;
   protected FieldVariants dayPeriodsFormat;
   protected FieldVariants dayPeriodsStandalone;
-  protected Map<String, Integer> indexMap;
 
   public CLDRLocale locale() {
     return locale;
@@ -39,36 +36,25 @@ public abstract class CLDRCalendarFormatter {
   /**
    * Formats a date using a given pattern. See CLDR "dateFormats"
    */
-  public abstract void formatDate(DateFormatType type, ZonedDateTime d, StringBuilder b);
+  public abstract void formatDate(FormatType type, ZonedDateTime d, StringBuilder b);
 
   /**
    * Formats a time using a given pattern. See CLDR "timeFormats"
    */
-  public abstract void formatTime(TimeFormatType type, ZonedDateTime d, StringBuilder b);
+  public abstract void formatTime(FormatType type, ZonedDateTime d, StringBuilder b);
 
   /**
-   * Formats a date-time using the given patterns. The date type determines the overall
-   * "wrapper" the date and time are inserted into. See CLDR "dateTimeFormats".
+   * Formats a date and time (either a named format or a skeleton) using a localized wrapper.
    */
-  public abstract void formatDateTime(
-      DateFormatType dateType, TimeFormatType timeType, ZonedDateTime d, StringBuilder b);
+  public abstract void formatWrapped(
+      FormatType wrapperType, FormatType dateType, FormatType timeType,
+      String dateSkel, String timeSkel, ZonedDateTime d, StringBuilder b);
 
   /**
    * Formats using a skeleton pattern. See CLDR "dateTimeFormats / availableFormats".
-   *
    */
-  public boolean formatSkeleton(String skeleton, ZonedDateTime d, StringBuilder b) {
-    Integer index = indexMap.get(skeleton);
-    if (index != null) {
-      return formatSkeleton(index.intValue(), d, b);
-    }
-    return false;
-  }
+  public abstract boolean formatSkeleton(String skeleton, ZonedDateTime d, StringBuilder b);
 
-  /**
-   * Formats a ZonedDateTime using the given indexed pattern number.
-   */
-  protected abstract boolean formatSkeleton(int i, ZonedDateTime d, StringBuilder b);
 
   /**
    * Formats a single field, based on the first character in the pattern string,
@@ -124,6 +110,7 @@ public abstract class CLDRCalendarFormatter {
       case 'u':
       case 'U':
       case 'r':
+        // only used for non-Gregorian calendars
         break;
 
       case 'Q':
@@ -163,7 +150,11 @@ public abstract class CLDRCalendarFormatter {
         break;
 
       case 'F':
+        formatDayOfWeekInMonth(b, d, width);
+        break;
+
       case 'g':
+        // modified julian day
         break;
 
       case 'E':
@@ -184,6 +175,7 @@ public abstract class CLDRCalendarFormatter {
 
       case 'b':
       case 'B':
+        // TODO
         break;
 
       case 'h':
@@ -212,16 +204,24 @@ public abstract class CLDRCalendarFormatter {
         break;
 
       case 'S':
+        formatFractionalSeconds(b, d, width);
+        break;
+
       case 'A':
+        // not implemented
         break;
 
       case 'z':
+        formatTimeZone(b, d, width);
+        break;
+
       case 'Z':
       case 'O':
       case 'v':
       case 'V':
       case 'X':
       case 'x':
+        // TODO:
         break;
     }
   }
@@ -462,6 +462,14 @@ public abstract class CLDRCalendarFormatter {
   }
 
   /**
+   * Numeric day of week in month, as in "2nd Wednesday in July".
+   */
+  void formatDayOfWeekInMonth(StringBuilder b, ZonedDateTime d, int width) {
+    int day = ((d.getDayOfMonth() - 1) / 7) + 1;
+    b.append(day);
+  }
+
+  /**
    * Format the day period variant.
    */
   void formatDayPeriod(StringBuilder b, ZonedDateTime d, int width, FieldVariants dayPeriods) {
@@ -507,6 +515,36 @@ public abstract class CLDRCalendarFormatter {
    */
   void formatSeconds(StringBuilder b, ZonedDateTime d, int width) {
     zeroPad2(b, d.getSecond(), width);
+  }
+
+  /**
+   * Format fractional seconds up to N digits.
+   */
+  void formatFractionalSeconds(StringBuilder b, ZonedDateTime d, int width) {
+    // format up to 9 digits at nanosecond resolution.
+    int nano = d.getNano();
+    int f = 100000000;
+    while (width > 0 && f > 0) {
+      int digit = nano / f;
+      nano -= (digit * f);
+      f /= 10;
+      b.append(digit);
+      width--;
+    }
+
+    // fill out any trailing zeros if any are requested
+    while (width > 0) {
+      b.append('0');
+      width--;
+    }
+  }
+
+  /**
+   *
+   */
+  void formatTimeZone(StringBuilder b, ZonedDateTime d, int width) {
+// TODO: complete timezone implementation
+//    ZoneId zone = d.getZone();
   }
 
   /**

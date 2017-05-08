@@ -2,17 +2,19 @@ package com.squarespace.cldr.codegen;
 
 import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR;
 import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR_DATES;
-import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Splitter;
 import com.squarespace.cldr.codegen.DateTimeData.Format;
 import com.squarespace.cldr.codegen.DateTimeData.Skeleton;
 import com.squarespace.cldr.codegen.DateTimeData.Variants;
@@ -21,8 +23,6 @@ import com.squarespace.cldr.codegen.DateTimePatternParser.Node;
 import com.squarespace.cldr.codegen.DateTimePatternParser.Text;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 
@@ -39,9 +39,8 @@ public class DateTimeCodeGenerator {
 
   private static final ClassName FORMATTER_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "CLDRCalendarFormatter");
   private static final ClassName FIELD_VARIANTS_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FieldVariants");
-  private static final ClassName DATEFORMAT_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "DateFormatType");
-  private static final ClassName TIMEFORMAT_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "TimeFormatType");
-  private static final TypeName INDEX_TYPE = ParameterizedTypeName.get(Map.class, String.class, Integer.class);
+  private static final ClassName SKELETON_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "SkeletonType");
+  private static final ClassName FORMAT_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FormatType");
 
   private static final DateTimePatternParser PARSER = new DateTimePatternParser();
 
@@ -52,6 +51,7 @@ public class DateTimeCodeGenerator {
       throws IOException {
 
     List<ClassName> dateClasses = new ArrayList<>();
+    List<DateTimeData> dateTimeData = new ArrayList<>();
 
     int i = 0;
     for (Map.Entry<LocaleID, DateTimeData> entry : reader.calendars().entrySet()) {
@@ -67,19 +67,47 @@ public class DateTimeCodeGenerator {
       ClassName cls = ClassName.get(PACKAGE_CLDR_DATES, className);
       dateClasses.add(cls);
 
-      TypeSpec type = create(data, className);
+      dateTimeData.add(data);
+      TypeSpec type = createFormatter(data, className);
       CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_DATES, className, type);
 
       i++;
     }
 
+    TypeSpec type = createSkeletonClassifier(dateTimeData);
+    CodeGenerator.saveClass(outputDir, PACKAGE_CLDR, "CLDRCalendarUtils", type);
+
     return dateClasses;
+  }
+
+  /**
+   * Create a helper class to classify skeletons as either DATE or TIME.
+   */
+  private TypeSpec createSkeletonClassifier(List<DateTimeData> dataList) {
+    Set<String> dates = new LinkedHashSet<>();
+    Set<String> times = new LinkedHashSet<>();
+    for (DateTimeData data : dataList) {
+      for (Skeleton skeleton : data.dateTimeSkeletons()) {
+        if (isDateSkeleton(skeleton.skeleton)) {
+          dates.add(skeleton.skeleton);
+        } else {
+          times.add(skeleton.skeleton);
+        }
+      }
+    }
+
+    MethodSpec.Builder skeletonTypeMethod = buildSkeletonType(dates, times);
+
+    return TypeSpec.classBuilder("CLDRCalendarUtils")
+        .addModifiers(PUBLIC)
+        .addMethod(skeletonTypeMethod.build())
+        .build();
   }
 
   /**
    * Create a Java class that captures all data formats for a given locale.
    */
-  private TypeSpec create(DateTimeData data, String className) {
+  private TypeSpec createFormatter(DateTimeData data, String className) {
     LocaleID id = data.id();
 
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
@@ -87,7 +115,6 @@ public class DateTimeCodeGenerator {
 
     constructor.addStatement("this.locale = new $T($S, $S, $S, $S)",
         LOCALE_TYPE, id.language, id.script, id.territory, id.variant);
-    constructor.addStatement("this.indexMap = this.buildIndex()");
     constructor.addStatement("this.firstDay = $L", data.firstDay());
     constructor.addStatement("this.minDays = $L", data.minDays());
 
@@ -105,60 +132,49 @@ public class DateTimeCodeGenerator {
         .superclass(FORMATTER_TYPE)
         .addModifiers(PUBLIC)
         .addJavadoc(
-            "Locale " + data.id() + "\n" +
+            "Locale \"" + data.id() + "\"\n" +
             "See http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table\n")
         .addMethod(constructor.build());
 
     MethodSpec.Builder dateMethod = MethodSpec.methodBuilder("formatDate")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
-        .addParameter(DATEFORMAT_TYPE, "type")
+        .addParameter(FORMAT_TYPE, "type")
         .addParameter(ZONED_DATETIME_TYPE, "d")
         .addParameter(STRINGBUILDER_TYPE, "b");
 
-    addTypedPattern(dateMethod, DATEFORMAT_TYPE, data.dateFormats());
+    addTypedPattern(dateMethod, FORMAT_TYPE, data.dateFormats());
 
     MethodSpec.Builder timeMethod = MethodSpec.methodBuilder("formatTime")
       .addAnnotation(Override.class)
       .addModifiers(PUBLIC)
-      .addParameter(TIMEFORMAT_TYPE, "type")
+      .addParameter(FORMAT_TYPE, "type")
       .addParameter(ZONED_DATETIME_TYPE, "d")
       .addParameter(STRINGBUILDER_TYPE, "b");
 
-    addTypedPattern(timeMethod, TIMEFORMAT_TYPE, data.timeFormats());
+    addTypedPattern(timeMethod, FORMAT_TYPE, data.timeFormats());
 
-    MethodSpec.Builder dateTimeMethod = addDateTimeWrappers(data.dateTimeFormats());
-
-    // Integer identifying a given skeleton pattern
-    int index = 0;
+    MethodSpec.Builder wrapperMethod = buildWrappers(data.dateTimeFormats());
 
     MethodSpec.Builder formatMethod = MethodSpec.methodBuilder("formatSkeleton")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
-        .addParameter(int.class, "i")
+        .addParameter(String.class, "skeleton")
         .addParameter(ZONED_DATETIME_TYPE, "d")
         .addParameter(STRINGBUILDER_TYPE, "b")
         .returns(boolean.class);
 
-    // Map of pattern name to integer index.
-    MethodSpec.Builder indexMethod = MethodSpec.methodBuilder("buildIndex")
-        .addModifiers(PRIVATE)
-        .returns(INDEX_TYPE);
-
-    formatMethod.beginControlFlow("switch (i)");
-    indexMethod.addStatement("$T r = new $T<>()", INDEX_TYPE, HashMap.class);
+    formatMethod.beginControlFlow("switch (skeleton)");
 
     // Skeleton patterns.
     for (Skeleton skeleton : data.dateTimeSkeletons()) {
-      indexMethod.addStatement("r.put($S, $L)", skeleton.skeleton, index);
-      formatMethod.beginControlFlow("case $L:", index)
-        .addComment("$S -> $S", skeleton.skeleton, skeleton.pattern);
+      formatMethod.beginControlFlow("case $S:", skeleton.skeleton)
+        .addComment("Pattern: $S", skeleton.pattern);
 
       addPattern(formatMethod, skeleton.pattern);
 
       formatMethod.addStatement("break");
       formatMethod.endControlFlow();
-      index++;
     }
 
     formatMethod.beginControlFlow("default:");
@@ -167,14 +183,12 @@ public class DateTimeCodeGenerator {
 
     formatMethod.endControlFlow();
     formatMethod.addStatement("return true");
-    indexMethod.addStatement("return r");
 
     return type
         .addMethod(dateMethod.build())
         .addMethod(timeMethod.build())
-        .addMethod(dateTimeMethod.build())
+        .addMethod(wrapperMethod.build())
         .addMethod(formatMethod.build())
-        .addMethod(indexMethod.build())
         .build();
   }
 
@@ -205,6 +219,7 @@ public class DateTimeCodeGenerator {
 
   /**
    * Add a named date-time pattern, adding statements to the formatting and indexing methods.
+   * Returns true if the pattern corresponds to a date; false if a time.
    */
   private void addPattern(MethodSpec.Builder method, String pattern) {
     // Parse the pattern and populate the method body with instructions to format the date.
@@ -218,27 +233,40 @@ public class DateTimeCodeGenerator {
     }
   }
 
-  private MethodSpec.Builder addDateTimeWrappers(Format format) {
-    MethodSpec.Builder method = MethodSpec.methodBuilder("formatDateTime")
+  /**
+   * Build a method that will format a date and time (named or skeleton) in a
+   * localized wrapper.
+   */
+  private MethodSpec.Builder buildWrappers(Format format) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("formatWrapped")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
-        .addParameter(DATEFORMAT_TYPE, "dateType")
-        .addParameter(TIMEFORMAT_TYPE, "timeType")
+        .addParameter(FORMAT_TYPE, "wrapperType")
+        .addParameter(FORMAT_TYPE, "dateType")
+        .addParameter(FORMAT_TYPE, "timeType")
+        .addParameter(String.class, "dateSkel")
+        .addParameter(String.class, "timeSkel")
         .addParameter(ZONED_DATETIME_TYPE, "d")
         .addParameter(STRINGBUILDER_TYPE, "b");
 
-    method.beginControlFlow("switch (dateType)");
-    addDateTimeWrapper(method, "SHORT", format.short_);
-    addDateTimeWrapper(method, "MEDIUM", format.medium);
-    addDateTimeWrapper(method, "LONG", format.long_);
-    addDateTimeWrapper(method, "FULL", format.full);
+    Map<String, List<String>> map = deduplicateFormats(format);
+
+    method.beginControlFlow("switch (wrapperType)");
+    for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+      for (String type : entry.getValue()) {
+        method.addCode("case $L:\n", type);
+      }
+      method.beginControlFlow("");
+      addWrapper(method, entry.getKey());
+      method.addStatement("break");
+      method.endControlFlow();
+    }
     method.endControlFlow();
 
     return method;
   }
 
-  private void addDateTimeWrapper(MethodSpec.Builder method, String type, String pattern) {
-    method.beginControlFlow("case $L:", type);
+  private void addWrapper(MethodSpec.Builder method, String pattern) {
     method.addComment("$S", pattern);
     for (Node node : PARSER.parseWrapper(pattern)) {
       if (node instanceof Text) {
@@ -248,16 +276,73 @@ public class DateTimeCodeGenerator {
         Field field = (Field)node;
         switch (field.ch) {
           case '0':
+            method.beginControlFlow("if (timeType != null)");
             method.addStatement("formatTime(timeType, d, b)");
+            method.nextControlFlow("else");
+            method.addStatement("formatSkeleton(timeSkel, d, b)");
+            method.endControlFlow();
             break;
+
           case '1':
+            method.beginControlFlow("if (dateType != null)");
             method.addStatement("formatDate(dateType, d, b)");
+            method.nextControlFlow("else");
+            method.addStatement("formatSkeleton(dateSkel, d, b)");
+            method.endControlFlow();
             break;
         }
       }
     }
-    method.addStatement("break");
+  }
+
+  /**
+   * Indicates a skeleton represents a date based on the fields it contains.
+   * Any time-related field will cause this to return false.
+   */
+  private boolean isDateSkeleton(String skeleton) {
+    List<String> parts = Splitter.on('-').splitToList(skeleton);
+    if (parts.size() > 1) {
+      skeleton = parts.get(0);
+    }
+    for (Node node : PARSER.parse(skeleton)) {
+      if (node instanceof Field) {
+        Field field = (Field) node;
+        switch (field.ch) {
+          case 'H':
+          case 'h':
+          case 'm':
+          case 's':
+            return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Constructs a method to indicate if the skeleton is a DATE or TIME, or null if unsupported.
+   */
+  private MethodSpec.Builder buildSkeletonType(Set<String> dateSkeletons, Set<String> timeSkeletons) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("skeletonType")
+        .addJavadoc("Indicates whether a given skeleton pattern is a DATE or TIME.\n")
+        .addModifiers(PUBLIC, STATIC)
+        .addParameter(String.class, "skeleton")
+        .returns(SKELETON_TYPE);
+
+    method.beginControlFlow("switch (skeleton)");
+    for (String skel : dateSkeletons) {
+      method.addCode("case $S:\n", skel);
+    }
+    method.addStatement("  return $T.DATE", SKELETON_TYPE);
+    for (String skel : timeSkeletons) {
+      method.addCode("case $S:\n", skel);
+    }
+    method.addStatement("  return $T.TIME", SKELETON_TYPE);
+    method.addCode("default:\n");
+    method.addStatement("  return null");
     method.endControlFlow();
+
+    return method;
   }
 
   /**
@@ -273,6 +358,31 @@ public class DateTimeCodeGenerator {
     b.append(")");
     method.addStatement(b.format(), b.args());
   }
+
+  /**
+   * De-duplication of formats.
+   */
+  public static Map<String, List<String>> deduplicateFormats(Format format) {
+   Map<String, List<String>> res = new LinkedHashMap<>();
+   mapAdd(res, format.short_, "SHORT");
+   mapAdd(res, format.medium, "MEDIUM");
+   mapAdd(res, format.long_, "LONG");
+   mapAdd(res, format.full, "FULL");
+   return res;
+  }
+
+  /**
+   * Adds a key and value to a Map<String, List<String>>.
+   */
+  private static void mapAdd(Map<String, List<String>> map, String key, String val) {
+    List<String> list = map.get(key);
+    if (list == null) {
+      list = new ArrayList<>();
+      map.put(key, list);
+    }
+    list.add(val);
+  }
+
 
   /**
    * Helper to build up longer formatted statements.

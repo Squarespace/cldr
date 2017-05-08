@@ -125,8 +125,12 @@ if (project.hasProperty('NEXUS_INTERNAL_RELEASE_URL')) {
     configuration = configurations.archives
 
     repositories.mavenDeployer {
-      repository(url: NEXUS_INTERNAL_RELEASE_URL)
-      snapshotRepository(url: NEXUS_INTERNAL_SNAPSHOT_URL)
+      repository(url: NEXUS_INTERNAL_RELEASE_URL) {
+        authentication(userName: OSS_USERNAME, password: OSS_PASSWORD)
+      }
+      snapshotRepository(url: NEXUS_INTERNAL_SNAPSHOT_URL) {
+        authentication(userName: OSS_USERNAME, password: OSS_PASSWORD)
+      }
       configurePom(pom)
     }
   }

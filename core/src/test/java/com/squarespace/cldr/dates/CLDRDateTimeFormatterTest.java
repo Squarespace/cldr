@@ -106,6 +106,31 @@ public class CLDRDateTimeFormatterTest {
   }
 
   @Test
+  public void testFormatDayOfWeekInMonth() {
+    Datetime dt = may_1_2017();
+
+    // 1st monday and sunday
+    assertFormat(EN_US, 'F', dt.dayOfMonth(1), "1");
+    assertFormat(EN_US, 'F', dt.dayOfMonth(7), "1");
+
+    // 2nd monday and sunday
+    assertFormat(EN_US, 'F', dt.dayOfMonth(8), "2");
+    assertFormat(EN_US, 'F', dt.dayOfMonth(14), "2");
+
+    // 3rd monday and sunday
+    assertFormat(EN_US, 'F', dt.dayOfMonth(15), "3");
+    assertFormat(EN_US, 'F', dt.dayOfMonth(21), "3");
+
+    // 4th monday and sunday
+    assertFormat(EN_US, 'F', dt.dayOfMonth(23), "4");
+    assertFormat(EN_US, 'F', dt.dayOfMonth(28), "4");
+
+    // 5th monday and wednesday
+    assertFormat(EN_US, 'F', dt.dayOfMonth(29), "5");
+    assertFormat(EN_US, 'F', dt.dayOfMonth(31), "5");
+  }
+
+  @Test
   public void testWeekday() {
     Datetime dt = may_1_2017();
     for (int i : new int[] {1, 8, 15}) {
@@ -252,6 +277,18 @@ public class CLDRDateTimeFormatterTest {
     assertFormat(EN_US, 's', dt.second(45), "45", "45", "");
   }
 
+  @Test
+  void testFormatFractionalSecond() {
+    Datetime dt = may_1_2017();
+    assertFormat(EN_US, 'S', dt.nanos(1234567),
+        "0", "00", "001", "0012", "00123", "001234", "0012345", "00123456", "001234567", "0012345670", "00123456700");
+  }
+
+  @Test
+  public void testFormatTimeZone() {
+    // TODO:
+  }
+
   private Datetime may_1_2017() {
     return may_1_2017(NEW_YORK);
   }
@@ -314,6 +351,10 @@ public class CLDRDateTimeFormatterTest {
 
     private ZonedDateTime second(int second) {
       return d.withSecond(second);
+    }
+
+    private ZonedDateTime nanos(int nanos) {
+      return d.withNano(nanos);
     }
 
   }
