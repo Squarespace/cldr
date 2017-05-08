@@ -97,20 +97,38 @@ clean {
   delete 'src/generated'
 }
 
-/*
-configure(install.repositories.mavenInstaller) {
-  pom.project {
-    groupId 'com.squarespace.cldr'
-    artifactId 'cldr-core'
-    inceptionYear '2017'
-    packaging 'jar'
-    licenses {
-      license {
-        name 'Apache 2.0'
-        url 'https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)'
-        distribution 'repo'
+uploadArchives {
+  repositories.mavenDeployer {
+    beforeDeployment {
+      MavenDeployment deployment -> signing.signPom(deployment)
+    }
+
+    if (project.hasProperty('OSS_USERNAME') && project.hasProperty('OSS_PASSWORD')) {
+      repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+        authentication(userName: OSS_USERNAME, password: OSS_PASSWORD)
       }
+
+      snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+        authentication(userName: OSS_USERNAME, password: OSS_PASSWORD)
+      }
+    } else {
+      logger.error('Missing OSS_USERNAME, OSS_PASSWORD properties.')
+    }
+
+    configurePom(pom)
+  }
+}
+
+if (project.hasProperty('NEXUS_INTERNAL_RELEASE_URL')) {
+  task uploadInternal(type: Upload) {
+    description = 'Uploads archives to internal Nexus'
+    configuration = configurations.archives
+
+    repositories.mavenDeployer {
+      repository(url: NEXUS_INTERNAL_RELEASE_URL)
+      snapshotRepository(url: NEXUS_INTERNAL_SNAPSHOT_URL)
+      configurePom(pom)
     }
   }
 }
-*/
+
