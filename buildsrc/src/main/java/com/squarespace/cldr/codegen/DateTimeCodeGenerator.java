@@ -47,7 +47,7 @@ public class DateTimeCodeGenerator {
   /**
    * Generates the date-time classes into the given output directory.
    */
-  public List<ClassName> generate(Path outputDir, DataReader reader, Set<LocaleID> active)
+  public List<ClassName> generate(Path outputDir, DataReader reader)
       throws IOException {
 
     List<ClassName> dateClasses = new ArrayList<>();
@@ -55,10 +55,6 @@ public class DateTimeCodeGenerator {
 
     int i = 0;
     for (Map.Entry<LocaleID, DateTimeData> entry : reader.calendars().entrySet()) {
-      LocaleID id = entry.getKey();
-      if (!active.contains(id)) {
-        continue;
-      }
       DateTimeData data = entry.getValue();
 
       // TODO: better naming

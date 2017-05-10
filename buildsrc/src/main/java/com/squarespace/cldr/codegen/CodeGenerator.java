@@ -9,11 +9,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
 import com.squareup.javapoet.ClassName;
@@ -42,12 +40,6 @@ public class CodeGenerator {
 
   private static final String[] EMPTY = new String[] { };
 
-  public static final Set<LocaleID> activeLocales = Sets.newHashSet(
-      new LocaleID("en", "US", "", "POSIX"),
-      new LocaleID("fr", "", "", ""),
-      new LocaleID("de", "", "", "")
-  );
-
   public static void main(String[] args) throws IOException {
     Path root = Paths.get("/Users/phensley/dev/squarespace-cldr");
     generate(root.resolve("core/src/generated/java"));
@@ -56,7 +48,7 @@ public class CodeGenerator {
   public static void generate(Path outputDir) throws IOException {
     DataReader reader = DataReader.get();
     DateTimeCodeGenerator generator = new DateTimeCodeGenerator();
-    List<ClassName> dateClasses = generator.generate(outputDir, reader, activeLocales);
+    List<ClassName> dateClasses = generator.generate(outputDir, reader);
 
     CodeBlock indexFormatters = indexFormatters(dateClasses);
 
