@@ -262,6 +262,9 @@ public class DateTimeCodeGenerator {
     return method;
   }
 
+  /**
+   * Formats a date-time combination into a wrapper format, e.g. "{1} at {0}"
+   */
   private void addWrapper(MethodSpec.Builder method, String pattern) {
     method.addComment("$S", pattern);
     for (Node node : PARSER.parseWrapper(pattern)) {

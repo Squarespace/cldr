@@ -9,8 +9,6 @@ import java.util.List;
  */
 public class DateTimePatternParser {
 
-  // TODO: write unit tests
-
   /**
    * Parses a CLDR date-time pattern into a series of Text and Field nodes.
    */

@@ -8,6 +8,9 @@ import java.util.List;
 
 import com.google.common.reflect.ClassPath;
 import com.google.common.reflect.ClassPath.ResourceInfo;
+import com.squarespace.cldr.codegen.parse.PluralType;
+import com.squarespace.compiler.parse.Node;
+import com.squarespace.compiler.parse.Struct;
 
 
 public class Utils {
@@ -27,6 +30,18 @@ public class Utils {
       }
     }
     return result;
+  }
+
+  /**
+   * Find a child node of a given type in a parent struct, or return null.
+   */
+  public static Node<PluralType> findChild(Struct<PluralType> parent, PluralType type) {
+    for (Node<PluralType> n : parent.nodes()) {
+      if (n.type() == type) {
+        return n;
+      }
+    }
+    return null;
   }
 
 }

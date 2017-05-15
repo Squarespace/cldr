@@ -31,11 +31,10 @@ import com.squareup.javapoet.TypeSpec;
 public class CodeGenerator {
 
   public static final String PACKAGE_CLDR = "com.squarespace.cldr";
-
   public static final String PACKAGE_CLDR_DATES = "com.squarespace.cldr.dates";
+  public static final String PACKAGE_CLDR_PLURALS = "com.squarespace.cldr.plurals";
 
   private static final TypeName CLDR_TYPE = ClassName.get(PACKAGE_CLDR, "CLDR");
-
   private static final ClassName CLDRBASE_TYPE = ClassName.get(PACKAGE_CLDR, "CLDRBase");
 
   private static final String[] EMPTY = new String[] { };
@@ -45,12 +44,19 @@ public class CodeGenerator {
     generate(root.resolve("core/src/generated/java"));
   }
 
+  /**
+   * Loads all CLDR data and invokes the code generators for each data type. Output
+   * is a series of Java classes under the outputDir.
+   */
   public static void generate(Path outputDir) throws IOException {
     DataReader reader = DataReader.get();
-    DateTimeCodeGenerator generator = new DateTimeCodeGenerator();
-    List<ClassName> dateClasses = generator.generate(outputDir, reader);
+    DateTimeCodeGenerator datetimeGenerator = new DateTimeCodeGenerator();
+    List<ClassName> dateClasses = datetimeGenerator.generate(outputDir, reader);
 
-    CodeBlock indexFormatters = indexFormatters(dateClasses);
+    PluralCodeGenerator pluralGenerator = new PluralCodeGenerator();
+    pluralGenerator.generate(outputDir, reader);
+
+    CodeBlock indexFormatters = indexCalendarFormatters(dateClasses);
 
     MethodSpec constructor = MethodSpec.constructorBuilder()
         .addModifiers(PRIVATE)
@@ -78,6 +84,9 @@ public class CodeGenerator {
     saveClass(outputDir, PACKAGE_CLDR, "CLDR", type);
   }
 
+  /**
+   * Saves a Java class file to a path for the given package, rooted in rootDir.
+   */
   public static void saveClass(Path rootDir, String packageName, String className, TypeSpec type)
       throws IOException {
 
@@ -97,12 +106,12 @@ public class CodeGenerator {
   }
 
   /**
-   * Genreates a static code block that populates the formatter map.
+   * Generates a static code block that populates the formatter map.
    */
-  private static CodeBlock indexFormatters(List<ClassName> dateClasses) {
+  private static CodeBlock indexCalendarFormatters(List<ClassName> dateClasses) {
     CodeBlock.Builder block = CodeBlock.builder();
     for (ClassName className : dateClasses) {
-      block.addStatement("$T.registerFormatter(new $T())", CLDRBASE_TYPE, className);
+      block.addStatement("$T.registerCalendarFormatter(new $T())", CLDRBASE_TYPE, className);
     }
     return block.build();
   }

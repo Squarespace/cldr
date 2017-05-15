@@ -1,5 +1,5 @@
 
-import os, json, sys
+import operator, os, json, sys
 from collections import defaultdict
 
 join = os.path.join
@@ -14,10 +14,7 @@ def scan():
             if n == 'ca-gregorian.json':
                 yield join(root, n)
 
-def get(o, *keys):
-    for k in keys:
-        o = o[k]
-    return o
+get = lambda o, *keys: reduce(operator.getitem, keys, o)
 
 def main():
     counts = defaultdict(int)

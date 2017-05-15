@@ -25,7 +25,7 @@ public abstract class CLDRBase {
     return impl;
   }
 
-  protected static void registerFormatter(CLDRCalendarFormatter formatter) {
+  protected static void registerCalendarFormatter(CLDRCalendarFormatter formatter) {
     formatterMap.put(formatter.locale(), formatter);
   }
 

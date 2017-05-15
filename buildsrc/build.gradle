@@ -4,20 +4,23 @@ apply plugin: 'java'
 apply plugin: 'java-gradle-plugin'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 project.ext {
-  gsonVersion = '2.8.0'
-  guavaVersion = '21.0'
-  javapoetVersion = '1.8.0'
-  testngVersion = '6.11'
+    ccVersion = '1.0.2-SNAPSHOT'
+    gsonVersion = '2.8.0'
+    guavaVersion = '21.0'
+    javapoetVersion = '1.8.0'
+    testngVersion = '6.11'
 }
 
 dependencies {
     compile gradleApi()
     compile localGroovy()
 
+    compile "com.squarespace.compiler:compiler-core:${ccVersion}"
     compile "com.google.code.gson:gson:${gsonVersion}"
     compile "com.squareup:javapoet:${javapoetVersion}"
     compile "com.google.guava:guava:${guavaVersion}"
@@ -25,17 +28,3 @@ dependencies {
     testCompile "org.testng:testng:${testngVersion}"
 }
 
-//println "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-
-/*
-sourceSets {
-    main {
-        java {
-            srcDir 'buildsrc/src/main/java'
-        }
-        resources {
-            srcDir 'buildsrc/src/resources'
-        }
-    }
-}
-*/
