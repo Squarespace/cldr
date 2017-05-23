@@ -10,6 +10,10 @@ task wrapper(type: Wrapper) {
 project.ext {
   snifferVersion = '1.15'
   testngVersion = '6.11'
+
+  isRelease = !version.endsWith('SNAPSHOT')
+  isUpload = false
+  isSign = false
 }
 
 subprojects {
