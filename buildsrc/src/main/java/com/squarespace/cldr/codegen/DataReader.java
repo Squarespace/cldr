@@ -9,9 +9,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.io.Resources;
 import com.google.gson.JsonElement;
@@ -32,6 +35,15 @@ import com.squarespace.compiler.parse.Struct;
  * Reads CLDR data files.
  */
 public class DataReader {
+
+  private static final List<String> FILENAMES_MUST_EXIST = Arrays.asList(
+      "availableLocales.json",
+      "ca-gregorian.json",
+      "likelySubtags.json",
+      "ordinals.json",
+      "plurals.json",
+      "weekData.json"
+  );
 
   /**
    * Parse to read our data files.
@@ -138,7 +150,9 @@ public class DataReader {
     Map<String, Integer> minDays = null;
     Map<String, Integer> firstDays = null;
 
-    for (Path path : Utils.listResources(FILES)) {
+    List<Path> resources = Utils.listResources(FILES);
+    sanityCheck(resources);
+    for (Path path : resources) {
       String fileName = path.getFileName().toString();
       if (!fileName.endsWith(".json")) {
         continue;
@@ -194,6 +208,19 @@ public class DataReader {
 
       value = firstDays.getOrDefault(territory, defaultFirstDay);
       data.setFirstDay(value - 1);
+    }
+  }
+
+  private void sanityCheck(List<Path> resources) {
+    Set<String> fileNames = resources.stream()
+        .map(p -> p.getFileName().toString())
+        .collect(Collectors.toSet());
+    for (String name : FILENAMES_MUST_EXIST) {
+      if (!fileNames.contains(name)) {
+        String msg = String.format("CLDR DATA MISSING! Can't find '%s'. "
+            + " You may need to run 'git submodule update'", name);
+        throw new RuntimeException(msg);
+      }
     }
   }
 
