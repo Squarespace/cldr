@@ -423,7 +423,7 @@ public class DataReader {
         String category = ruleNode.getKey().replaceFirst("^pluralRule-count-", "");
         String value = ruleNode.getValue().getAsString();
 
-        Maybe<Pair<Node<PluralType>, String>> result = PluralRuleGrammar.parse(value);
+        Maybe<Pair<Node<PluralType>, CharSequence>> result = PluralRuleGrammar.parse(value);
         if (result.isNothing()) {
           throw new IllegalArgumentException(format("failed to parse rule: \"%s\"", escapeJava(value)));
         }

@@ -37,19 +37,19 @@ import com.squarespace.compiler.parse.Parser;
  */
 public class PluralRuleGrammar {
 
-  public static Parser<String> P_SPACE =
+  public static Parser<CharSequence> P_SPACE =
       matcher(zeroOrMore(whitespace()));
 
-  public static Parser<String> P_COMMA =
+  public static Parser<CharSequence> P_COMMA =
       matcher(characters(',')).prefix(P_SPACE);
 
-  public static Parser<String> P_AND =
+  public static Parser<CharSequence> P_AND =
       matcher(literal("and")).prefix(P_SPACE);
 
-  public static Parser<String> P_OR =
+  public static Parser<CharSequence> P_OR =
       matcher(literal("or")).prefix(P_SPACE);
 
-  public static Parser<String> P_ELLIPSES =
+  public static Parser<CharSequence> P_ELLIPSES =
       matcher(literal(".."));
 
   public static Parser<Node<PluralType>> P_OPERAND =
@@ -104,7 +104,7 @@ public class PluralRuleGrammar {
   /**
    * Parse a plural rule into an abstract syntax tree.
    */
-  public static Maybe<Pair<Node<PluralType>, String>> parse(String input) {
+  public static Maybe<Pair<Node<PluralType>, CharSequence>> parse(String input) {
     return P_RULE.parse(input);
   }
 

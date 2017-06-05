@@ -24,8 +24,8 @@ subprojects {
   group = 'com.squarespace.cldr'
 
   repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
   }
 
   sourceCompatibility = 1.8

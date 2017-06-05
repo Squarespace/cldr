@@ -9,7 +9,7 @@ repositories {
 }
 
 project.ext {
-    ccVersion = '1.0.2-SNAPSHOT'
+    ccVersion = '1.0.5'
     gsonVersion = '2.8.0'
     guavaVersion = '21.0'
     javapoetVersion = '1.8.0'

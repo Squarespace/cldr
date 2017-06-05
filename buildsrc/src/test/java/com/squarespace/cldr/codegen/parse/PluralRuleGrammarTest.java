@@ -190,7 +190,7 @@ public class PluralRuleGrammarTest {
   }
 
   private static <T> void assertParse(Parser<T> parser, String input, T expected) {
-    Maybe<Pair<T, String>> result = parser.parse(input);
+    Maybe<Pair<T, CharSequence>> result = parser.parse(input);
     assertTrue(result.isJust(), failed(input));
     assertEquals(result.get()._1, expected);
     assertEquals(result.get()._2, "");
