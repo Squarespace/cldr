@@ -1,5 +1,8 @@
+
+
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.plugins.signing.Sign
+import groovy.swing.SwingBuilder
 
 buildscript {
   dependencies {
@@ -10,6 +13,10 @@ buildscript {
   }
 }
 
+plugins {
+  id 'me.champeau.gradle.jmh' version '0.3.1'
+}
+
 apply plugin: 'com.squarespace.cldr.codegen'
 apply plugin: 'eclipse'
 apply plugin: 'java'
@@ -17,6 +24,7 @@ apply plugin: 'signing'
 apply plugin: 'maven'
 
 repositories {
+  mavenLocal()
   mavenCentral()
 }
 
@@ -29,6 +37,8 @@ configurations {
 }
 
 dependencies {
+  compile "com.squarespace.compiler:compiler-core:${ccVersion}"
+
   testCompile "org.testng:testng:${testngVersion}"
 
 	animalSniffer("org.codehaus.mojo:animal-sniffer-ant-tasks:${snifferVersion}")
@@ -69,7 +79,8 @@ task javadocJar(type: Jar, dependsOn:javadoc) {
 }
 
 signing {
-  required { isRelease && isUpload }
+  //required { isRelease && isUpload }
+  required { isUpload }
   sign configurations.archives
 }
 
@@ -102,6 +113,17 @@ artifacts {
   tests testJar
 }
 
+jmh {
+	jmhVersion '1.19'
+	forceGC = true
+  includeTests = false
+  zip64 = true
+}
+
+plugins.withType(EclipsePlugin) {
+  project.eclipse.classpath.plusConfigurations += [ configurations.jmh ]
+}
+
 clean {
   delete 'src/generated'
 }
@@ -110,8 +132,24 @@ clean {
 gradle.taskGraph.whenReady { taskGraph ->
   ext.isUpload = taskGraph.allTasks.any { it instanceof Upload }
   ext.isSign = taskGraph.allTasks.any { it instanceof Sign }
-  if (isRelease && isUpload && isSign) {
-    def password = System.console().readPassword('\n\n\n===>  Signing key password: ')
+//  if (isRelease && isUpload && isSign) {
+  if (isUpload && isSign) {
+    def password
+    new SwingBuilder().edt {
+        dialog(modal: true, title: 'Enter credentials', alwaysOnTop: true, resizable: true,
+                locationRelativeTo: null, pack: true, show: true
+        ) {
+            vbox {
+                label(text: "Key passphrase:")
+                textField id: "keyText", input = passwordField()
+                button(defaultButton: true, text: 'OK', actionPerformed: {
+                    password = keyText.text;
+                    dispose();
+                })
+            }
+        }
+    }
+
     allprojects { ext.'signing.password' = password }
   }
 }
@@ -145,7 +183,9 @@ if (project.hasProperty('NEXUS_INTERNAL_RELEASE_URL')) {
 
     repositories.mavenDeployer {
       repository(url: NEXUS_INTERNAL_RELEASE_URL)
-      snapshotRepository(url: NEXUS_INTERNAL_SNAPSHOT_URL)
+      snapshotRepository(url: NEXUS_INTERNAL_SNAPSHOT_URL) {
+        authentication(userName: OSS_USERNAME, password: OSS_PASSWORD)
+      }
       configurePom(pom)
     }
   }

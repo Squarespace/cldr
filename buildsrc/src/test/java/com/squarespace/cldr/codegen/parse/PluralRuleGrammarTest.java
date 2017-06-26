@@ -26,12 +26,13 @@ import static com.squarespace.compiler.parse.Struct.struct;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.testng.annotations.Test;
 
 import com.squarespace.compiler.common.Maybe;
 import com.squarespace.compiler.parse.Pair;
 import com.squarespace.compiler.parse.Parser;
+
+import groovy.json.StringEscapeUtils;
 
 
 public class PluralRuleGrammarTest {

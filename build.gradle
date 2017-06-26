@@ -4,10 +4,11 @@ plugins {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.11'
+	gradleVersion = '3.5.1'
 }
 
 project.ext {
+  ccVersion = '1.0.6-SNAPSHOT'
   snifferVersion = '1.15'
   testngVersion = '6.11'
 
