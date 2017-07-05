@@ -60,7 +60,8 @@ public class DataReader {
    */
   private static final String[] FILES = new String[] {
       "data/cldr-core/",
-      "data/cldr-dates-modern/main/"
+      "data/cldr-dates-modern/main/",
+      "data/cldr-numbers-modern/main/"
   };
 
   /**
@@ -83,6 +84,8 @@ public class DataReader {
 
   private final Map<LocaleID, DateTimeData> calendars = new HashMap<>();
 
+  private final Map<LocaleID, NumberData> numbers = new HashMap<>();
+
   private final Map<String, PluralData> ordinals = new HashMap<>();
 
   private final Map<String, PluralData> cardinals = new HashMap<>();
@@ -95,6 +98,10 @@ public class DataReader {
   private boolean initialized;
 
   private DataReader() {
+  }
+
+  public static void main(String[] args) throws Exception {
+    DataReader.get();
   }
 
   /**
@@ -179,6 +186,15 @@ public class DataReader {
 
         case "likelySubtags.json":
           parseLikelySubtags(root);
+          break;
+
+        case "numbers.json":
+          for (String code : localeCodes(root)) {
+            LocaleID id = parseIdentity(code, root);
+            NumberData data = parseNumberData(code, root);
+            data.setID(id);
+            numbers.put(id, data);
+          }
           break;
 
         case "ordinals.json":
@@ -463,6 +479,16 @@ public class DataReader {
       }
       map.put(language, data);
     }
+  }
+
+  private NumberData parseNumberData(String code, JsonObject root) {
+    NumberData data = new NumberData();
+    JsonObject node = resolve(root, "main", code, "numbers");
+//    System.out.println(code);
+    if (code.equals("en-US-POSIX") || code.equals("de")) {
+      System.out.println(node);
+    }
+    return data;
   }
 
   /**

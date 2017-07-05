@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-  id 'me.champeau.gradle.jmh' version '0.3.1'
+  id 'me.champeau.gradle.jmh' version '0.3.0'
 }
 
 apply plugin: 'com.squarespace.cldr.codegen'
@@ -22,6 +22,7 @@ apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'signing'
 apply plugin: 'maven'
+apply plugin: 'jacoco'
 
 repositories {
   mavenLocal()
@@ -79,8 +80,7 @@ task javadocJar(type: Jar, dependsOn:javadoc) {
 }
 
 signing {
-  //required { isRelease && isUpload }
-  required { isUpload }
+  required { isRelease && isUpload }
   sign configurations.archives
 }
 
@@ -128,20 +128,29 @@ clean {
   delete 'src/generated'
 }
 
+test {
+  useTestNG()
+  jacoco {
+    append = false
+  }
+}
+
 // Sign release archives
 gradle.taskGraph.whenReady { taskGraph ->
   ext.isUpload = taskGraph.allTasks.any { it instanceof Upload }
   ext.isSign = taskGraph.allTasks.any { it instanceof Sign }
-//  if (isRelease && isUpload && isSign) {
-  if (isUpload && isSign) {
+  if (isRelease && isUpload && isSign) {
     def password
     new SwingBuilder().edt {
-        dialog(modal: true, title: 'Enter credentials', alwaysOnTop: true, resizable: true,
-                locationRelativeTo: null, pack: true, show: true
+        dialog(
+          modal: true, title: 'Enter signing credentials', 
+          preferredSize: [300,100], alwaysOnTop: true, 
+          resizable: true, locationRelativeTo: null,
+          pack: true, show: true
         ) {
             vbox {
                 label(text: "Key passphrase:")
-                textField id: "keyText", input = passwordField()
+                textField id: "keyText", input = passwordField(), preferredSize: [100, 20]
                 button(defaultButton: true, text: 'OK', actionPerformed: {
                     password = keyText.text;
                     dispose();
@@ -150,6 +159,9 @@ gradle.taskGraph.whenReady { taskGraph ->
         }
     }
 
+    if (password == null || password == "") {
+      throw new InvalidUserDataException("ERROR: signing password is null or empty.")
+    }
     allprojects { ext.'signing.password' = password }
   }
 }

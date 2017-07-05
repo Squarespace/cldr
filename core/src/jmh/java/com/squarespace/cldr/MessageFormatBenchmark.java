@@ -22,31 +22,37 @@ import org.openjdk.jmh.runner.RunnerException;
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class MessageFormatBenchmark {
 
-  private static final String FORMAT1 = "The total for the {0 cardinal one{product} other{# products}} "
-      + "you ordered is {1 currency style:name min-fractional-digits:2}.";
+  private static final String FORMAT1 = "The total for the {0, plural, one{product} other{# products}} "
+      + "you ordered is {1 currency style:name min-fractional-digits:2} at {2 datetime time-medium}.";
 
-  private static final MessageArg[] ARGS1 = new MessageArg[] {
-    new MessageArg("1"),
-    new MessageArg("50")
-  };
+  private static final CLDRLocale EN_US = new CLDRLocale("en", "", "US", "POSIX");
 
-  private static final MessageArg[] ARGS2 = new MessageArg[] {
-    new MessageArg("14"),
-    new MessageArg("125.50")
-  };
+  private static final CLDRCurrency USD = new CLDRCurrency("USD");
+
+  private static final MessageArgs ARGS1 = MessageArgs.newBuilder()
+      .add("1")
+      .add("50")
+      .add("1498584124000")
+      .build();
+
+  private static final MessageArgs ARGS2 = MessageArgs.newBuilder()
+      .add("14")
+      .add("125.50")
+      .add("1498584124000")
+      .build();
 
   private static final StringBuilder BUF = new StringBuilder();
 
   @Benchmark
   public void formatSingular(BenchmarkState state) {
     BUF.setLength(0);
-    state.format1.format(BUF, ARGS1);
+    state.format1.format(FORMAT1, ARGS1, BUF);
   }
 
   @Benchmark
   public void formatPlural(BenchmarkState state) {
     BUF.setLength(0);
-    state.format1.format(BUF, ARGS2);
+    state.format1.format(FORMAT1, ARGS2, BUF);
   }
 
   @State(Scope.Benchmark)
@@ -56,7 +62,7 @@ public class MessageFormatBenchmark {
 
     @Setup
     public void setup() throws RunnerException {
-      this.format1 = new MessageFormat(FORMAT1, "en", "USD");
+      this.format1 = new MessageFormat(EN_US, USD);
     }
 
   }
@@ -64,7 +70,12 @@ public class MessageFormatBenchmark {
   public static void main(String[] args) throws Exception {
     BenchmarkState state = new BenchmarkState();
     state.setup();
-    state.format1.format(BUF, ARGS1);
+
+    state.format1.format(FORMAT1, ARGS2, BUF);
+    System.out.println(BUF.toString());
+
+    BUF.setLength(0);
+    state.format1.format(FORMAT1, ARGS2, BUF);
     System.out.println(BUF.toString());
   }
 

@@ -4,7 +4,7 @@ import com.squarespace.cldr.plurals.PluralOperands;
 
 
 /**
- * Represents an argument to {@link MessageFormat}.
+ * Represents an argument to {@link MessageFormatOld}.
  */
 public class MessageArg {
 
@@ -19,7 +19,7 @@ public class MessageArg {
     this.value = value;
   }
 
-  public String getValue() {
+  public String value() {
     return value;
   }
 
