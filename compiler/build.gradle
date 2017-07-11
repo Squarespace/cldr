@@ -1,0 +1,17 @@
+
+dependencies {
+  compile project(':cldr-core')
+
+  compile "com.google.code.gson:gson:${gsonVersion}"
+  compile "com.squareup:javapoet:${javapoetVersion}"
+  compile "com.google.guava:guava:${guavaVersion}"
+  compile "org.apache.commons:commons-text:${commonsTextVersion}"
+}
+
+task generateCode(type: JavaExec) {
+  main = 'com.squarespace.cldr.codegen.Generate'
+  classpath sourceSets.main.runtimeClasspath
+  workingDir project(':cldr-runtime').projectDir
+  args 'src/generated/java'
+}
+

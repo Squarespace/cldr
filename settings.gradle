@@ -1,8 +1,10 @@
 rootProject.name='cldr'
 
-include ':cldr-buildsrc'
 include ':cldr-core'
+include ':cldr-compiler'
+include ':cldr-runtime'
 
-project(':cldr-buildsrc').projectDir = "$rootDir/buildsrc" as File
+project(':cldr-compiler').projectDir = "$rootDir/compiler" as File
 project(':cldr-core').projectDir = "$rootDir/core" as File
+project(':cldr-runtime').projectDir = "$rootDir/runtime" as File
 

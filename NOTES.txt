@@ -1,0 +1,8 @@
+
+Decimal number short compact form for German < 1,000,000:
+ * Diff is here:
+   http://unicode.org/cldr/trac/log/trunk/common/main/de.xml?rev=13219&stop_rev=13213
+ * Long form for 1000 is "0 Tausend" but short form is defaulted to "0"
+ * Currency has short form "0 Tsd'.' ¤"
+ * For now, patched it with "numbers-de-compact-forms.json"
+
