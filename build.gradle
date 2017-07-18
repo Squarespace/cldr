@@ -17,7 +17,7 @@ task wrapper(type: Wrapper) {
 }
 
 project.ext {
-  ccVersion = '1.0.6-SNAPSHOT'
+  ccVersion = '1.0.6'
 	commonsTextVersion = '1.1'
 	gsonVersion = '2.8.1'
 	guavaVersion = '22.0'
