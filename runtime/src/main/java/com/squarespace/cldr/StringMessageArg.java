@@ -21,6 +21,12 @@ public class StringMessageArg extends MessageArg {
   }
 
   @Override
+  public void reset() {
+    this.decimalValue = null;
+    this.currency = null;
+  }
+  
+  @Override
   public boolean resolve() {
     return true;
   }

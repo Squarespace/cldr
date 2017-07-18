@@ -77,6 +77,22 @@ public class MessageFormatTest {
   }
 
   @Test
+  public void testOrdinal() {
+    String format = "{0 selectordinal one{#st} two{#nd} few{#rd} other{#th}}";
+    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+    assertEquals(format(msg, args("1")), "1st");
+    assertEquals(format(msg, args("-2")), "-2nd");
+    assertEquals(format(msg, args("3")), "3rd");
+    assertEquals(format(msg, args("-4")), "-4th");
+    assertEquals(format(msg, args("5")), "5th");
+    assertEquals(format(msg, args("22")), "22nd");
+    assertEquals(format(msg, args("34")), "34th");
+    assertEquals(format(msg, args("101")), "101st");
+    assertEquals(format(msg, args("103")), "103rd");
+    assertEquals(format(msg, args("-1047")), "-1047th");
+  }
+  
+  @Test
   public void testRecursive() {
     String format = "{0 plural " +
         "    =1 {# action on {1 datetime date-long}} " +

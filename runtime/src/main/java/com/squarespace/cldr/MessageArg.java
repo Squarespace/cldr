@@ -12,6 +12,11 @@ public abstract class MessageArg {
   }
 
   /**
+   * Resets the argument to its initial state, for reuse.
+   */
+  public abstract void reset();
+  
+  /**
    * Resolve the value for this argument. The argument is a "thunk" that is
    * evaluated on demand. This allows for customizing how the value is
    * retrieved from some other environment, and avoiding fetching values that

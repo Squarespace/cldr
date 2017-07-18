@@ -310,7 +310,9 @@ public class MessageFormat {
 
     // Process a short tag like "{1}" by just appending the argument value.
     if (tag.peek() == Chars.EOF) {
-      buf.append(arg.asString());
+      if (arg.resolve()) {
+        buf.append(arg.asString());
+      }
       return;
     }
 
@@ -347,6 +349,10 @@ public class MessageFormat {
    */
   private void evalPlural(MessageArg arg, boolean cardinal) {
     tag.skip(COMMA_WS);
+    if (!arg.resolve()) {
+      return;
+    }
+
     String value = arg.asString();
     String offsetValue = value;
 
@@ -416,22 +422,25 @@ public class MessageFormat {
    * NUMBER - Evaluate the argument as a number, with options specified as key=value.
    */
   private void evalNumber(MessageArg arg) {
-    Map<String, String> args = parseArgs();
-    System.out.println(args);
+//    Map<String, String> args = parseArgs();
   }
 
   /**
    * CURRENCY - Evaluate the argument as a currency, with options specified as key=value.
    */
   private void evalCurrency(MessageArg arg) {
-    Map<String, String> args = parseArgs();
-    System.out.println(args);
+//    Map<String, String> args = parseArgs();
   }
 
   /**
    * DATETIME - Evaluate the argument as a datetime, with options specified as key=value.
    */
   private void evalDateTime(MessageArg arg) {
+    if (!arg.resolve()) {
+      return;
+    }
+    String value = arg.asString();
+    
     Map<String, String> args = parseArgs();
     DateTimeOptions options = new DateTimeOptions();
     for (String option : args.keySet()) {
@@ -441,7 +450,6 @@ public class MessageFormat {
 
     // TODO: timezone support, which has to be passed to the formatter separately
 
-    String value = arg.asString();
     long instant = toLong(value, 0, value.length());
     ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(instant), DEFAULT_ZONEID);
     CalendarFormatter formatter = CLDR.get().getCalendarFormatter(locale);

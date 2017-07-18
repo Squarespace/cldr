@@ -37,6 +37,11 @@ public interface CalendarFormatter {
   boolean formatSkeleton(String skeleton, ZonedDateTime d, StringBuilder b);
 
   /**
+   * Format a field descriptor.
+   */
+  void formatField(String field, ZonedDateTime dateTime, StringBuilder buf);
+  
+  /**
    * Format a single field of a given width.
    */
   void formatField(ZonedDateTime d, StringBuilder b, char field, int width);

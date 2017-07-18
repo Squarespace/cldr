@@ -58,9 +58,20 @@ public class MessageArgs {
   /**
    * Clears the arguments.
    */
-  public void reset() {
-    map.clear();
+  public void resetArgs() {
+    for (MessageArg arg : args) {
+      arg.reset();
+    }
+  }
+  
+  /**
+   * Clears everything out of this container.
+   */
+  public void clear() {
     args.clear();
+    if (map != null) {
+      map.clear();
+    }
   }
 
   public static Builder newBuilder() {
