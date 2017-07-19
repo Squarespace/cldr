@@ -1,7 +1,8 @@
 package com.squarespace.cldr.numbers;
 
-
 public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
+
+  private static final int MAX_SIGNIFICANT_DIGITS = 100;
 
   protected NumberFormatMode formatMode = NumberFormatMode.DEFAULT;
   protected NumberRoundMode roundMode = NumberRoundMode.ROUND;
@@ -75,6 +76,9 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
 
   public T setMaximumFractionDigits(Integer value) {
     this.maximumFractionDigits = clamp(value, 0);
+    if (this.minimumFractionDigits == null) {
+      this.minimumFractionDigits = this.maximumFractionDigits;
+    }
     return self();
   }
 
@@ -96,6 +100,9 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
 
   public T setMaximumSignificantDigits(Integer value) {
     this.maximumSignificantDigits = clamp(value, 1);
+    if (this.minimumSignificantDigits == null) {
+      this.minimumSignificantDigits = this.maximumSignificantDigits;
+    }
     return self();
   }
 
@@ -105,6 +112,9 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
 
   public T setMinimumSignificantDigits(Integer value) {
     this.minimumSignificantDigits = clamp(value, 1);
+    if (this.maximumSignificantDigits == null) {
+      this.maximumSignificantDigits = MAX_SIGNIFICANT_DIGITS;
+    }
     return self();
   }
 

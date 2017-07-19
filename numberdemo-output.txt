@@ -4,6 +4,7 @@ Locale "en-US" in DECIMAL style
 
   0
   1
+  1
   3.59
   -7.53
   1,200
@@ -15,6 +16,7 @@ Locale "en-US" in DECIMAL style
 Locale "en-US" in PERCENT style
 
   0%
+  100%
   100%
   359%
   -753%
@@ -28,6 +30,7 @@ Locale "en-US" in PERMILLE style
 
   0‰
   1,000‰
+  1,000‰
   3,590‰
   -7,530‰
   1,200,000‰
@@ -40,6 +43,7 @@ Locale "en-US" in LONG style
 
   0
   1
+  1
   3.6
   -7.5
   1.2 thousand
@@ -51,6 +55,7 @@ Locale "en-US" in LONG style
 Locale "en-US" in SHORT style
 
   0
+  1
   1
   3.6
   -7.5
@@ -65,6 +70,7 @@ Locale "es" in DECIMAL style
 
   0
   1
+  1
   3,59
   -7,53
   1.200
@@ -76,6 +82,7 @@ Locale "es" in DECIMAL style
 Locale "es" in PERCENT style
 
   0 %
+  100 %
   100 %
   359 %
   -753 %
@@ -89,6 +96,7 @@ Locale "es" in PERMILLE style
 
   0 ‰
   1.000 ‰
+  1.000 ‰
   3.590 ‰
   -7.530 ‰
   1.200.000 ‰
@@ -101,6 +109,7 @@ Locale "es" in LONG style
 
   0
   1
+  1
   3,6
   -7,5
   1,2 mil
@@ -112,6 +121,7 @@ Locale "es" in LONG style
 Locale "es" in SHORT style
 
   0
+  1
   1
   3,6
   -7,5
@@ -126,6 +136,7 @@ Locale "fr" in DECIMAL style
 
   0
   1
+  1
   3,59
   -7,53
   1 200
@@ -137,6 +148,7 @@ Locale "fr" in DECIMAL style
 Locale "fr" in PERCENT style
 
   0 %
+  100 %
   100 %
   359 %
   -753 %
@@ -150,6 +162,7 @@ Locale "fr" in PERMILLE style
 
   0 ‰
   1 000 ‰
+  1 000 ‰
   3 590 ‰
   -7 530 ‰
   1 200 000 ‰
@@ -162,6 +175,7 @@ Locale "fr" in LONG style
 
   0
   1
+  1
   3,6
   -7,5
   1,2 mille
@@ -173,6 +187,7 @@ Locale "fr" in LONG style
 Locale "fr" in SHORT style
 
   0
+  1
   1
   3,6
   -7,5
@@ -187,6 +202,7 @@ Locale "de" in DECIMAL style
 
   0
   1
+  1
   3,59
   -7,53
   1.200
@@ -198,6 +214,7 @@ Locale "de" in DECIMAL style
 Locale "de" in PERCENT style
 
   0 %
+  100 %
   100 %
   359 %
   -753 %
@@ -211,6 +228,7 @@ Locale "de" in PERMILLE style
 
   0 ‰
   1.000 ‰
+  1.000 ‰
   3.590 ‰
   -7.530 ‰
   1.200.000 ‰
@@ -223,6 +241,7 @@ Locale "de" in LONG style
 
   0
   1
+  1
   3,6
   -7,5
   1,2 Tausend
@@ -234,6 +253,7 @@ Locale "de" in LONG style
 Locale "de" in SHORT style
 
   0
+  1
   1
   3,6
   -7,5
@@ -248,6 +268,7 @@ Locale "zh" in DECIMAL style
 
   0
   1
+  1
   3.59
   -7.53
   1,200
@@ -259,6 +280,7 @@ Locale "zh" in DECIMAL style
 Locale "zh" in PERCENT style
 
   0%
+  100%
   100%
   359%
   -753%
@@ -272,6 +294,7 @@ Locale "zh" in PERMILLE style
 
   0‰
   1,000‰
+  1,000‰
   3,590‰
   -7,530‰
   1,200,000‰
@@ -284,6 +307,7 @@ Locale "zh" in LONG style
 
   0
   1
+  1
   3.6
   -7.5
   1200
@@ -295,6 +319,7 @@ Locale "zh" in LONG style
 Locale "zh" in SHORT style
 
   0
+  1
   1
   3.6
   -7.5
@@ -314,6 +339,7 @@ Locale "en-US" in SYMBOL style
 Currency USD
   $0.00
   $1.00
+  $1.00
   $3.59
   -$7.53
   $1,200.00
@@ -324,6 +350,7 @@ Currency USD
 
 Currency GBP
   £0.00
+  £1.00
   £1.00
   £3.59
   -£7.53
@@ -336,6 +363,7 @@ Currency GBP
 Currency EUR
   €0.00
   €1.00
+  €1.00
   €3.59
   -€7.53
   €1,200.00
@@ -347,6 +375,7 @@ Currency EUR
 Currency JPY
   ¥0.00
   ¥1.00
+  ¥1.00
   ¥3.59
   -¥7.53
   ¥1,200.00
@@ -357,6 +386,7 @@ Currency JPY
 
 Currency RUB
   RUB 0.00
+  RUB 1.00
   RUB 1.00
   RUB 3.59
   -RUB 7.53
@@ -373,6 +403,7 @@ Locale "en-US" in ACCOUNTING style
 Currency USD
   $0.00
   $1.00
+  $1.00
   $3.59
   ($7.53)
   $1,200.00
@@ -383,6 +414,7 @@ Currency USD
 
 Currency GBP
   £0.00
+  £1.00
   £1.00
   £3.59
   (£7.53)
@@ -395,6 +427,7 @@ Currency GBP
 Currency EUR
   €0.00
   €1.00
+  €1.00
   €3.59
   (€7.53)
   €1,200.00
@@ -406,6 +439,7 @@ Currency EUR
 Currency JPY
   ¥0.00
   ¥1.00
+  ¥1.00
   ¥3.59
   (¥7.53)
   ¥1,200.00
@@ -416,6 +450,7 @@ Currency JPY
 
 Currency RUB
   RUB 0.00
+  RUB 1.00
   RUB 1.00
   RUB 3.59
   (RUB 7.53)
@@ -430,59 +465,64 @@ Currency RUB
 Locale "en-US" in CODE style
 
 Currency USD
-  0 USD
-  1 USD
+  0.00 USD
+  1.00 USD
+  1.00 USD
   3.59 USD
   -7.53 USD
-  1,200 USD
+  1,200.00 USD
   -15,789.12 USD
-  99,999 USD
-  -100,200,300.4 USD
-  10,000,000,001 USD
+  99,999.00 USD
+  -100,200,300.40 USD
+  10,000,000,001.00 USD
 
 Currency GBP
-  0 GBP
-  1 GBP
+  0.00 GBP
+  1.00 GBP
+  1.00 GBP
   3.59 GBP
   -7.53 GBP
-  1,200 GBP
+  1,200.00 GBP
   -15,789.12 GBP
-  99,999 GBP
-  -100,200,300.4 GBP
-  10,000,000,001 GBP
+  99,999.00 GBP
+  -100,200,300.40 GBP
+  10,000,000,001.00 GBP
 
 Currency EUR
-  0 EUR
-  1 EUR
+  0.00 EUR
+  1.00 EUR
+  1.00 EUR
   3.59 EUR
   -7.53 EUR
-  1,200 EUR
+  1,200.00 EUR
   -15,789.12 EUR
-  99,999 EUR
-  -100,200,300.4 EUR
-  10,000,000,001 EUR
+  99,999.00 EUR
+  -100,200,300.40 EUR
+  10,000,000,001.00 EUR
 
 Currency JPY
-  0 JPY
-  1 JPY
+  0.00 JPY
+  1.00 JPY
+  1.00 JPY
   3.59 JPY
   -7.53 JPY
-  1,200 JPY
+  1,200.00 JPY
   -15,789.12 JPY
-  99,999 JPY
-  -100,200,300.4 JPY
-  10,000,000,001 JPY
+  99,999.00 JPY
+  -100,200,300.40 JPY
+  10,000,000,001.00 JPY
 
 Currency RUB
-  0 RUB
-  1 RUB
+  0.00 RUB
+  1.00 RUB
+  1.00 RUB
   3.59 RUB
   -7.53 RUB
-  1,200 RUB
+  1,200.00 RUB
   -15,789.12 RUB
-  99,999 RUB
-  -100,200,300.4 RUB
-  10,000,000,001 RUB
+  99,999.00 RUB
+  -100,200,300.40 RUB
+  10,000,000,001.00 RUB
 
 
 
@@ -491,6 +531,7 @@ Locale "en-US" in NAME style
 Currency USD
   0 US dollars
   1 US dollar
+  1 US dollars
   3.59 US dollars
   -7.53 US dollars
   1200 US dollars
@@ -502,6 +543,7 @@ Currency USD
 Currency GBP
   0 British pounds
   1 British pound
+  1 British pounds
   3.59 British pounds
   -7.53 British pounds
   1200 British pounds
@@ -513,6 +555,7 @@ Currency GBP
 Currency EUR
   0 euros
   1 euro
+  1 euros
   3.59 euros
   -7.53 euros
   1200 euros
@@ -523,6 +566,7 @@ Currency EUR
 
 Currency JPY
   0 Japanese yen
+  1 Japanese yen
   1 Japanese yen
   3.59 Japanese yen
   -7.53 Japanese yen
@@ -535,6 +579,7 @@ Currency JPY
 Currency RUB
   0 Russian rubles
   1 Russian ruble
+  1 Russian rubles
   3.59 Russian rubles
   -7.53 Russian rubles
   1200 Russian rubles
@@ -550,10 +595,11 @@ Locale "en-US" in SHORT style
 Currency USD
   $0
   $1
+  $1
   $3.6
   -$7.5
-  $1.2K
-  -$15.8K
+  $1K
+  -$16K
   $100K
   -$100M
   $10B
@@ -561,10 +607,11 @@ Currency USD
 Currency GBP
   £0
   £1
+  £1
   £3.6
   -£7.5
-  £1.2K
-  -£15.8K
+  £1K
+  -£16K
   £100K
   -£100M
   £10B
@@ -572,10 +619,11 @@ Currency GBP
 Currency EUR
   €0
   €1
+  €1
   €3.6
   -€7.5
-  €1.2K
-  -€15.8K
+  €1K
+  -€16K
   €100K
   -€100M
   €10B
@@ -583,10 +631,11 @@ Currency EUR
 Currency JPY
   ¥0
   ¥1
+  ¥1
   ¥3.6
   -¥7.5
-  ¥1.2K
-  -¥15.8K
+  ¥1K
+  -¥16K
   ¥100K
   -¥100M
   ¥10B
@@ -594,10 +643,11 @@ Currency JPY
 Currency RUB
   RUB 0
   RUB 1
+  RUB 1
   RUB 3.6
   -RUB 7.5
-  RUB 1.2K
-  -RUB 15.8K
+  RUB 1K
+  -RUB 16K
   RUB 100K
   -RUB 100M
   RUB 10B
@@ -608,6 +658,7 @@ Locale "es" in SYMBOL style
 
 Currency USD
   0,00 $
+  1,00 $
   1,00 $
   3,59 $
   -7,53 $
@@ -620,6 +671,7 @@ Currency USD
 Currency GBP
   0,00 GBP
   1,00 GBP
+  1,00 GBP
   3,59 GBP
   -7,53 GBP
   1.200,00 GBP
@@ -630,6 +682,7 @@ Currency GBP
 
 Currency EUR
   0,00 €
+  1,00 €
   1,00 €
   3,59 €
   -7,53 €
@@ -642,6 +695,7 @@ Currency EUR
 Currency JPY
   0,00 JPY
   1,00 JPY
+  1,00 JPY
   3,59 JPY
   -7,53 JPY
   1.200,00 JPY
@@ -652,6 +706,7 @@ Currency JPY
 
 Currency RUB
   0,00 RUB
+  1,00 RUB
   1,00 RUB
   3,59 RUB
   -7,53 RUB
@@ -668,6 +723,7 @@ Locale "es" in ACCOUNTING style
 Currency USD
   0,00 $
   1,00 $
+  1,00 $
   3,59 $
   -7,53 $
   1.200,00 $
@@ -678,6 +734,7 @@ Currency USD
 
 Currency GBP
   0,00 GBP
+  1,00 GBP
   1,00 GBP
   3,59 GBP
   -7,53 GBP
@@ -690,6 +747,7 @@ Currency GBP
 Currency EUR
   0,00 €
   1,00 €
+  1,00 €
   3,59 €
   -7,53 €
   1.200,00 €
@@ -701,6 +759,7 @@ Currency EUR
 Currency JPY
   0,00 JPY
   1,00 JPY
+  1,00 JPY
   3,59 JPY
   -7,53 JPY
   1.200,00 JPY
@@ -711,6 +770,7 @@ Currency JPY
 
 Currency RUB
   0,00 RUB
+  1,00 RUB
   1,00 RUB
   3,59 RUB
   -7,53 RUB
@@ -725,118 +785,128 @@ Currency RUB
 Locale "es" in CODE style
 
 Currency USD
-  0 USD
-  1 USD
-  3,59 USD
-  -7,53 USD
-  1.200 USD
-  -15.789,12 USD
-  99.999 USD
-  -100.200.300,4 USD
-  10.000.000.001 USD
+  0,00  USD
+  1,00  USD
+  1,00  USD
+  3,59  USD
+  -7,53  USD
+  1.200,00  USD
+  -15.789,12  USD
+  99.999,00  USD
+  -100.200.300,40  USD
+  10.000.000.001,00  USD
 
 Currency GBP
-  0 GBP
-  1 GBP
-  3,59 GBP
-  -7,53 GBP
-  1.200 GBP
-  -15.789,12 GBP
-  99.999 GBP
-  -100.200.300,4 GBP
-  10.000.000.001 GBP
+  0,00  GBP
+  1,00  GBP
+  1,00  GBP
+  3,59  GBP
+  -7,53  GBP
+  1.200,00  GBP
+  -15.789,12  GBP
+  99.999,00  GBP
+  -100.200.300,40  GBP
+  10.000.000.001,00  GBP
 
 Currency EUR
-  0 EUR
-  1 EUR
-  3,59 EUR
-  -7,53 EUR
-  1.200 EUR
-  -15.789,12 EUR
-  99.999 EUR
-  -100.200.300,4 EUR
-  10.000.000.001 EUR
+  0,00  EUR
+  1,00  EUR
+  1,00  EUR
+  3,59  EUR
+  -7,53  EUR
+  1.200,00  EUR
+  -15.789,12  EUR
+  99.999,00  EUR
+  -100.200.300,40  EUR
+  10.000.000.001,00  EUR
 
 Currency JPY
-  0 JPY
-  1 JPY
-  3,59 JPY
-  -7,53 JPY
-  1.200 JPY
-  -15.789,12 JPY
-  99.999 JPY
-  -100.200.300,4 JPY
-  10.000.000.001 JPY
+  0,00  JPY
+  1,00  JPY
+  1,00  JPY
+  3,59  JPY
+  -7,53  JPY
+  1.200,00  JPY
+  -15.789,12  JPY
+  99.999,00  JPY
+  -100.200.300,40  JPY
+  10.000.000.001,00  JPY
 
 Currency RUB
-  0 RUB
-  1 RUB
-  3,59 RUB
-  -7,53 RUB
-  1.200 RUB
-  -15.789,12 RUB
-  99.999 RUB
-  -100.200.300,4 RUB
-  10.000.000.001 RUB
+  0,00  RUB
+  1,00  RUB
+  1,00  RUB
+  3,59  RUB
+  -7,53  RUB
+  1.200,00  RUB
+  -15.789,12  RUB
+  99.999,00  RUB
+  -100.200.300,40  RUB
+  10.000.000.001,00  RUB
 
 
 
 Locale "es" in NAME style
 
 Currency USD
-  0 dólares estadounidenses
-  1 dólar estadounidense
-  3,59 dólares estadounidenses
-  -7,53 dólares estadounidenses
-  1200 dólares estadounidenses
-  -15789,12 dólares estadounidenses
-  99999 dólares estadounidenses
-  -100200300,4 dólares estadounidenses
-  10000000001 dólares estadounidenses
+  0  dólares estadounidenses
+  1  dólar estadounidense
+  1  dólar estadounidense
+  3,59  dólares estadounidenses
+  -7,53  dólares estadounidenses
+  1200  dólares estadounidenses
+  -15789,12  dólares estadounidenses
+  99999  dólares estadounidenses
+  -100200300,4  dólares estadounidenses
+  10000000001  dólares estadounidenses
 
 Currency GBP
-  0 libras británicas
-  1 libra británica
-  3,59 libras británicas
-  -7,53 libras británicas
-  1200 libras británicas
-  -15789,12 libras británicas
-  99999 libras británicas
-  -100200300,4 libras británicas
-  10000000001 libras británicas
+  0  libras británicas
+  1  libra británica
+  1  libra británica
+  3,59  libras británicas
+  -7,53  libras británicas
+  1200  libras británicas
+  -15789,12  libras británicas
+  99999  libras británicas
+  -100200300,4  libras británicas
+  10000000001  libras británicas
 
 Currency EUR
-  0 euros
-  1 euro
-  3,59 euros
-  -7,53 euros
-  1200 euros
-  -15789,12 euros
-  99999 euros
-  -100200300,4 euros
-  10000000001 euros
+  0  euros
+  1  euro
+  1  euro
+  3,59  euros
+  -7,53  euros
+  1200  euros
+  -15789,12  euros
+  99999  euros
+  -100200300,4  euros
+  10000000001  euros
 
 Currency JPY
-  0 yenes
-  1 yen
-  3,59 yenes
-  -7,53 yenes
-  1200 yenes
-  -15789,12 yenes
-  99999 yenes
-  -100200300,4 yenes
-  10000000001 yenes
+  0  yenes
+  1  yen
+  1  yen
+  3,59  yenes
+  -7,53  yenes
+  1200  yenes
+  -15789,12  yenes
+  99999  yenes
+  -100200300,4  yenes
+  10000000001  yenes
 
 Currency RUB
-  0 rublos rusos
-  1 rublo ruso
-  3,59 rublos rusos
-  -7,53 rublos rusos
-  1200 rublos rusos
-  -15789,12 rublos rusos
-  99999 rublos rusos
-  -100200300,4 rublos rusos
-  10000000001 rublos rusos
+  0  rublos rusos
+  1  rublo ruso
+  1  rublo ruso
+  3,59  rublos rusos
+  -7,53  rublos rusos
+  1200  rublos rusos
+  -15789,12  rublos rusos
+  99999  rublos rusos
+  -100200300,4  rublos rusos
+  10000000001  rublos rusos
 
 
 
@@ -845,10 +915,11 @@ Locale "es" in SHORT style
 Currency USD
   0 $
   1 $
+  1 $
   3,6 $
   -7,5 $
-  1,2 K $
-  -15,8 K $
+  1 K $
+  -16 K $
   100 K $
   -100 M $
   10 MRD $
@@ -856,10 +927,11 @@ Currency USD
 Currency GBP
   0 GBP
   1 GBP
+  1 GBP
   3,6 GBP
   -7,5 GBP
-  1,2 K GBP
-  -15,8 K GBP
+  1 K GBP
+  -16 K GBP
   100 K GBP
   -100 M GBP
   10 MRD GBP
@@ -867,10 +939,11 @@ Currency GBP
 Currency EUR
   0 €
   1 €
+  1 €
   3,6 €
   -7,5 €
-  1,2 K €
-  -15,8 K €
+  1 K €
+  -16 K €
   100 K €
   -100 M €
   10 MRD €
@@ -878,10 +951,11 @@ Currency EUR
 Currency JPY
   0 JPY
   1 JPY
+  1 JPY
   3,6 JPY
   -7,5 JPY
-  1,2 K JPY
-  -15,8 K JPY
+  1 K JPY
+  -16 K JPY
   100 K JPY
   -100 M JPY
   10 MRD JPY
@@ -889,10 +963,11 @@ Currency JPY
 Currency RUB
   0 RUB
   1 RUB
+  1 RUB
   3,6 RUB
   -7,5 RUB
-  1,2 K RUB
-  -15,8 K RUB
+  1 K RUB
+  -16 K RUB
   100 K RUB
   -100 M RUB
   10 MRD RUB
@@ -903,6 +978,7 @@ Locale "fr" in SYMBOL style
 
 Currency USD
   0,00 $US
+  1,00 $US
   1,00 $US
   3,59 $US
   -7,53 $US
@@ -915,6 +991,7 @@ Currency USD
 Currency GBP
   0,00 £GB
   1,00 £GB
+  1,00 £GB
   3,59 £GB
   -7,53 £GB
   1 200,00 £GB
@@ -925,6 +1002,7 @@ Currency GBP
 
 Currency EUR
   0,00 €
+  1,00 €
   1,00 €
   3,59 €
   -7,53 €
@@ -937,6 +1015,7 @@ Currency EUR
 Currency JPY
   0,00 JPY
   1,00 JPY
+  1,00 JPY
   3,59 JPY
   -7,53 JPY
   1 200,00 JPY
@@ -947,6 +1026,7 @@ Currency JPY
 
 Currency RUB
   0,00 RUB
+  1,00 RUB
   1,00 RUB
   3,59 RUB
   -7,53 RUB
@@ -963,6 +1043,7 @@ Locale "fr" in ACCOUNTING style
 Currency USD
   0,00 $US
   1,00 $US
+  1,00 $US
   3,59 $US
   (7,53 $US)
   1 200,00 $US
@@ -973,6 +1054,7 @@ Currency USD
 
 Currency GBP
   0,00 £GB
+  1,00 £GB
   1,00 £GB
   3,59 £GB
   (7,53 £GB)
@@ -985,6 +1067,7 @@ Currency GBP
 Currency EUR
   0,00 €
   1,00 €
+  1,00 €
   3,59 €
   (7,53 €)
   1 200,00 €
@@ -996,6 +1079,7 @@ Currency EUR
 Currency JPY
   0,00 JPY
   1,00 JPY
+  1,00 JPY
   3,59 JPY
   (7,53 JPY)
   1 200,00 JPY
@@ -1006,6 +1090,7 @@ Currency JPY
 
 Currency RUB
   0,00 RUB
+  1,00 RUB
   1,00 RUB
   3,59 RUB
   (7,53 RUB)
@@ -1020,118 +1105,128 @@ Currency RUB
 Locale "fr" in CODE style
 
 Currency USD
-  0 USD
-  1 USD
-  3,59 USD
-  -7,53 USD
-  1 200 USD
-  -15 789,12 USD
-  99 999 USD
-  -100 200 300,4 USD
-  10 000 000 001 USD
+  0,00  USD
+  1,00  USD
+  1,00  USD
+  3,59  USD
+  -7,53  USD
+  1 200,00  USD
+  -15 789,12  USD
+  99 999,00  USD
+  -100 200 300,40  USD
+  10 000 000 001,00  USD
 
 Currency GBP
-  0 GBP
-  1 GBP
-  3,59 GBP
-  -7,53 GBP
-  1 200 GBP
-  -15 789,12 GBP
-  99 999 GBP
-  -100 200 300,4 GBP
-  10 000 000 001 GBP
+  0,00  GBP
+  1,00  GBP
+  1,00  GBP
+  3,59  GBP
+  -7,53  GBP
+  1 200,00  GBP
+  -15 789,12  GBP
+  99 999,00  GBP
+  -100 200 300,40  GBP
+  10 000 000 001,00  GBP
 
 Currency EUR
-  0 EUR
-  1 EUR
-  3,59 EUR
-  -7,53 EUR
-  1 200 EUR
-  -15 789,12 EUR
-  99 999 EUR
-  -100 200 300,4 EUR
-  10 000 000 001 EUR
+  0,00  EUR
+  1,00  EUR
+  1,00  EUR
+  3,59  EUR
+  -7,53  EUR
+  1 200,00  EUR
+  -15 789,12  EUR
+  99 999,00  EUR
+  -100 200 300,40  EUR
+  10 000 000 001,00  EUR
 
 Currency JPY
-  0 JPY
-  1 JPY
-  3,59 JPY
-  -7,53 JPY
-  1 200 JPY
-  -15 789,12 JPY
-  99 999 JPY
-  -100 200 300,4 JPY
-  10 000 000 001 JPY
+  0,00  JPY
+  1,00  JPY
+  1,00  JPY
+  3,59  JPY
+  -7,53  JPY
+  1 200,00  JPY
+  -15 789,12  JPY
+  99 999,00  JPY
+  -100 200 300,40  JPY
+  10 000 000 001,00  JPY
 
 Currency RUB
-  0 RUB
-  1 RUB
-  3,59 RUB
-  -7,53 RUB
-  1 200 RUB
-  -15 789,12 RUB
-  99 999 RUB
-  -100 200 300,4 RUB
-  10 000 000 001 RUB
+  0,00  RUB
+  1,00  RUB
+  1,00  RUB
+  3,59  RUB
+  -7,53  RUB
+  1 200,00  RUB
+  -15 789,12  RUB
+  99 999,00  RUB
+  -100 200 300,40  RUB
+  10 000 000 001,00  RUB
 
 
 
 Locale "fr" in NAME style
 
 Currency USD
-  0 dollar des États-Unis
-  1 dollar des États-Unis
-  3,59 dollars des États-Unis
-  -7,53 dollars des États-Unis
-  1200 dollars des États-Unis
-  -15789,12 dollars des États-Unis
-  99999 dollars des États-Unis
-  -100200300,4 dollars des États-Unis
-  10000000001 dollars des États-Unis
+  0  dollar des États-Unis
+  1  dollar des États-Unis
+  1  dollar des États-Unis
+  3,59  dollars des États-Unis
+  -7,53  dollars des États-Unis
+  1200  dollars des États-Unis
+  -15789,12  dollars des États-Unis
+  99999  dollars des États-Unis
+  -100200300,4  dollars des États-Unis
+  10000000001  dollars des États-Unis
 
 Currency GBP
-  0 livre sterling
-  1 livre sterling
-  3,59 livres sterling
-  -7,53 livres sterling
-  1200 livres sterling
-  -15789,12 livres sterling
-  99999 livres sterling
-  -100200300,4 livres sterling
-  10000000001 livres sterling
+  0  livre sterling
+  1  livre sterling
+  1  livre sterling
+  3,59  livres sterling
+  -7,53  livres sterling
+  1200  livres sterling
+  -15789,12  livres sterling
+  99999  livres sterling
+  -100200300,4  livres sterling
+  10000000001  livres sterling
 
 Currency EUR
-  0 euro
-  1 euro
-  3,59 euros
-  -7,53 euros
-  1200 euros
-  -15789,12 euros
-  99999 euros
-  -100200300,4 euros
-  10000000001 euros
+  0  euro
+  1  euro
+  1  euro
+  3,59  euros
+  -7,53  euros
+  1200  euros
+  -15789,12  euros
+  99999  euros
+  -100200300,4  euros
+  10000000001  euros
 
 Currency JPY
-  0 yen japonais
-  1 yen japonais
-  3,59 yens japonais
-  -7,53 yens japonais
-  1200 yens japonais
-  -15789,12 yens japonais
-  99999 yens japonais
-  -100200300,4 yens japonais
-  10000000001 yens japonais
+  0  yen japonais
+  1  yen japonais
+  1  yen japonais
+  3,59  yens japonais
+  -7,53  yens japonais
+  1200  yens japonais
+  -15789,12  yens japonais
+  99999  yens japonais
+  -100200300,4  yens japonais
+  10000000001  yens japonais
 
 Currency RUB
-  0 rouble russe
-  1 rouble russe
-  3,59 roubles russes
-  -7,53 roubles russes
-  1200 roubles russes
-  -15789,12 roubles russes
-  99999 roubles russes
-  -100200300,4 roubles russes
-  10000000001 roubles russes
+  0  rouble russe
+  1  rouble russe
+  1  rouble russe
+  3,59  roubles russes
+  -7,53  roubles russes
+  1200  roubles russes
+  -15789,12  roubles russes
+  99999  roubles russes
+  -100200300,4  roubles russes
+  10000000001  roubles russes
 
 
 
@@ -1140,10 +1235,11 @@ Locale "fr" in SHORT style
 Currency USD
   0 $US
   1 $US
+  1 $US
   3,6 $US
   -7,5 $US
-  1,2 k $US
-  -15,8 k $US
+  1 k $US
+  -16 k $US
   100 k $US
   -100 M $US
   10 Md $US
@@ -1151,10 +1247,11 @@ Currency USD
 Currency GBP
   0 £GB
   1 £GB
+  1 £GB
   3,6 £GB
   -7,5 £GB
-  1,2 k £GB
-  -15,8 k £GB
+  1 k £GB
+  -16 k £GB
   100 k £GB
   -100 M £GB
   10 Md £GB
@@ -1162,10 +1259,11 @@ Currency GBP
 Currency EUR
   0 €
   1 €
+  1 €
   3,6 €
   -7,5 €
-  1,2 k €
-  -15,8 k €
+  1 k €
+  -16 k €
   100 k €
   -100 M €
   10 Md €
@@ -1173,10 +1271,11 @@ Currency EUR
 Currency JPY
   0 JPY
   1 JPY
+  1 JPY
   3,6 JPY
   -7,5 JPY
-  1,2 k JPY
-  -15,8 k JPY
+  1 k JPY
+  -16 k JPY
   100 k JPY
   -100 M JPY
   10 Md JPY
@@ -1184,10 +1283,11 @@ Currency JPY
 Currency RUB
   0 RUB
   1 RUB
+  1 RUB
   3,6 RUB
   -7,5 RUB
-  1,2 k RUB
-  -15,8 k RUB
+  1 k RUB
+  -16 k RUB
   100 k RUB
   -100 M RUB
   10 Md RUB
@@ -1198,6 +1298,7 @@ Locale "de" in SYMBOL style
 
 Currency USD
   0,00 $
+  1,00 $
   1,00 $
   3,59 $
   -7,53 $
@@ -1210,6 +1311,7 @@ Currency USD
 Currency GBP
   0,00 £
   1,00 £
+  1,00 £
   3,59 £
   -7,53 £
   1.200,00 £
@@ -1220,6 +1322,7 @@ Currency GBP
 
 Currency EUR
   0,00 €
+  1,00 €
   1,00 €
   3,59 €
   -7,53 €
@@ -1232,6 +1335,7 @@ Currency EUR
 Currency JPY
   0,00 ¥
   1,00 ¥
+  1,00 ¥
   3,59 ¥
   -7,53 ¥
   1.200,00 ¥
@@ -1242,6 +1346,7 @@ Currency JPY
 
 Currency RUB
   0,00 RUB
+  1,00 RUB
   1,00 RUB
   3,59 RUB
   -7,53 RUB
@@ -1258,6 +1363,7 @@ Locale "de" in ACCOUNTING style
 Currency USD
   0,00 $
   1,00 $
+  1,00 $
   3,59 $
   -7,53 $
   1.200,00 $
@@ -1268,6 +1374,7 @@ Currency USD
 
 Currency GBP
   0,00 £
+  1,00 £
   1,00 £
   3,59 £
   -7,53 £
@@ -1280,6 +1387,7 @@ Currency GBP
 Currency EUR
   0,00 €
   1,00 €
+  1,00 €
   3,59 €
   -7,53 €
   1.200,00 €
@@ -1291,6 +1399,7 @@ Currency EUR
 Currency JPY
   0,00 ¥
   1,00 ¥
+  1,00 ¥
   3,59 ¥
   -7,53 ¥
   1.200,00 ¥
@@ -1301,6 +1410,7 @@ Currency JPY
 
 Currency RUB
   0,00 RUB
+  1,00 RUB
   1,00 RUB
   3,59 RUB
   -7,53 RUB
@@ -1315,118 +1425,128 @@ Currency RUB
 Locale "de" in CODE style
 
 Currency USD
-  0 USD
-  1 USD
-  3,59 USD
-  -7,53 USD
-  1.200 USD
-  -15.789,12 USD
-  99.999 USD
-  -100.200.300,4 USD
-  10.000.000.001 USD
+  0,00  USD
+  1,00  USD
+  1,00  USD
+  3,59  USD
+  -7,53  USD
+  1.200,00  USD
+  -15.789,12  USD
+  99.999,00  USD
+  -100.200.300,40  USD
+  10.000.000.001,00  USD
 
 Currency GBP
-  0 GBP
-  1 GBP
-  3,59 GBP
-  -7,53 GBP
-  1.200 GBP
-  -15.789,12 GBP
-  99.999 GBP
-  -100.200.300,4 GBP
-  10.000.000.001 GBP
+  0,00  GBP
+  1,00  GBP
+  1,00  GBP
+  3,59  GBP
+  -7,53  GBP
+  1.200,00  GBP
+  -15.789,12  GBP
+  99.999,00  GBP
+  -100.200.300,40  GBP
+  10.000.000.001,00  GBP
 
 Currency EUR
-  0 EUR
-  1 EUR
-  3,59 EUR
-  -7,53 EUR
-  1.200 EUR
-  -15.789,12 EUR
-  99.999 EUR
-  -100.200.300,4 EUR
-  10.000.000.001 EUR
+  0,00  EUR
+  1,00  EUR
+  1,00  EUR
+  3,59  EUR
+  -7,53  EUR
+  1.200,00  EUR
+  -15.789,12  EUR
+  99.999,00  EUR
+  -100.200.300,40  EUR
+  10.000.000.001,00  EUR
 
 Currency JPY
-  0 JPY
-  1 JPY
-  3,59 JPY
-  -7,53 JPY
-  1.200 JPY
-  -15.789,12 JPY
-  99.999 JPY
-  -100.200.300,4 JPY
-  10.000.000.001 JPY
+  0,00  JPY
+  1,00  JPY
+  1,00  JPY
+  3,59  JPY
+  -7,53  JPY
+  1.200,00  JPY
+  -15.789,12  JPY
+  99.999,00  JPY
+  -100.200.300,40  JPY
+  10.000.000.001,00  JPY
 
 Currency RUB
-  0 RUB
-  1 RUB
-  3,59 RUB
-  -7,53 RUB
-  1.200 RUB
-  -15.789,12 RUB
-  99.999 RUB
-  -100.200.300,4 RUB
-  10.000.000.001 RUB
+  0,00  RUB
+  1,00  RUB
+  1,00  RUB
+  3,59  RUB
+  -7,53  RUB
+  1.200,00  RUB
+  -15.789,12  RUB
+  99.999,00  RUB
+  -100.200.300,40  RUB
+  10.000.000.001,00  RUB
 
 
 
 Locale "de" in NAME style
 
 Currency USD
-  0 US-Dollar
-  1 US-Dollar
-  3,59 US-Dollar
-  -7,53 US-Dollar
-  1200 US-Dollar
-  -15789,12 US-Dollar
-  99999 US-Dollar
-  -100200300,4 US-Dollar
-  10000000001 US-Dollar
+  0  US-Dollar
+  1  US-Dollar
+  1  US-Dollar
+  3,59  US-Dollar
+  -7,53  US-Dollar
+  1200  US-Dollar
+  -15789,12  US-Dollar
+  99999  US-Dollar
+  -100200300,4  US-Dollar
+  10000000001  US-Dollar
 
 Currency GBP
-  0 Britische Pfund
-  1 Britisches Pfund
-  3,59 Britische Pfund
-  -7,53 Britische Pfund
-  1200 Britische Pfund
-  -15789,12 Britische Pfund
-  99999 Britische Pfund
-  -100200300,4 Britische Pfund
-  10000000001 Britische Pfund
+  0  Britische Pfund
+  1  Britisches Pfund
+  1  Britische Pfund
+  3,59  Britische Pfund
+  -7,53  Britische Pfund
+  1200  Britische Pfund
+  -15789,12  Britische Pfund
+  99999  Britische Pfund
+  -100200300,4  Britische Pfund
+  10000000001  Britische Pfund
 
 Currency EUR
-  0 Euro
-  1 Euro
-  3,59 Euro
-  -7,53 Euro
-  1200 Euro
-  -15789,12 Euro
-  99999 Euro
-  -100200300,4 Euro
-  10000000001 Euro
+  0  Euro
+  1  Euro
+  1  Euro
+  3,59  Euro
+  -7,53  Euro
+  1200  Euro
+  -15789,12  Euro
+  99999  Euro
+  -100200300,4  Euro
+  10000000001  Euro
 
 Currency JPY
-  0 Japanische Yen
-  1 Japanischer Yen
-  3,59 Japanische Yen
-  -7,53 Japanische Yen
-  1200 Japanische Yen
-  -15789,12 Japanische Yen
-  99999 Japanische Yen
-  -100200300,4 Japanische Yen
-  10000000001 Japanische Yen
+  0  Japanische Yen
+  1  Japanischer Yen
+  1  Japanische Yen
+  3,59  Japanische Yen
+  -7,53  Japanische Yen
+  1200  Japanische Yen
+  -15789,12  Japanische Yen
+  99999  Japanische Yen
+  -100200300,4  Japanische Yen
+  10000000001  Japanische Yen
 
 Currency RUB
-  0 Russische Rubel
-  1 Russischer Rubel
-  3,59 Russische Rubel
-  -7,53 Russische Rubel
-  1200 Russische Rubel
-  -15789,12 Russische Rubel
-  99999 Russische Rubel
-  -100200300,4 Russische Rubel
-  10000000001 Russische Rubel
+  0  Russische Rubel
+  1  Russischer Rubel
+  1  Russische Rubel
+  3,59  Russische Rubel
+  -7,53  Russische Rubel
+  1200  Russische Rubel
+  -15789,12  Russische Rubel
+  99999  Russische Rubel
+  -100200300,4  Russische Rubel
+  10000000001  Russische Rubel
 
 
 
@@ -1435,10 +1555,11 @@ Locale "de" in SHORT style
 Currency USD
   0 $
   1 $
+  1 $
   3,6 $
   -7,5 $
-  1,2 Tsd. $
-  -15,8 Tsd. $
+  1 Tsd. $
+  -16 Tsd. $
   100 Tsd. $
   -100 Mio. $
   10 Mrd. $
@@ -1446,10 +1567,11 @@ Currency USD
 Currency GBP
   0 £
   1 £
+  1 £
   3,6 £
   -7,5 £
-  1,2 Tsd. £
-  -15,8 Tsd. £
+  1 Tsd. £
+  -16 Tsd. £
   100 Tsd. £
   -100 Mio. £
   10 Mrd. £
@@ -1457,10 +1579,11 @@ Currency GBP
 Currency EUR
   0 €
   1 €
+  1 €
   3,6 €
   -7,5 €
-  1,2 Tsd. €
-  -15,8 Tsd. €
+  1 Tsd. €
+  -16 Tsd. €
   100 Tsd. €
   -100 Mio. €
   10 Mrd. €
@@ -1468,10 +1591,11 @@ Currency EUR
 Currency JPY
   0 ¥
   1 ¥
+  1 ¥
   3,6 ¥
   -7,5 ¥
-  1,2 Tsd. ¥
-  -15,8 Tsd. ¥
+  1 Tsd. ¥
+  -16 Tsd. ¥
   100 Tsd. ¥
   -100 Mio. ¥
   10 Mrd. ¥
@@ -1479,10 +1603,11 @@ Currency JPY
 Currency RUB
   0 RUB
   1 RUB
+  1 RUB
   3,6 RUB
   -7,5 RUB
-  1,2 Tsd. RUB
-  -15,8 Tsd. RUB
+  1 Tsd. RUB
+  -16 Tsd. RUB
   100 Tsd. RUB
   -100 Mio. RUB
   10 Mrd. RUB
@@ -1493,6 +1618,7 @@ Locale "zh" in SYMBOL style
 
 Currency USD
   US$0.00
+  US$1.00
   US$1.00
   US$3.59
   -US$7.53
@@ -1505,6 +1631,7 @@ Currency USD
 Currency GBP
   £0.00
   £1.00
+  £1.00
   £3.59
   -£7.53
   £1,200.00
@@ -1515,6 +1642,7 @@ Currency GBP
 
 Currency EUR
   €0.00
+  €1.00
   €1.00
   €3.59
   -€7.53
@@ -1527,6 +1655,7 @@ Currency EUR
 Currency JPY
   JP¥0.00
   JP¥1.00
+  JP¥1.00
   JP¥3.59
   -JP¥7.53
   JP¥1,200.00
@@ -1537,6 +1666,7 @@ Currency JPY
 
 Currency RUB
   RUB 0.00
+  RUB 1.00
   RUB 1.00
   RUB 3.59
   -RUB 7.53
@@ -1553,6 +1683,7 @@ Locale "zh" in ACCOUNTING style
 Currency USD
   US$0.00
   US$1.00
+  US$1.00
   US$3.59
   (US$7.53)
   US$1,200.00
@@ -1563,6 +1694,7 @@ Currency USD
 
 Currency GBP
   £0.00
+  £1.00
   £1.00
   £3.59
   (£7.53)
@@ -1575,6 +1707,7 @@ Currency GBP
 Currency EUR
   €0.00
   €1.00
+  €1.00
   €3.59
   (€7.53)
   €1,200.00
@@ -1586,6 +1719,7 @@ Currency EUR
 Currency JPY
   JP¥0.00
   JP¥1.00
+  JP¥1.00
   JP¥3.59
   (JP¥7.53)
   JP¥1,200.00
@@ -1596,6 +1730,7 @@ Currency JPY
 
 Currency RUB
   RUB 0.00
+  RUB 1.00
   RUB 1.00
   RUB 3.59
   (RUB 7.53)
@@ -1610,59 +1745,64 @@ Currency RUB
 Locale "zh" in CODE style
 
 Currency USD
-  0USD
-  1USD
+  0.00USD
+  1.00USD
+  1.00USD
   3.59USD
   -7.53USD
-  1,200USD
+  1,200.00USD
   -15,789.12USD
-  99,999USD
-  -100,200,300.4USD
-  10,000,000,001USD
+  99,999.00USD
+  -100,200,300.40USD
+  10,000,000,001.00USD
 
 Currency GBP
-  0GBP
-  1GBP
+  0.00GBP
+  1.00GBP
+  1.00GBP
   3.59GBP
   -7.53GBP
-  1,200GBP
+  1,200.00GBP
   -15,789.12GBP
-  99,999GBP
-  -100,200,300.4GBP
-  10,000,000,001GBP
+  99,999.00GBP
+  -100,200,300.40GBP
+  10,000,000,001.00GBP
 
 Currency EUR
-  0EUR
-  1EUR
+  0.00EUR
+  1.00EUR
+  1.00EUR
   3.59EUR
   -7.53EUR
-  1,200EUR
+  1,200.00EUR
   -15,789.12EUR
-  99,999EUR
-  -100,200,300.4EUR
-  10,000,000,001EUR
+  99,999.00EUR
+  -100,200,300.40EUR
+  10,000,000,001.00EUR
 
 Currency JPY
-  0JPY
-  1JPY
+  0.00JPY
+  1.00JPY
+  1.00JPY
   3.59JPY
   -7.53JPY
-  1,200JPY
+  1,200.00JPY
   -15,789.12JPY
-  99,999JPY
-  -100,200,300.4JPY
-  10,000,000,001JPY
+  99,999.00JPY
+  -100,200,300.40JPY
+  10,000,000,001.00JPY
 
 Currency RUB
-  0RUB
-  1RUB
+  0.00RUB
+  1.00RUB
+  1.00RUB
   3.59RUB
   -7.53RUB
-  1,200RUB
+  1,200.00RUB
   -15,789.12RUB
-  99,999RUB
-  -100,200,300.4RUB
-  10,000,000,001RUB
+  99,999.00RUB
+  -100,200,300.40RUB
+  10,000,000,001.00RUB
 
 
 
@@ -1670,6 +1810,7 @@ Locale "zh" in NAME style
 
 Currency USD
   0美元
+  1美元
   1美元
   3.59美元
   -7.53美元
@@ -1682,6 +1823,7 @@ Currency USD
 Currency GBP
   0英镑
   1英镑
+  1英镑
   3.59英镑
   -7.53英镑
   1200英镑
@@ -1692,6 +1834,7 @@ Currency GBP
 
 Currency EUR
   0欧元
+  1欧元
   1欧元
   3.59欧元
   -7.53欧元
@@ -1704,6 +1847,7 @@ Currency EUR
 Currency JPY
   0日元
   1日元
+  1日元
   3.59日元
   -7.53日元
   1200日元
@@ -1714,6 +1858,7 @@ Currency JPY
 
 Currency RUB
   0俄罗斯卢布
+  1俄罗斯卢布
   1俄罗斯卢布
   3.59俄罗斯卢布
   -7.53俄罗斯卢布
@@ -1730,10 +1875,11 @@ Locale "zh" in SHORT style
 Currency USD
   US$0
   US$1
+  US$1
   US$3.6
   -US$7.5
   US$1200
-  -US$1.6万
+  -US$2万
   US$10万
   -US$1亿
   US$100亿
@@ -1741,10 +1887,11 @@ Currency USD
 Currency GBP
   £0
   £1
+  £1
   £3.6
   -£7.5
   £1200
-  -£1.6万
+  -£2万
   £10万
   -£1亿
   £100亿
@@ -1752,10 +1899,11 @@ Currency GBP
 Currency EUR
   €0
   €1
+  €1
   €3.6
   -€7.5
   €1200
-  -€1.6万
+  -€2万
   €10万
   -€1亿
   €100亿
@@ -1763,10 +1911,11 @@ Currency EUR
 Currency JPY
   JP¥0
   JP¥1
+  JP¥1
   JP¥3.6
   -JP¥7.5
   JP¥1200
-  -JP¥1.6万
+  -JP¥2万
   JP¥10万
   -JP¥1亿
   JP¥100亿
@@ -1774,13 +1923,15 @@ Currency JPY
 Currency RUB
   RUB 0
   RUB 1
+  RUB 1
   RUB 3.6
   -RUB 7.5
   RUB 1200
-  -RUB 1.6万
+  -RUB 2万
   RUB 10万
   -RUB 1亿
   RUB 100亿
+
 
 
 

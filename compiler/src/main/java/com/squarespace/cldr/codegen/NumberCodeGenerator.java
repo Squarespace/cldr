@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import javax.lang.model.element.Modifier;
 
 import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.codegen.reader.CurrencyData;
 import com.squarespace.cldr.codegen.reader.DataReader;
 import com.squarespace.cldr.codegen.reader.NumberData;
 import com.squarespace.cldr.numbers.DigitBuffer;
@@ -49,7 +50,7 @@ public class NumberCodeGenerator {
    */
   public Map<LocaleID, ClassName> generate(Path outputDir, DataReader reader) throws IOException {
     Map<LocaleID, ClassName> numberClasses = new LinkedHashMap<>();
-
+    
     for (Map.Entry<LocaleID, NumberData> entry : reader.numbers().entrySet()) {
       NumberData data = entry.getValue();
       LocaleID localeId = entry.getKey();
@@ -61,6 +62,11 @@ public class NumberCodeGenerator {
       ClassName cls = ClassName.get(PACKAGE_CLDR_NUMBERS, className);
       numberClasses.put(localeId, cls);
     }
+    
+    // generate currency digit utility class
+    String className = "_CurrencyUtil";
+    TypeSpec type = createCurrencyUtil(className, reader.currencies());
+    CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_NUMBERS, className, type);
     
     return numberClasses;
   }
@@ -132,6 +138,33 @@ public class NumberCodeGenerator {
     return type.build();
   }
 
+  /**
+   * Create class to hold global currency information.
+   */
+  public TypeSpec createCurrencyUtil(String className, Map<String, CurrencyData> currencies) {
+    TypeSpec.Builder type = TypeSpec.classBuilder(className)
+        .addModifiers(Modifier.PUBLIC);
+    
+    CurrencyData defaultData = currencies.get("DEFAULT");
+    currencies.remove("DEFAULT");
+    
+    MethodSpec.Builder code = MethodSpec.methodBuilder("getCurrencyDigits")
+        .addModifiers(PUBLIC, STATIC)
+        .addParameter(String.class, "code")
+        .returns(int.class);
+    
+    code.beginControlFlow("switch (code)");
+    for (Map.Entry<String, CurrencyData> entry : currencies.entrySet()) {
+      CurrencyData data = entry.getValue();
+      code.addStatement("case $S: return $L", entry.getKey(), data.digits);
+    }
+    code.addStatement("default: return $L", defaultData.digits);
+    code.endControlFlow();
+    
+    type.addMethod(code.build());
+    return type.build();
+  }
+  
   /**
    * Return a list of the string patterns embedded in the NumberPattern instances.
    */

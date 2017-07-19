@@ -6,6 +6,9 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 
+/**
+ * TODO: incomplete
+ */
 public class NumberFormatOptionsTest {
 
   @Test
@@ -39,7 +42,7 @@ public class NumberFormatOptionsTest {
 
     NumberFormatOptions<?> base = (NumberFormatOptions<CurrencyFormatOptions>) opts;
     assertEquals(base.maximumFractionDigits(), valueOf(1));
-    assertEquals(base.minimumFractionDigits(), null);
+    assertEquals(base.minimumFractionDigits(), valueOf(1));
     assertEquals(base.minimumIntegerDigits(), valueOf(2));
 
     opts.setMinimumFractionDigits(3);

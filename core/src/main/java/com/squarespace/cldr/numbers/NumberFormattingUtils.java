@@ -1,7 +1,11 @@
 package com.squarespace.cldr.numbers;
 
+import static com.squarespace.cldr.numbers.NumberFormatMode.SIGNIFICANT;
+import static com.squarespace.cldr.numbers.NumberFormatMode.SIGNIFICANT_MAXFRAC;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 
 public class NumberFormattingUtils {
 
@@ -13,12 +17,13 @@ public class NumberFormattingUtils {
    * "significant digit mode". Some formatting operations require a minimum number
    * of significant digits to be emitted, as in the case of compact formats.
    * For example, the value 1200 may be emitted as 1.2K using a format "0K" with
-   * minSigInt=1 and maxSigInt=2.
+   * minSigDigits=1 and maxSigDigits=2.
    */
   public static long[] setup(
       BigDecimal n,                     // number to be formatted
       NumberOperands operands,          // helper to compute digit counts
       NumberRoundMode roundMode,        // rounding mode
+      NumberFormatMode formatMode,      // formatting mode (significant digits, etc)
       int minIntDigits,                 // maximum integer digits to emit
       int maxFracDigits,                // maximum fractional digits to emit
       int minFracDigits,                // minimum fractional digits to emit
@@ -30,13 +35,19 @@ public class NumberFormattingUtils {
     long intDigits = 0;
     long fracDigits = 0;
     RoundingMode mode = roundMode.toRoundingMode();
+    boolean useSignificant = formatMode == SIGNIFICANT || formatMode == SIGNIFICANT_MAXFRAC;
 
     // Select "significant digits" or "integer/fraction digits" mode
-    if (minSigDigits > 0 && maxSigDigits > 0) {
+    if (useSignificant && minSigDigits > 0 && maxSigDigits > 0) {
       // Scale the number to have at most the maximum significant digits.
       if (n.precision() > maxSigDigits) {
         int scale = maxSigDigits - n.precision() + n.scale();
-        n = n.setScale(scale, RoundingMode.HALF_EVEN);
+        n = n.setScale(scale, mode);
+      }
+
+      // Ensure we don't exceed the maximum number of fractions allowed.
+      if (formatMode == NumberFormatMode.SIGNIFICANT_MAXFRAC && maxFracDigits < n.scale()) {
+        n = n.setScale(maxFracDigits, mode);
       }
 
       // Ensure that one less digit is emitted if the number is exactly zero.
@@ -50,7 +61,7 @@ public class NumberFormattingUtils {
       // Scale the number to have at least the minimum significant digits.
       if (precision < minSigDigits) {
         int scale = minSigDigits - precision + n.scale();
-        n = n.setScale(scale, RoundingMode.HALF_EVEN);
+        n = n.setScale(scale, mode);
       }
 
       intDigits = n.precision() - n.scale();

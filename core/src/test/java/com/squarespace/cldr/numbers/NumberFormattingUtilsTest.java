@@ -1,5 +1,8 @@
 package com.squarespace.cldr.numbers;
 
+import static com.squarespace.cldr.numbers.NumberFormatMode.DEFAULT;
+import static com.squarespace.cldr.numbers.NumberFormatMode.SIGNIFICANT;
+import static com.squarespace.cldr.numbers.NumberFormatMode.SIGNIFICANT_MAXFRAC;
 import static com.squarespace.cldr.numbers.NumberRoundMode.CEIL;
 import static com.squarespace.cldr.numbers.NumberRoundMode.FLOOR;
 import static com.squarespace.cldr.numbers.NumberRoundMode.ROUND;
@@ -14,11 +17,11 @@ import org.testng.annotations.Test;
 /**
  * Exercises the low-level number formatting implementation.
  */
-public class NumberFormatterUtilsTest {
+public class NumberFormattingUtilsTest {
 
   @Test
   public void testSignificantDigits() {
-    Builder fmt = format().minSigDigits(1).maxSigDigits(1);
+    Builder fmt = format(SIGNIFICANT).minSigDigits(1).maxSigDigits(1);
 
     assertFmt(fmt.get(), "0", "0");
     assertFmt(fmt.get(), "0.0", "0");
@@ -285,7 +288,7 @@ public class NumberFormatterUtilsTest {
 
   @Test
   public void testMoreSignificantDigits() {
-    Builder fmt = format().minSigDigits(1).maxSigDigits(3);
+    Builder fmt = format(SIGNIFICANT).minSigDigits(1).maxSigDigits(3);
 
     assertFmt(fmt.get(), "0", "0");
     assertFmt(fmt.get(), "0.1", "0.1");
@@ -362,7 +365,7 @@ public class NumberFormatterUtilsTest {
 
   @Test
   public void testEvenMoreSignificantDigits() {
-    Builder fmt = format().minSigDigits(1).maxSigDigits(3);
+    Builder fmt = format(SIGNIFICANT).minSigDigits(1).maxSigDigits(3);
 
     assertFmt(fmt.get(), "123456789123456789", "123000000000000000");
     assertFmt(fmt.get(), "0.123456789", "0.123");
@@ -394,7 +397,7 @@ public class NumberFormatterUtilsTest {
    */
   @Test
   public void testExamples() {
-    Builder fmt = format().minSigDigits(3).maxSigDigits(3);
+    Builder fmt = format(SIGNIFICANT).minSigDigits(3).maxSigDigits(3);
 
     assertFmt(fmt.get(), "12345", "12300");
     assertFmt(fmt.get(), "0.12345", "0.123");
@@ -406,12 +409,31 @@ public class NumberFormatterUtilsTest {
   }
 
   /**
+   * Use significant digits along with maximum fractions. Useful for compact
+   * currency formatting.
+   */
+  @Test
+  public void testSignificantMaxFractions() {
+    Builder fmt = format(SIGNIFICANT_MAXFRAC).minSigDigits(1).maxSigDigits(50).maxFracDigits(2);
+
+    assertFmt(fmt.get(), "1.00", "1");
+    assertFmt(fmt.get(), "1.03", "1.03");
+    assertFmt(fmt.get(), "1.3", "1.3");
+    assertFmt(fmt.get(), "1.003", "1");
+    assertFmt(fmt.get(), "1.005", "1");
+    assertFmt(fmt.get(), "1.006", "1.01");
+    assertFmt(fmt.get(), "144.756", "144.76");
+    assertFmt(fmt.get(), "144.00756", "144.01");
+    assertFmt(fmt.get(), "144.003", "144");
+  }
+
+  /**
    * Ensures the alternate decimal and group characters are used in currency mode,
    * when the locale supports them.
    */
   @Test
   public void testCurrency() {
-    Builder fmt = format()
+    Builder fmt = format(DEFAULT)
         .grouping(true)
         .currency(true)
         .currencyDecimal("^")
@@ -424,7 +446,7 @@ public class NumberFormatterUtilsTest {
 
   @Test
   public void testIntegers() {
-    Builder fmt = format().minIntDigits(3);
+    Builder fmt = format(DEFAULT).minIntDigits(3);
 
     assertFmt(fmt.get(), "0", "000");
     assertFmt(fmt.get(), "1", "001");
@@ -457,7 +479,7 @@ public class NumberFormatterUtilsTest {
 
   @Test
   public void testFractions() {
-    Builder fmt = format().maxFracDigits(3).minFracDigits(2);
+    Builder fmt = format(DEFAULT).maxFracDigits(3).minFracDigits(2);
 
     assertFmt(fmt.get(), "12.0", "12.00");
     assertFmt(fmt.get(), "12.0012", "12.001");
@@ -489,7 +511,7 @@ public class NumberFormatterUtilsTest {
    */
   @Test
   public void testInvalidSignificantDigits() {
-    Builder fmt = format()
+    Builder fmt = format(DEFAULT)
         .minFracDigits(2)
         .minSigDigits(1)
         .maxSigDigits(-1);
@@ -504,7 +526,7 @@ public class NumberFormatterUtilsTest {
 
   @Test
   public void testRoundingModes() {
-    Builder fmt = format().roundMode(ROUND);
+    Builder fmt = format(DEFAULT).roundMode(ROUND);
 
     assertFmt(fmt.get(), "12.032", "12.03");
     assertFmt(fmt.get(), "12.035", "12.04");
@@ -560,7 +582,7 @@ public class NumberFormatterUtilsTest {
 
   @Test
   public void testGrouping() {
-    Builder fmt = format().grouping(true);
+    Builder fmt = format(DEFAULT).grouping(true);
 
     assertFmt(fmt.get(), "1234567", "1,234,567");
     assertFmt(fmt.get(), "11111111111111.123", "11,111,111,111,111.12");
@@ -583,13 +605,14 @@ public class NumberFormatterUtilsTest {
     assertEquals(result, expected);
   }
 
-  private static Builder format() {
-    return new Builder();
+  private static Builder format(NumberFormatMode formatMode) {
+    return new Builder(formatMode);
   }
 
   private static class Builder {
 
     private NumberRoundMode roundMode = ROUND;
+    private NumberFormatMode formatMode = DEFAULT;
     private boolean grouping = false;
     private int minIntDigits = 1;
     private int maxFracDigits = 2;
@@ -602,6 +625,10 @@ public class NumberFormatterUtilsTest {
     private boolean currency = false;
     private String currencyDecimal = ".";
     private String currencyGroup = ",";
+
+    Builder(NumberFormatMode formatMode) {
+      this.formatMode = formatMode;
+    }
 
     Builder roundMode(NumberRoundMode mode) {
       this.roundMode = mode == null ? ROUND : mode;
@@ -685,6 +712,7 @@ public class NumberFormatterUtilsTest {
               n,
               operands,
               roundMode,
+              formatMode,
               minIntDigits,
               maxFracDigits,
               minFracDigits,

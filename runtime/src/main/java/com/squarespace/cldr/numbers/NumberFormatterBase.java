@@ -196,7 +196,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       {
         operands.set(n.toPlainString());
         PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
-        NumberPattern pattern = select(n, decimalStandard);
+        NumberPattern pattern = select(n, currencyStandard);
         format(pattern, n, dbuf, options, operands, null, null, -1, -1);
         String unit = style == CurrencyFormatStyle.CODE ? currencyCode : getCurrencyPluralName(currencyCode, category);
         wrapUnits(category, dbuf, unit, destination);
@@ -259,12 +259,17 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       int minSigDigits) {
 
     // Only set the min and max significant digits variables in this mode.
-    if (options.formatMode == NumberFormatMode.SIGNIFICANT) {
-      maxSigDigits = orDefault(options.maximumSignificantDigits(), maxSigDigits);
-      minSigDigits = orDefault(options.minimumSignificantDigits(), minSigDigits);
-    } else {
-      maxSigDigits = -1;
-      minSigDigits = -1;
+    switch (options.formatMode()) {
+      case SIGNIFICANT:
+      case SIGNIFICANT_MAXFRAC:
+        maxSigDigits = orDefault(options.maximumSignificantDigits(), maxSigDigits);
+        minSigDigits = orDefault(options.minimumSignificantDigits(), minSigDigits);
+        break;
+        
+      default:
+        maxSigDigits = -1;
+        minSigDigits = -1;
+        break;
     }
 
     // Peek at the number format in the pattern and use it to setup the operands and
@@ -274,6 +279,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         n,
         operands,
         options.roundMode(),
+        options.formatMode(),
         orDefault(options.minimumIntegerDigits(), format.minimumIntegerDigits()),
         orDefault(options.maximumFractionDigits(), format.maximumFractionDigits()),
         orDefault(options.minimumFractionDigits(), format.minimumFractionDigits()),

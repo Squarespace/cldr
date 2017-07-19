@@ -20,6 +20,7 @@ public class NumberDemo {
     String[] numbers = new String[] {
         "0",
         "1",
+        "1.00",
         "3.59",
         "-7.53",
         "1200",
@@ -30,21 +31,25 @@ public class NumberDemo {
     };
     
     CLDRLocale[] locales = new CLDRLocale[] { 
-        CLDR.EN_US, 
-        CLDR.ES, 
-        CLDR.FR, 
+        CLDR.EN_US,
+        CLDR.ES,
+        CLDR.FR,
         CLDR.DE,
         CLDR.ZH 
     };
 
-    
     System.out.println("DECIMAL NUMBER FORMATTING\n");
     DecimalFormatOptions[] decimalOpts = new DecimalFormatOptions[] {
-      options(NumberFormatStyle.DECIMAL).setGrouping(true),
-      options(NumberFormatStyle.PERCENT).setGrouping(true),
-      options(NumberFormatStyle.PERMILLE).setGrouping(true),
-      options(NumberFormatStyle.LONG).setFormatMode(NumberFormatMode.SIGNIFICANT),
-      options(NumberFormatStyle.SHORT).setFormatMode(NumberFormatMode.SIGNIFICANT),
+      options(NumberFormatStyle.DECIMAL)
+        .setGrouping(true),
+      options(NumberFormatStyle.PERCENT)
+        .setGrouping(true),
+      options(NumberFormatStyle.PERMILLE)
+        .setGrouping(true),
+      options(NumberFormatStyle.LONG)
+        .setFormatMode(NumberFormatMode.SIGNIFICANT),
+      options(NumberFormatStyle.SHORT)
+        .setFormatMode(NumberFormatMode.SIGNIFICANT)
     };
 
     for (CLDRLocale locale : locales) {
@@ -56,20 +61,34 @@ public class NumberDemo {
       System.out.println();
     }
 
-    
+   
     System.out.println("\n\nCURRENCY FORMATTING\n");
     CurrencyFormatOptions[] currencyOpts = new CurrencyFormatOptions[] {
-        options(CurrencyFormatStyle.SYMBOL).setGrouping(true),
-        options(CurrencyFormatStyle.ACCOUNTING).setGrouping(true),
-        options(CurrencyFormatStyle.CODE).setGrouping(true),
-        options(CurrencyFormatStyle.NAME).setFormatMode(NumberFormatMode.SIGNIFICANT),
-        options(CurrencyFormatStyle.SHORT).setFormatMode(NumberFormatMode.SIGNIFICANT),
+        options(CurrencyFormatStyle.SYMBOL)
+          .setGrouping(true),
+        options(CurrencyFormatStyle.ACCOUNTING)
+          .setGrouping(true),
+        options(CurrencyFormatStyle.CODE)
+          .setGrouping(true),
+        options(CurrencyFormatStyle.NAME)
+          .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC)
+          .setMinimumSignificantDigits(1),
+        options(CurrencyFormatStyle.SHORT)
+          .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC),
       };
+    
+    String[] currencies = new String[] {
+      "USD",
+      "GBP",
+      "EUR",
+      "JPY",
+      "RUB"
+    };
     
     for (CLDRLocale locale : locales) {
       for (CurrencyFormatOptions opts : currencyOpts) {
         System.out.println("Locale \"" + locale + "\" in " + opts.style() + " style\n");
-        money(locale, numbers, opts);
+        money(locale, currencies, numbers, opts);
         System.out.println();
       }
     }
@@ -91,8 +110,8 @@ public class NumberDemo {
   /**
    * Format numbers in this locale for several currencies.
    */
-  private static void money(CLDRLocale locale, String[] numbers, CurrencyFormatOptions opts) {
-    for (String currency : new String[] { "USD", "GBP", "EUR", "JPY", "RUB" }) {
+  private static void money(CLDRLocale locale, String[] currencies, String[] numbers, CurrencyFormatOptions opts) {
+    for (String currency : currencies) {
       System.out.println("Currency " + currency);
       for (String num : numbers) {
         BigDecimal n = new BigDecimal(num);
