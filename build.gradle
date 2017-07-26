@@ -36,8 +36,7 @@ apply plugin: 'net.researchgate.release'
 gradle.taskGraph.whenReady { taskGraph ->
 	ext.isUpload = taskGraph.allTasks.any { it instanceof Upload }
 	ext.isSign = taskGraph.allTasks.any { it instanceof Sign }
-	//if (isRelease && isUpload && isSign) {
-  if (isSign) {
+	if (isRelease && isUpload && isSign) {
 		def password
 		new SwingBuilder().edt {
 				dialog(
