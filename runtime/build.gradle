@@ -1,0 +1,39 @@
+
+plugins {
+  id 'me.champeau.gradle.jmh' version '0.3.0'
+}
+
+apply plugin: 'me.champeau.gradle.jmh'
+
+dependencies {
+  compile project(':cldr-core')
+}
+
+sourceSets.main.java.srcDirs = ['src/main/java', 'src/generated/java']
+
+plugins.withType(EclipsePlugin) {
+  project.eclipse.classpath.plusConfigurations += [ configurations.jmh ]
+}
+
+tasks.withType(JavaCompile) {
+  compileTask -> compileTask.dependsOn ':cldr-compiler:generateCode'
+}
+
+jmh {
+  jmhVersion '1.19'
+  forceGC = true
+  includeTests = false
+  zip64 = true
+}
+
+jacocoTestReport {
+  afterEvaluate {
+    classDirectories = files(classDirectories.files.collect {
+      fileTree(dir: it, exclude: [
+        'com/squarespace/cldr/dates/_CalendarFormatter_*',
+        'com/squarespace/cldr/numbers/_NumberFormatter_*'
+      ])
+    })
+  }
+}
+

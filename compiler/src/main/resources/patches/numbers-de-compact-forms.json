@@ -1,0 +1,23 @@
+{
+  "description": "Fix compact forms for German thousands",
+  "locales": ["de", "de-AT", "de-BE", "de-CH", "de-IT", "de-LI", "de-LU"],
+  "filename": "numbers.json",
+  "type": "main",
+  "patch": {
+    "numbers": {
+      "decimalFormats-numberSystem-latn": {
+        "short": {
+          "decimalFormat": {
+            "1000-count-one": "0 Tsd'.'",
+            "1000-count-other": "0 Tsd'.'",
+            "10000-count-one": "00 Tsd'.'",
+            "10000-count-other": "00 Tsd'.'",
+            "100000-count-one": "000 Tsd'.'",
+            "100000-count-other": "000 Tsd'.'"
+          }
+        }
+      }
+    }
+  }
+}
+
