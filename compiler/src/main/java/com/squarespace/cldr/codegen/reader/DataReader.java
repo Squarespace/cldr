@@ -105,7 +105,7 @@ public class DataReader {
 
   private final Map<LocaleID, NumberData> numbers = new HashMap<>();
 
-  private final Map<String, CurrencyData> currencies = new HashMap<>();
+  private final Map<String, CurrencyData> currencies = new LinkedHashMap<>();
 
   private final Map<String, PluralData> ordinals = new HashMap<>();
 

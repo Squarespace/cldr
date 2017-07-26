@@ -63,7 +63,8 @@ public abstract class NumberFormatterBase implements NumberFormatter {
   public abstract String getCurrencySymbol(String code);
   public abstract String getNarrowCurrencySymbol(String code);
   public abstract String getCurrencyDisplayName(String code);
-
+  public abstract int getCurrencyDigits(String code);
+  
   /**
    * Return the locale associated with this number formatter.
    */
@@ -85,7 +86,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       {
         NumberPattern pattern = select(n, decimalStandard);
         DigitBuffer number = new DigitBuffer();
-        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1);
+        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1, -1);
         format(pattern, number, dbuf, null, null);
         dbuf.appendTo(destination);
         break;
@@ -151,7 +152,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         
         // Format the number according to the pattern
         DigitBuffer number = new DigitBuffer();
-        setup(params, pattern, n, number, options, null, formatMode, grouping, maxSigDigits, minSigDigits);
+        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, maxSigDigits, minSigDigits);
         format(pattern, number, dbuf, null, null);
         dbuf.appendTo(destination);
         break;
@@ -164,7 +165,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         String symbol = style == DecimalFormatStyle.PERCENT ? params.percent : params.perMille;
         NumberPattern pattern = select(n, percentStandard);
         DigitBuffer number = new DigitBuffer();
-        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1);
+        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1, -1);
         format(pattern, number, dbuf, null, symbol);
         dbuf.appendTo(destination);
         break;
@@ -182,6 +183,8 @@ public abstract class NumberFormatterBase implements NumberFormatter {
     CurrencyFormatStyle style = options.style();
     NumberFormatMode formatMode = orDefault(options.formatMode(), NumberFormatMode.DEFAULT);
     boolean grouping = orDefault(options.grouping(), true);
+    int currencyDigits = getCurrencyDigits(currencyCode);
+
     switch (style) {
       case SYMBOL:
       case ACCOUNTING:
@@ -191,7 +194,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         String symbol = options.symbolWidth() == CurrencySymbolWidth.NARROW 
             ? getNarrowCurrencySymbol(currencyCode) : getCurrencySymbol(currencyCode);
         DigitBuffer other = new DigitBuffer();
-        setup(params, pattern, n, other, options, symbol, formatMode, grouping, -1, -1);
+        setup(params, pattern, n, other, options, symbol, formatMode, grouping, currencyDigits, -1, -1);
         format(pattern, other, dbuf, symbol, null);
         dbuf.appendTo(destination);
         break;
@@ -246,7 +249,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         String symbol = getCurrencySymbol(currencyCode);
         DigitBuffer other = new DigitBuffer();
         formatMode = orDefault(options.formatMode(), NumberFormatMode.SIGNIFICANT_MAXFRAC);
-        setup(params, pattern, n, other, options, symbol, formatMode, grouping, maxSigDigits, minSigDigits);
+        setup(params, pattern, n, other, options, symbol, formatMode,grouping, -1, maxSigDigits, minSigDigits);
         format(pattern, other, dbuf, symbol, null);
         dbuf.appendTo(destination);
         break;
@@ -256,9 +259,9 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       case CODE:
       {
         // Format the number with generic formatter parameters and grouping off to get the plural category.
-        NumberPattern pattern = select(n, currencyStandard);
+        NumberPattern pattern = select(n, decimalStandard);
         DigitBuffer number = new DigitBuffer();
-        setup(GENERIC_PARAMS, pattern, n, number, options, null, formatMode, false, -1, -1);
+        setup(GENERIC_PARAMS, pattern, n, number, options, null, formatMode, false, currencyDigits, -1, -1);
         
         // Set the operands and get the plural category.
         NumberOperands operands = new NumberOperands(number);
@@ -266,7 +269,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         number.reset();
 
         // Format the number
-        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1);
+        setup(params, pattern, n, number, options, null, formatMode, grouping, currencyDigits, -1, -1);
         format(pattern, number, dbuf, null, null);
         
         // Wrap the result with the wrapper selected by the plural category.
@@ -335,13 +338,17 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       String currency,
       NumberFormatMode formatMode,
       boolean grouping,
+      int currencyDigits,
       int maxSigDigits,
       int minSigDigits) {
 
     Format format = pattern.format();
     int minIntDigits = orDefault(options.minimumIntegerDigits(), format.minimumIntegerDigits());
-    int maxFracDigits = orDefault(options.maximumFractionDigits(), format.maximumFractionDigits());
-    int minFracDigits = orDefault(options.minimumFractionDigits(), format.minimumFractionDigits());
+    
+    int maxFracDigits = currencyDigits == -1 ? format.maximumFractionDigits() : currencyDigits;
+    int minFracDigits = currencyDigits == -1 ? format.minimumFractionDigits() : currencyDigits;
+    maxFracDigits = orDefault(options.maximumFractionDigits(), maxFracDigits);
+    minFracDigits = orDefault(options.minimumFractionDigits(), minFracDigits);
 
     // Only set the min and max significant digits variables in this mode.
     switch (formatMode) {

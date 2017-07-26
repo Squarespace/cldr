@@ -437,7 +437,7 @@ public class NumberCodeGenerator {
     addCurrencyInfoMethod(type, "getCurrencySymbol", data.currencySymbols);
     addCurrencyInfoMethod(type, "getNarrowCurrencySymbol", data.narrowCurrencySymbols);
     addCurrencyInfoMethod(type, "getCurrencyDisplayName", data.currencyDisplayName);
-    
+
     MethodSpec.Builder method = MethodSpec.methodBuilder("getCurrencyPluralName")
         .addModifiers(PROTECTED)
         .addParameter(String.class, "code")
@@ -470,6 +470,13 @@ public class NumberCodeGenerator {
     method.addStatement("default: return $S", "");
     method.endControlFlow();
     
+    type.addMethod(method.build());
+    
+    method = MethodSpec.methodBuilder("getCurrencyDigits")
+        .addModifiers(PUBLIC)
+        .addParameter(String.class, "code")
+        .returns(int.class);
+    method.addStatement("return _CurrencyUtil.getCurrencyDigits(code)");
     type.addMethod(method.build());
   }
   

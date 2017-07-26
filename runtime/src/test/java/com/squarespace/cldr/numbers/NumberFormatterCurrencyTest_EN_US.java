@@ -163,4 +163,16 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
         pair("kr\u00a01,200.0", "-kr\u00a01,200.0")
     ));
   }
+  
+  @Test
+  public void testCurrencies() {
+    CurrencyFormatOptions options = currency(SYMBOL)
+        .setSymbolWidth(CurrencySymbolWidth.NARROW);
+    test(CLDR.EN_US, CLDR.Currency.JPY, options, numbers("1234.56"), pairs(
+        pair("¥1,235", "-¥1,235")
+    ));
+    test(CLDR.EN_US, CLDR.Currency.SEK, options, numbers("1234.56"), pairs(
+        pair("kr\u00a01,234.56", "-kr\u00a01,234.56")
+    ));
+  }
 }
