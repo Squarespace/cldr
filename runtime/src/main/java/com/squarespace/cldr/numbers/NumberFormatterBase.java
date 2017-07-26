@@ -61,6 +61,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
   protected abstract void wrapUnits(PluralCategory category, DigitBuffer dbuf, String unit, StringBuilder dest);
 
   public abstract String getCurrencySymbol(String code);
+  public abstract String getNarrowCurrencySymbol(String code);
   public abstract String getCurrencyDisplayName(String code);
 
   /**
@@ -187,7 +188,8 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       {
         NumberPattern[] patterns = style == CurrencyFormatStyle.SYMBOL ? currencyStandard : currencyAccounting;
         NumberPattern pattern = select(n, patterns);
-        String symbol = getCurrencySymbol(currencyCode);
+        String symbol = options.symbolWidth() == CurrencySymbolWidth.NARROW 
+            ? getNarrowCurrencySymbol(currencyCode) : getCurrencySymbol(currencyCode);
         DigitBuffer other = new DigitBuffer();
         setup(params, pattern, n, other, options, symbol, formatMode, grouping, -1, -1);
         format(pattern, other, dbuf, symbol, null);

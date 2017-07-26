@@ -7,8 +7,10 @@ package com.squarespace.cldr.numbers;
 public class CurrencyFormatOptions extends NumberFormatOptions<CurrencyFormatOptions> {
 
   private static final CurrencyFormatStyle DEFAULT_STYLE = CurrencyFormatStyle.SYMBOL;
+  private static final CurrencySymbolWidth DEFAULT_WIDTH = CurrencySymbolWidth.DEFAULT;
 
   protected CurrencyFormatStyle style;
+  protected CurrencySymbolWidth symbolWidth;
 
   public CurrencyFormatOptions() {
     this(DEFAULT_STYLE);
@@ -32,6 +34,15 @@ public class CurrencyFormatOptions extends NumberFormatOptions<CurrencyFormatOpt
 
   public CurrencyFormatOptions setStyle(CurrencyFormatStyle style) {
     this.style = style == null ? DEFAULT_STYLE : style;
+    return this;
+  }
+
+  public CurrencySymbolWidth symbolWidth() {
+    return symbolWidth;
+  }
+
+  public CurrencyFormatOptions setSymbolWidth(CurrencySymbolWidth width) {
+    this.symbolWidth = width == null ? DEFAULT_WIDTH : width;
     return this;
   }
 

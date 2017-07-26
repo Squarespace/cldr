@@ -681,15 +681,20 @@ public class DataReader {
    */
   private void parseCurrencyData(LocaleID id, String code, JsonObject root) {
     NumberData data = getNumberData(id);
-    data.currencySymbols = new HashMap<>();
-    data.currencyDisplayName = new HashMap<>();
+    data.currencySymbols = new LinkedHashMap<>();
+    data.narrowCurrencySymbols = new LinkedHashMap<>();
+    data.currencyDisplayName = new LinkedHashMap<>();
     data.currencyDisplayNames = new LinkedHashMap<>();
     JsonObject currencies = resolve(root, "numbers", "currencies");
     for (String currencyCode : objectKeys(currencies)) {
       JsonObject node = resolve(currencies, currencyCode);
 
       data.currencyDisplayName.put(currencyCode, string(node, "displayName"));
-      data.currencySymbols.put(currencyCode, string(node, "symbol"));
+      String symbol = string(node, "symbol");
+      String narrowSymbol = string(node, "symbol-alt-narrow");
+      narrowSymbol = narrowSymbol.equals("") ? symbol : narrowSymbol;
+      data.currencySymbols.put(currencyCode, symbol);
+      data.narrowCurrencySymbols.put(currencyCode, narrowSymbol);
 
       Map<String, String> displayNames = new LinkedHashMap<>();
       for (String key : objectKeys(node)) {

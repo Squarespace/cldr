@@ -435,6 +435,7 @@ public class NumberCodeGenerator {
    */
   private void addCurrencyInfo(TypeSpec.Builder type, NumberData data) {
     addCurrencyInfoMethod(type, "getCurrencySymbol", data.currencySymbols);
+    addCurrencyInfoMethod(type, "getNarrowCurrencySymbol", data.narrowCurrencySymbols);
     addCurrencyInfoMethod(type, "getCurrencyDisplayName", data.currencyDisplayName);
     
     MethodSpec.Builder method = MethodSpec.methodBuilder("getCurrencyPluralName")

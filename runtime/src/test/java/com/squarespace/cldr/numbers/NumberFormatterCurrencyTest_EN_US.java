@@ -149,4 +149,18 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
     ));
   }
   
+  
+  @Test
+  public void testNarrowCurrencySymbols() {
+    CurrencyFormatOptions options = currency(SYMBOL)
+        .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC)
+        .setSymbolWidth(CurrencySymbolWidth.NARROW)
+        .setMaximumFractionDigits(1)
+        .setGrouping(true);
+    
+    test(CLDR.EN_US, CLDR.Currency.SEK, options, numbers("3.59", "1200"), pairs(
+        pair("kr\u00a03.6", "-kr\u00a03.6"),
+        pair("kr\u00a01,200.0", "-kr\u00a01,200.0")
+    ));
+  }
 }

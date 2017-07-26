@@ -43,7 +43,8 @@ public class NumberData {
 
   // Currency symbols in this locale, e.g. '$' in en-US or 'US$' in fr
   public Map<String, String> currencySymbols;
-
+  public Map<String, String> narrowCurrencySymbols;
+  
   // Default currency display name, e.g. as proper name "US Dollar"
   public Map<String, String> currencyDisplayName;
 

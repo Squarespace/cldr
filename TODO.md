@@ -1,8 +1,8 @@
 
 # TODO
 
-### High test coverage for main formatter code pathways.
 
+### High test coverage for main formatter code pathways.
 
 ### Timezone formatting
 
@@ -17,6 +17,22 @@ Unit formatting (square feet, Megabytes, etc)
 ----------------------------------------------------------
 
 # FIXED
+
+
+### Support narrow currency symbols
+
+Use of the narrow symbols depends on the current context.  Perhaps expose
+the choice to the application, since the developer knows better what the
+current context is.  For example, on an invoice where the client knows the
+currency, the narrow symbol may be more appropriate (e.g. '$').  On a global
+currency selector we want to use the localized symbols exclusively (e.g. 'AU$',
+'US$')
+
+For the currency calls we could add an enum option SymbolWidth with DEFAULT 
+(global) NARROW (context-dependent).
+
+See:
+ * https://github.com/globalizejs/globalize/issues/479
 
 
 ### Use scaling instead of division for compact forms.
