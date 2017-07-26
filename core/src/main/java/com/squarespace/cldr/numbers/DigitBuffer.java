@@ -114,7 +114,6 @@ public class DigitBuffer implements CharSequence {
 
   /**
    * Copy the populated chars to the destination buffer.
-   * @param buf
    */
   public void appendTo(StringBuilder dest) {
     dest.append(buf, 0, size);

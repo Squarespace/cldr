@@ -164,7 +164,6 @@ public class DataReader {
 
   /**
    * Return pluralization rules for cardinal numbers.
-   * @return
    */
   public Map<String, PluralData> cardinals() {
     return cardinals;
