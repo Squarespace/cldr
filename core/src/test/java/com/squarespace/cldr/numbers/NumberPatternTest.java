@@ -15,7 +15,7 @@ import com.squarespace.cldr.numbers.NumberPattern.Node;
 import com.squarespace.cldr.numbers.NumberPattern.Text;
 
 
-public class NumberPatternParserTest {
+public class NumberPatternTest {
 
   private static final String NBSP = "\u00a0";
   private static final String RLM = "\u200f";
@@ -73,10 +73,14 @@ public class NumberPatternParserTest {
   }
 
   private static void assertPattern(String pattern, Node... nodes) {
+    NumberPatternParser parser = new NumberPatternParser();
     List<Node> expected = Arrays.asList(nodes);
-    NumberPattern actual = new NumberPatternParser().parse(pattern);
-    System.out.println(expected);
-    System.out.println(actual.parsed());
+    NumberPattern actual = parser.parse(pattern);
+    assertEquals(actual.parsed(), expected);
+
+    // Render and re-parse
+    String rendered = actual.render();
+    actual = parser.parse(rendered);
     assertEquals(actual.parsed(), expected);
   }
 

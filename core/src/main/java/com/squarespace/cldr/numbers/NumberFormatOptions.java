@@ -4,9 +4,9 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
 
   private static final int MAX_SIGNIFICANT_DIGITS = 100;
 
-  protected NumberFormatMode formatMode = NumberFormatMode.DEFAULT;
+  protected NumberFormatMode formatMode;
   protected NumberRoundMode roundMode = NumberRoundMode.ROUND;
-  protected boolean grouping = false;
+  protected Boolean grouping;
 
   // Which of these get used depends on the formatMode setting.
   protected Integer minimumIntegerDigits;
@@ -24,9 +24,9 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
    * Reset the options to their defaults.
    */
   public void reset() {
-    this.formatMode = NumberFormatMode.DEFAULT;
+    this.formatMode = null;
     this.roundMode = NumberRoundMode.ROUND;
-    this.grouping = false;
+    this.grouping = null;
     this.minimumIntegerDigits = null;
     this.maximumFractionDigits = null;
     this.minimumFractionDigits = null;
@@ -39,7 +39,7 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
   }
 
   public T setFormatMode(NumberFormatMode mode) {
-    this.formatMode = mode == null ? NumberFormatMode.DEFAULT : mode;
+    this.formatMode = mode;
     return self();
   }
 
@@ -52,11 +52,11 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
     return self();
   }
 
-  public boolean grouping() {
+  public Boolean grouping() {
     return grouping;
   }
 
-  public T setGrouping(boolean value) {
+  public T setGrouping(Boolean value) {
     this.grouping = value;
     return self();
   }
@@ -101,7 +101,7 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
   public T setMaximumSignificantDigits(Integer value) {
     this.maximumSignificantDigits = clamp(value, 1);
     if (this.minimumSignificantDigits == null) {
-      this.minimumSignificantDigits = this.maximumSignificantDigits;
+      this.minimumSignificantDigits = 1;
     }
     return self();
   }
@@ -118,19 +118,25 @@ public abstract class NumberFormatOptions<T extends NumberFormatOptions<T>> {
     return self();
   }
 
-  protected void repr(StringBuilder buf) {
-    buf.append(", formatMode=").append(formatMode);
-    buf.append(", roundMode=").append(roundMode);
-    buf.append(", useGrouping=").append(grouping);
-    buf.append(", minimumIntegerDigits=").append(orEmpty(minimumIntegerDigits));
-    buf.append(", maximumFractionDigits=").append(orEmpty(maximumFractionDigits));
-    buf.append(", minimumFractionDigits=").append(orEmpty(minimumFractionDigits));
-    buf.append(", maximumSignificantDigits=").append(orEmpty(maximumSignificantDigits));
-    buf.append(", minimumSignificantDigits=").append(orEmpty(minimumSignificantDigits));
-  }
+  private static final String[] KEYS = new String[] {
+    "format=", "rounding=", "grouping=", "minInt=",
+    "maxFrac=", "minFrac=", "maxSig=", "minSig="
+  };
 
-  private static Object orEmpty(Object o) {
-    return o == null ? "" : o;
+  public void repr(StringBuilder buf, String sep) {
+    Object[] vals = new Object[] {
+        formatMode, roundMode, grouping,
+        minimumIntegerDigits, maximumFractionDigits, minimumFractionDigits,
+        maximumSignificantDigits, minimumSignificantDigits };
+    for (int i = 0; i < KEYS.length; i++) {
+      Object val = vals[i];
+      if (val != null) {
+        if (buf.length() > 0) {
+          buf.append(sep);
+        }
+        buf.append(KEYS[i]).append(val);
+      }
+    }
   }
 
   private static Integer clamp(Integer value, int limit) {

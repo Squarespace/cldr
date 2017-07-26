@@ -31,6 +31,54 @@ public class NumberPattern {
     return format == null ? DEFAULT_FORMAT : format;
   }
 
+  /**
+   * Render a parseable representation of this pattern.
+   */
+  public String render() {
+    StringBuilder buf = new StringBuilder();
+    for (Node node : parsed) {
+      if (node instanceof Symbol) {
+        switch ((Symbol)node) {
+          case MINUS:
+            buf.append('-');
+            break;
+
+          case CURRENCY:
+            buf.append('\u00a4');
+            break;
+
+          case PERCENT:
+            buf.append('%');
+            break;
+        }
+      } else if (node instanceof Text) {
+        String text = ((Text)node).text;
+
+        int len = text.length();
+        for (int i = 0; i < len; i++) {
+          char ch = text.charAt(i);
+          switch (ch) {
+            case '.':
+            case '#':
+            case ',':
+            case '-':
+              buf.append('\'').append(ch).append('\'');
+              break;
+
+            default:
+              buf.append(ch);
+              break;
+          }
+        }
+      } else if (node instanceof Format) {
+        Format format = (Format) node;
+        format.render(buf);
+      }
+    }
+
+    return buf.toString();
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof NumberPattern) {
@@ -104,8 +152,16 @@ public class NumberPattern {
       return maximumFractionDigits;
     }
 
+    public void setMaximumFractionDigits(int value) {
+      this.maximumFractionDigits = value;
+    }
+
     public int minimumFractionDigits() {
       return minimumFractionDigits;
+    }
+
+    public void setMinimumFractionDigits(int value) {
+      this.minimumFractionDigits = value;
     }
 
     public int primaryGroupingSize() {
@@ -114,6 +170,48 @@ public class NumberPattern {
 
     public int secondaryGroupingSize() {
       return secondaryGroupingSize == 0 ? primaryGroupingSize : secondaryGroupingSize;
+    }
+
+    /**
+     * Render a parseable representation of this number format.
+     */
+    public void render(StringBuilder buf) {
+      boolean grouped = false;
+      if (primaryGroupingSize > 0) {
+        grouped = true;
+        buf.append('#');
+        if (secondaryGroupingSize > 0 && secondaryGroupingSize != primaryGroupingSize) {
+          buf.append(',');
+          for (int i = 0; i < secondaryGroupingSize; i++) {
+            buf.append('#');
+          }
+        }
+        buf.append(',');
+        for (int i = 0; i < primaryGroupingSize; i++) {
+          buf.append('#');
+        }
+      }
+
+      if (grouped) {
+        int end = buf.length() - 1;
+        for (int i = 0; i < minimumIntegerDigits; i++) {
+          buf.setCharAt(end - i, '0');
+        }
+      } else {
+        for (int i = 0; i < minimumIntegerDigits; i++) {
+          buf.append('0');
+        }
+      }
+
+      if (minimumFractionDigits > 0 || maximumFractionDigits > 0) {
+        buf.append('.');
+        for (int i = 0; i < minimumFractionDigits; i++) {
+          buf.append('0');
+        }
+        for (int i = 0; i < maximumFractionDigits - minimumFractionDigits; i++) {
+          buf.append('#');
+        }
+      }
     }
 
     @Override

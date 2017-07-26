@@ -5,6 +5,11 @@
 //
 package com.squarespace.cldr;
 
+import java.lang.String;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class CLDR extends CLDRBase {
   private static final CLDR instance = new CLDR();
 
@@ -896,6 +901,752 @@ public class CLDR extends CLDRBase {
 
   public static final CLDRLocale ZU_ZA = new CLDRLocale("zu", "", "ZA", "");
 
+  private static final List<CLDRLocale> AVAILABLE_LOCALES = Collections.unmodifiableList(Arrays.asList(
+    AF,
+    AF_NA,
+    AF_ZA,
+    AM,
+    AM_ET,
+    AR,
+    AR_001,
+    AR_AE,
+    AR_BH,
+    AR_DJ,
+    AR_DZ,
+    AR_EG,
+    AR_EH,
+    AR_ER,
+    AR_IL,
+    AR_IQ,
+    AR_JO,
+    AR_KM,
+    AR_KW,
+    AR_LB,
+    AR_LY,
+    AR_MA,
+    AR_MR,
+    AR_OM,
+    AR_PS,
+    AR_QA,
+    AR_SA,
+    AR_SD,
+    AR_SO,
+    AR_SS,
+    AR_SY,
+    AR_TD,
+    AR_TN,
+    AR_YE,
+    AZ,
+    AZ_CYRL_AZ,
+    AZ_LATN,
+    AZ_LATN_AZ,
+    BE,
+    BE_BY,
+    BG,
+    BG_BG,
+    BN,
+    BN_BD,
+    BN_IN,
+    BS,
+    BS_CYRL_BA,
+    BS_LATN,
+    BS_LATN_BA,
+    CA,
+    CA_AD,
+    CA_ES,
+    CA_ES_VALENCIA,
+    CA_FR,
+    CA_IT,
+    CS,
+    CS_CZ,
+    CY,
+    CY_GB,
+    DA,
+    DA_DK,
+    DA_GL,
+    DE,
+    DE_AT,
+    DE_BE,
+    DE_CH,
+    DE_DE,
+    DE_IT,
+    DE_LI,
+    DE_LU,
+    EL,
+    EL_CY,
+    EL_GR,
+    EN,
+    EN_001,
+    EN_150,
+    EN_AG,
+    EN_AI,
+    EN_AS,
+    EN_AT,
+    EN_AU,
+    EN_BB,
+    EN_BE,
+    EN_BI,
+    EN_BM,
+    EN_BS,
+    EN_BW,
+    EN_BZ,
+    EN_CA,
+    EN_CC,
+    EN_CH,
+    EN_CK,
+    EN_CM,
+    EN_CX,
+    EN_CY,
+    EN_DE,
+    EN_DG,
+    EN_DK,
+    EN_DM,
+    EN_ER,
+    EN_FI,
+    EN_FJ,
+    EN_FK,
+    EN_FM,
+    EN_GB,
+    EN_GD,
+    EN_GG,
+    EN_GH,
+    EN_GI,
+    EN_GM,
+    EN_GU,
+    EN_GY,
+    EN_HK,
+    EN_IE,
+    EN_IL,
+    EN_IM,
+    EN_IN,
+    EN_IO,
+    EN_JE,
+    EN_JM,
+    EN_KE,
+    EN_KI,
+    EN_KN,
+    EN_KY,
+    EN_LC,
+    EN_LR,
+    EN_LS,
+    EN_MG,
+    EN_MH,
+    EN_MO,
+    EN_MP,
+    EN_MS,
+    EN_MT,
+    EN_MU,
+    EN_MW,
+    EN_MY,
+    EN_NA,
+    EN_NF,
+    EN_NG,
+    EN_NL,
+    EN_NR,
+    EN_NU,
+    EN_NZ,
+    EN_PG,
+    EN_PH,
+    EN_PK,
+    EN_PN,
+    EN_PR,
+    EN_PW,
+    EN_RW,
+    EN_SB,
+    EN_SC,
+    EN_SD,
+    EN_SE,
+    EN_SG,
+    EN_SH,
+    EN_SI,
+    EN_SL,
+    EN_SS,
+    EN_SX,
+    EN_SZ,
+    EN_TC,
+    EN_TK,
+    EN_TO,
+    EN_TT,
+    EN_TV,
+    EN_TZ,
+    EN_UG,
+    EN_UM,
+    EN_US,
+    EN_US_POSIX,
+    EN_VC,
+    EN_VG,
+    EN_VI,
+    EN_VU,
+    EN_WS,
+    EN_ZA,
+    EN_ZM,
+    EN_ZW,
+    ES,
+    ES_419,
+    ES_AR,
+    ES_BO,
+    ES_BR,
+    ES_BZ,
+    ES_CL,
+    ES_CO,
+    ES_CR,
+    ES_CU,
+    ES_DO,
+    ES_EA,
+    ES_EC,
+    ES_ES,
+    ES_GQ,
+    ES_GT,
+    ES_HN,
+    ES_IC,
+    ES_MX,
+    ES_NI,
+    ES_PA,
+    ES_PE,
+    ES_PH,
+    ES_PR,
+    ES_PY,
+    ES_SV,
+    ES_US,
+    ES_UY,
+    ES_VE,
+    ET,
+    ET_EE,
+    EU,
+    EU_ES,
+    FA,
+    FA_AF,
+    FA_IR,
+    FI,
+    FIL,
+    FIL_PH,
+    FI_FI,
+    FO,
+    FO_DK,
+    FO_FO,
+    FR,
+    FR_BE,
+    FR_BF,
+    FR_BI,
+    FR_BJ,
+    FR_BL,
+    FR_CA,
+    FR_CD,
+    FR_CF,
+    FR_CG,
+    FR_CH,
+    FR_CI,
+    FR_CM,
+    FR_DJ,
+    FR_DZ,
+    FR_FR,
+    FR_GA,
+    FR_GF,
+    FR_GN,
+    FR_GP,
+    FR_GQ,
+    FR_HT,
+    FR_KM,
+    FR_LU,
+    FR_MA,
+    FR_MC,
+    FR_MF,
+    FR_MG,
+    FR_ML,
+    FR_MQ,
+    FR_MR,
+    FR_MU,
+    FR_NC,
+    FR_NE,
+    FR_PF,
+    FR_PM,
+    FR_RE,
+    FR_RW,
+    FR_SC,
+    FR_SN,
+    FR_SY,
+    FR_TD,
+    FR_TG,
+    FR_TN,
+    FR_VU,
+    FR_WF,
+    FR_YT,
+    GA,
+    GA_IE,
+    GL,
+    GL_ES,
+    GU,
+    GU_IN,
+    HE,
+    HE_IL,
+    HI,
+    HI_IN,
+    HR,
+    HR_BA,
+    HR_HR,
+    HU,
+    HU_HU,
+    HY,
+    HY_AM,
+    ID,
+    ID_ID,
+    IS,
+    IS_IS,
+    IT,
+    IT_CH,
+    IT_IT,
+    IT_SM,
+    IT_VA,
+    JA,
+    JA_JP,
+    KA,
+    KA_GE,
+    KK,
+    KK_KZ,
+    KM,
+    KM_KH,
+    KN,
+    KN_IN,
+    KO,
+    KO_KP,
+    KO_KR,
+    KY,
+    KY_KG,
+    LO,
+    LO_LA,
+    LT,
+    LT_LT,
+    LV,
+    LV_LV,
+    MK,
+    MK_MK,
+    ML,
+    ML_IN,
+    MN,
+    MN_MN,
+    MR,
+    MR_IN,
+    MS,
+    MS_BN,
+    MS_MY,
+    MS_SG,
+    MY,
+    MY_MM,
+    NB,
+    NB_NO,
+    NB_SJ,
+    NE,
+    NE_IN,
+    NE_NP,
+    NL,
+    NL_AW,
+    NL_BE,
+    NL_BQ,
+    NL_CW,
+    NL_NL,
+    NL_SR,
+    NL_SX,
+    PA,
+    PA_ARAB_PK,
+    PA_GURU,
+    PA_GURU_IN,
+    PL,
+    PL_PL,
+    PT,
+    PT_AO,
+    PT_BR,
+    PT_CH,
+    PT_CV,
+    PT_GQ,
+    PT_GW,
+    PT_LU,
+    PT_MO,
+    PT_MZ,
+    PT_PT,
+    PT_ST,
+    PT_TL,
+    RO,
+    ROOT,
+    RO_MD,
+    RO_RO,
+    RU,
+    RU_BY,
+    RU_KG,
+    RU_KZ,
+    RU_MD,
+    RU_RU,
+    RU_UA,
+    SI,
+    SI_LK,
+    SK,
+    SK_SK,
+    SL,
+    SL_SI,
+    SQ,
+    SQ_AL,
+    SQ_MK,
+    SQ_XK,
+    SR,
+    SR_CYRL,
+    SR_CYRL_BA,
+    SR_CYRL_ME,
+    SR_CYRL_RS,
+    SR_CYRL_XK,
+    SR_LATN,
+    SR_LATN_BA,
+    SR_LATN_ME,
+    SR_LATN_RS,
+    SR_LATN_XK,
+    SV,
+    SV_AX,
+    SV_FI,
+    SV_SE,
+    SW,
+    SW_CD,
+    SW_KE,
+    SW_TZ,
+    SW_UG,
+    TA,
+    TA_IN,
+    TA_LK,
+    TA_MY,
+    TA_SG,
+    TE,
+    TE_IN,
+    TH,
+    TH_TH,
+    TO,
+    TO_TO,
+    TR,
+    TR_CY,
+    TR_TR,
+    UK,
+    UK_UA,
+    UR,
+    UR_IN,
+    UR_PK,
+    UZ,
+    UZ_ARAB_AF,
+    UZ_CYRL_UZ,
+    UZ_LATN,
+    UZ_LATN_UZ,
+    VI,
+    VI_VN,
+    YUE,
+    YUE_HK,
+    ZH,
+    ZH_HANS,
+    ZH_HANS_CN,
+    ZH_HANS_HK,
+    ZH_HANS_MO,
+    ZH_HANS_SG,
+    ZH_HANT,
+    ZH_HANT_HK,
+    ZH_HANT_MO,
+    ZH_HANT_TW,
+    ZU,
+    ZU_ZA));
+
+  private static final List<String> AVAILABLE_CURRENCIES = Collections.unmodifiableList(Arrays.asList(
+    Currency.ADP,
+    Currency.AED,
+    Currency.AFA,
+    Currency.AFN,
+    Currency.ALK,
+    Currency.ALL,
+    Currency.AMD,
+    Currency.ANG,
+    Currency.AOA,
+    Currency.AOK,
+    Currency.AON,
+    Currency.AOR,
+    Currency.ARA,
+    Currency.ARL,
+    Currency.ARM,
+    Currency.ARP,
+    Currency.ARS,
+    Currency.ATS,
+    Currency.AUD,
+    Currency.AWG,
+    Currency.AZM,
+    Currency.AZN,
+    Currency.BAD,
+    Currency.BAM,
+    Currency.BAN,
+    Currency.BBD,
+    Currency.BDT,
+    Currency.BEC,
+    Currency.BEF,
+    Currency.BEL,
+    Currency.BGL,
+    Currency.BGM,
+    Currency.BGN,
+    Currency.BGO,
+    Currency.BHD,
+    Currency.BIF,
+    Currency.BMD,
+    Currency.BND,
+    Currency.BOB,
+    Currency.BOL,
+    Currency.BOP,
+    Currency.BOV,
+    Currency.BRB,
+    Currency.BRC,
+    Currency.BRE,
+    Currency.BRL,
+    Currency.BRN,
+    Currency.BRR,
+    Currency.BRZ,
+    Currency.BSD,
+    Currency.BTN,
+    Currency.BUK,
+    Currency.BWP,
+    Currency.BYB,
+    Currency.BYN,
+    Currency.BYR,
+    Currency.BZD,
+    Currency.CAD,
+    Currency.CDF,
+    Currency.CHE,
+    Currency.CHF,
+    Currency.CHW,
+    Currency.CLE,
+    Currency.CLF,
+    Currency.CLP,
+    Currency.CNX,
+    Currency.CNY,
+    Currency.COP,
+    Currency.COU,
+    Currency.CRC,
+    Currency.CSD,
+    Currency.CSK,
+    Currency.CUC,
+    Currency.CUP,
+    Currency.CVE,
+    Currency.CYP,
+    Currency.CZK,
+    Currency.DDM,
+    Currency.DEM,
+    Currency.DJF,
+    Currency.DKK,
+    Currency.DOP,
+    Currency.DZD,
+    Currency.ECS,
+    Currency.ECV,
+    Currency.EEK,
+    Currency.EGP,
+    Currency.ERN,
+    Currency.ESA,
+    Currency.ESB,
+    Currency.ESP,
+    Currency.ETB,
+    Currency.EUR,
+    Currency.FIM,
+    Currency.FJD,
+    Currency.FKP,
+    Currency.FRF,
+    Currency.GBP,
+    Currency.GEK,
+    Currency.GEL,
+    Currency.GHC,
+    Currency.GHS,
+    Currency.GIP,
+    Currency.GMD,
+    Currency.GNF,
+    Currency.GNS,
+    Currency.GQE,
+    Currency.GRD,
+    Currency.GTQ,
+    Currency.GWE,
+    Currency.GWP,
+    Currency.GYD,
+    Currency.HKD,
+    Currency.HNL,
+    Currency.HRD,
+    Currency.HRK,
+    Currency.HTG,
+    Currency.HUF,
+    Currency.IDR,
+    Currency.IEP,
+    Currency.ILP,
+    Currency.ILR,
+    Currency.ILS,
+    Currency.INR,
+    Currency.IQD,
+    Currency.IRR,
+    Currency.ISJ,
+    Currency.ISK,
+    Currency.ITL,
+    Currency.JMD,
+    Currency.JOD,
+    Currency.JPY,
+    Currency.KES,
+    Currency.KGS,
+    Currency.KHR,
+    Currency.KMF,
+    Currency.KPW,
+    Currency.KRH,
+    Currency.KRO,
+    Currency.KRW,
+    Currency.KWD,
+    Currency.KYD,
+    Currency.KZT,
+    Currency.LAK,
+    Currency.LBP,
+    Currency.LKR,
+    Currency.LRD,
+    Currency.LSL,
+    Currency.LTL,
+    Currency.LTT,
+    Currency.LUC,
+    Currency.LUF,
+    Currency.LUL,
+    Currency.LVL,
+    Currency.LVR,
+    Currency.LYD,
+    Currency.MAD,
+    Currency.MAF,
+    Currency.MCF,
+    Currency.MDC,
+    Currency.MDL,
+    Currency.MGA,
+    Currency.MGF,
+    Currency.MKD,
+    Currency.MKN,
+    Currency.MLF,
+    Currency.MMK,
+    Currency.MNT,
+    Currency.MOP,
+    Currency.MRO,
+    Currency.MTL,
+    Currency.MTP,
+    Currency.MUR,
+    Currency.MVP,
+    Currency.MVR,
+    Currency.MWK,
+    Currency.MXN,
+    Currency.MXP,
+    Currency.MXV,
+    Currency.MYR,
+    Currency.MZE,
+    Currency.MZM,
+    Currency.MZN,
+    Currency.NAD,
+    Currency.NGN,
+    Currency.NIC,
+    Currency.NIO,
+    Currency.NLG,
+    Currency.NOK,
+    Currency.NPR,
+    Currency.NZD,
+    Currency.OMR,
+    Currency.PAB,
+    Currency.PEI,
+    Currency.PEN,
+    Currency.PES,
+    Currency.PGK,
+    Currency.PHP,
+    Currency.PKR,
+    Currency.PLN,
+    Currency.PLZ,
+    Currency.PTE,
+    Currency.PYG,
+    Currency.QAR,
+    Currency.RHD,
+    Currency.ROL,
+    Currency.RON,
+    Currency.RSD,
+    Currency.RUB,
+    Currency.RUR,
+    Currency.RWF,
+    Currency.SAR,
+    Currency.SBD,
+    Currency.SCR,
+    Currency.SDD,
+    Currency.SDG,
+    Currency.SDP,
+    Currency.SEK,
+    Currency.SGD,
+    Currency.SHP,
+    Currency.SIT,
+    Currency.SKK,
+    Currency.SLL,
+    Currency.SOS,
+    Currency.SRD,
+    Currency.SRG,
+    Currency.SSP,
+    Currency.STD,
+    Currency.SUR,
+    Currency.SVC,
+    Currency.SYP,
+    Currency.SZL,
+    Currency.THB,
+    Currency.TJR,
+    Currency.TJS,
+    Currency.TMM,
+    Currency.TMT,
+    Currency.TND,
+    Currency.TOP,
+    Currency.TPE,
+    Currency.TRL,
+    Currency.TRY,
+    Currency.TTD,
+    Currency.TWD,
+    Currency.TZS,
+    Currency.UAH,
+    Currency.UAK,
+    Currency.UGS,
+    Currency.UGX,
+    Currency.USD,
+    Currency.USN,
+    Currency.USS,
+    Currency.UYI,
+    Currency.UYP,
+    Currency.UYU,
+    Currency.UZS,
+    Currency.VEB,
+    Currency.VEF,
+    Currency.VND,
+    Currency.VNN,
+    Currency.VUV,
+    Currency.WST,
+    Currency.XAF,
+    Currency.XAG,
+    Currency.XAU,
+    Currency.XBA,
+    Currency.XBB,
+    Currency.XBC,
+    Currency.XBD,
+    Currency.XCD,
+    Currency.XDR,
+    Currency.XEU,
+    Currency.XFO,
+    Currency.XFU,
+    Currency.XOF,
+    Currency.XPD,
+    Currency.XPF,
+    Currency.XPT,
+    Currency.XRE,
+    Currency.XSU,
+    Currency.XTS,
+    Currency.XUA,
+    Currency.XXX,
+    Currency.YDD,
+    Currency.YER,
+    Currency.YUD,
+    Currency.YUM,
+    Currency.YUN,
+    Currency.YUR,
+    Currency.ZAL,
+    Currency.ZAR,
+    Currency.ZMK,
+    Currency.ZMW,
+    Currency.ZRN,
+    Currency.ZRZ,
+    Currency.ZWD,
+    Currency.ZWL,
+    Currency.ZWR));
+
   static {
     CLDRBase.registerCalendarFormatter(PT, com.squarespace.cldr.dates._CalendarFormatter_pt.class);
     CLDRBase.registerCalendarFormatter(AR_TD, com.squarespace.cldr.dates._CalendarFormatter_ar_TD.class);
@@ -1712,5 +2463,611 @@ public class CLDR extends CLDRBase {
 
   public static CLDR get() {
     return instance;
+  }
+
+  public static final List<CLDRLocale> availableLocales() {
+    return AVAILABLE_LOCALES;
+  }
+
+  public static final List<String> availableCurrencies() {
+    return AVAILABLE_CURRENCIES;
+  }
+
+  public static final class Currency {
+    public static final String ADP = "ADP";
+
+    public static final String AED = "AED";
+
+    public static final String AFA = "AFA";
+
+    public static final String AFN = "AFN";
+
+    public static final String ALK = "ALK";
+
+    public static final String ALL = "ALL";
+
+    public static final String AMD = "AMD";
+
+    public static final String ANG = "ANG";
+
+    public static final String AOA = "AOA";
+
+    public static final String AOK = "AOK";
+
+    public static final String AON = "AON";
+
+    public static final String AOR = "AOR";
+
+    public static final String ARA = "ARA";
+
+    public static final String ARL = "ARL";
+
+    public static final String ARM = "ARM";
+
+    public static final String ARP = "ARP";
+
+    public static final String ARS = "ARS";
+
+    public static final String ATS = "ATS";
+
+    public static final String AUD = "AUD";
+
+    public static final String AWG = "AWG";
+
+    public static final String AZM = "AZM";
+
+    public static final String AZN = "AZN";
+
+    public static final String BAD = "BAD";
+
+    public static final String BAM = "BAM";
+
+    public static final String BAN = "BAN";
+
+    public static final String BBD = "BBD";
+
+    public static final String BDT = "BDT";
+
+    public static final String BEC = "BEC";
+
+    public static final String BEF = "BEF";
+
+    public static final String BEL = "BEL";
+
+    public static final String BGL = "BGL";
+
+    public static final String BGM = "BGM";
+
+    public static final String BGN = "BGN";
+
+    public static final String BGO = "BGO";
+
+    public static final String BHD = "BHD";
+
+    public static final String BIF = "BIF";
+
+    public static final String BMD = "BMD";
+
+    public static final String BND = "BND";
+
+    public static final String BOB = "BOB";
+
+    public static final String BOL = "BOL";
+
+    public static final String BOP = "BOP";
+
+    public static final String BOV = "BOV";
+
+    public static final String BRB = "BRB";
+
+    public static final String BRC = "BRC";
+
+    public static final String BRE = "BRE";
+
+    public static final String BRL = "BRL";
+
+    public static final String BRN = "BRN";
+
+    public static final String BRR = "BRR";
+
+    public static final String BRZ = "BRZ";
+
+    public static final String BSD = "BSD";
+
+    public static final String BTN = "BTN";
+
+    public static final String BUK = "BUK";
+
+    public static final String BWP = "BWP";
+
+    public static final String BYB = "BYB";
+
+    public static final String BYN = "BYN";
+
+    public static final String BYR = "BYR";
+
+    public static final String BZD = "BZD";
+
+    public static final String CAD = "CAD";
+
+    public static final String CDF = "CDF";
+
+    public static final String CHE = "CHE";
+
+    public static final String CHF = "CHF";
+
+    public static final String CHW = "CHW";
+
+    public static final String CLE = "CLE";
+
+    public static final String CLF = "CLF";
+
+    public static final String CLP = "CLP";
+
+    public static final String CNX = "CNX";
+
+    public static final String CNY = "CNY";
+
+    public static final String COP = "COP";
+
+    public static final String COU = "COU";
+
+    public static final String CRC = "CRC";
+
+    public static final String CSD = "CSD";
+
+    public static final String CSK = "CSK";
+
+    public static final String CUC = "CUC";
+
+    public static final String CUP = "CUP";
+
+    public static final String CVE = "CVE";
+
+    public static final String CYP = "CYP";
+
+    public static final String CZK = "CZK";
+
+    public static final String DDM = "DDM";
+
+    public static final String DEM = "DEM";
+
+    public static final String DJF = "DJF";
+
+    public static final String DKK = "DKK";
+
+    public static final String DOP = "DOP";
+
+    public static final String DZD = "DZD";
+
+    public static final String ECS = "ECS";
+
+    public static final String ECV = "ECV";
+
+    public static final String EEK = "EEK";
+
+    public static final String EGP = "EGP";
+
+    public static final String ERN = "ERN";
+
+    public static final String ESA = "ESA";
+
+    public static final String ESB = "ESB";
+
+    public static final String ESP = "ESP";
+
+    public static final String ETB = "ETB";
+
+    public static final String EUR = "EUR";
+
+    public static final String FIM = "FIM";
+
+    public static final String FJD = "FJD";
+
+    public static final String FKP = "FKP";
+
+    public static final String FRF = "FRF";
+
+    public static final String GBP = "GBP";
+
+    public static final String GEK = "GEK";
+
+    public static final String GEL = "GEL";
+
+    public static final String GHC = "GHC";
+
+    public static final String GHS = "GHS";
+
+    public static final String GIP = "GIP";
+
+    public static final String GMD = "GMD";
+
+    public static final String GNF = "GNF";
+
+    public static final String GNS = "GNS";
+
+    public static final String GQE = "GQE";
+
+    public static final String GRD = "GRD";
+
+    public static final String GTQ = "GTQ";
+
+    public static final String GWE = "GWE";
+
+    public static final String GWP = "GWP";
+
+    public static final String GYD = "GYD";
+
+    public static final String HKD = "HKD";
+
+    public static final String HNL = "HNL";
+
+    public static final String HRD = "HRD";
+
+    public static final String HRK = "HRK";
+
+    public static final String HTG = "HTG";
+
+    public static final String HUF = "HUF";
+
+    public static final String IDR = "IDR";
+
+    public static final String IEP = "IEP";
+
+    public static final String ILP = "ILP";
+
+    public static final String ILR = "ILR";
+
+    public static final String ILS = "ILS";
+
+    public static final String INR = "INR";
+
+    public static final String IQD = "IQD";
+
+    public static final String IRR = "IRR";
+
+    public static final String ISJ = "ISJ";
+
+    public static final String ISK = "ISK";
+
+    public static final String ITL = "ITL";
+
+    public static final String JMD = "JMD";
+
+    public static final String JOD = "JOD";
+
+    public static final String JPY = "JPY";
+
+    public static final String KES = "KES";
+
+    public static final String KGS = "KGS";
+
+    public static final String KHR = "KHR";
+
+    public static final String KMF = "KMF";
+
+    public static final String KPW = "KPW";
+
+    public static final String KRH = "KRH";
+
+    public static final String KRO = "KRO";
+
+    public static final String KRW = "KRW";
+
+    public static final String KWD = "KWD";
+
+    public static final String KYD = "KYD";
+
+    public static final String KZT = "KZT";
+
+    public static final String LAK = "LAK";
+
+    public static final String LBP = "LBP";
+
+    public static final String LKR = "LKR";
+
+    public static final String LRD = "LRD";
+
+    public static final String LSL = "LSL";
+
+    public static final String LTL = "LTL";
+
+    public static final String LTT = "LTT";
+
+    public static final String LUC = "LUC";
+
+    public static final String LUF = "LUF";
+
+    public static final String LUL = "LUL";
+
+    public static final String LVL = "LVL";
+
+    public static final String LVR = "LVR";
+
+    public static final String LYD = "LYD";
+
+    public static final String MAD = "MAD";
+
+    public static final String MAF = "MAF";
+
+    public static final String MCF = "MCF";
+
+    public static final String MDC = "MDC";
+
+    public static final String MDL = "MDL";
+
+    public static final String MGA = "MGA";
+
+    public static final String MGF = "MGF";
+
+    public static final String MKD = "MKD";
+
+    public static final String MKN = "MKN";
+
+    public static final String MLF = "MLF";
+
+    public static final String MMK = "MMK";
+
+    public static final String MNT = "MNT";
+
+    public static final String MOP = "MOP";
+
+    public static final String MRO = "MRO";
+
+    public static final String MTL = "MTL";
+
+    public static final String MTP = "MTP";
+
+    public static final String MUR = "MUR";
+
+    public static final String MVP = "MVP";
+
+    public static final String MVR = "MVR";
+
+    public static final String MWK = "MWK";
+
+    public static final String MXN = "MXN";
+
+    public static final String MXP = "MXP";
+
+    public static final String MXV = "MXV";
+
+    public static final String MYR = "MYR";
+
+    public static final String MZE = "MZE";
+
+    public static final String MZM = "MZM";
+
+    public static final String MZN = "MZN";
+
+    public static final String NAD = "NAD";
+
+    public static final String NGN = "NGN";
+
+    public static final String NIC = "NIC";
+
+    public static final String NIO = "NIO";
+
+    public static final String NLG = "NLG";
+
+    public static final String NOK = "NOK";
+
+    public static final String NPR = "NPR";
+
+    public static final String NZD = "NZD";
+
+    public static final String OMR = "OMR";
+
+    public static final String PAB = "PAB";
+
+    public static final String PEI = "PEI";
+
+    public static final String PEN = "PEN";
+
+    public static final String PES = "PES";
+
+    public static final String PGK = "PGK";
+
+    public static final String PHP = "PHP";
+
+    public static final String PKR = "PKR";
+
+    public static final String PLN = "PLN";
+
+    public static final String PLZ = "PLZ";
+
+    public static final String PTE = "PTE";
+
+    public static final String PYG = "PYG";
+
+    public static final String QAR = "QAR";
+
+    public static final String RHD = "RHD";
+
+    public static final String ROL = "ROL";
+
+    public static final String RON = "RON";
+
+    public static final String RSD = "RSD";
+
+    public static final String RUB = "RUB";
+
+    public static final String RUR = "RUR";
+
+    public static final String RWF = "RWF";
+
+    public static final String SAR = "SAR";
+
+    public static final String SBD = "SBD";
+
+    public static final String SCR = "SCR";
+
+    public static final String SDD = "SDD";
+
+    public static final String SDG = "SDG";
+
+    public static final String SDP = "SDP";
+
+    public static final String SEK = "SEK";
+
+    public static final String SGD = "SGD";
+
+    public static final String SHP = "SHP";
+
+    public static final String SIT = "SIT";
+
+    public static final String SKK = "SKK";
+
+    public static final String SLL = "SLL";
+
+    public static final String SOS = "SOS";
+
+    public static final String SRD = "SRD";
+
+    public static final String SRG = "SRG";
+
+    public static final String SSP = "SSP";
+
+    public static final String STD = "STD";
+
+    public static final String SUR = "SUR";
+
+    public static final String SVC = "SVC";
+
+    public static final String SYP = "SYP";
+
+    public static final String SZL = "SZL";
+
+    public static final String THB = "THB";
+
+    public static final String TJR = "TJR";
+
+    public static final String TJS = "TJS";
+
+    public static final String TMM = "TMM";
+
+    public static final String TMT = "TMT";
+
+    public static final String TND = "TND";
+
+    public static final String TOP = "TOP";
+
+    public static final String TPE = "TPE";
+
+    public static final String TRL = "TRL";
+
+    public static final String TRY = "TRY";
+
+    public static final String TTD = "TTD";
+
+    public static final String TWD = "TWD";
+
+    public static final String TZS = "TZS";
+
+    public static final String UAH = "UAH";
+
+    public static final String UAK = "UAK";
+
+    public static final String UGS = "UGS";
+
+    public static final String UGX = "UGX";
+
+    public static final String USD = "USD";
+
+    public static final String USN = "USN";
+
+    public static final String USS = "USS";
+
+    public static final String UYI = "UYI";
+
+    public static final String UYP = "UYP";
+
+    public static final String UYU = "UYU";
+
+    public static final String UZS = "UZS";
+
+    public static final String VEB = "VEB";
+
+    public static final String VEF = "VEF";
+
+    public static final String VND = "VND";
+
+    public static final String VNN = "VNN";
+
+    public static final String VUV = "VUV";
+
+    public static final String WST = "WST";
+
+    public static final String XAF = "XAF";
+
+    public static final String XAG = "XAG";
+
+    public static final String XAU = "XAU";
+
+    public static final String XBA = "XBA";
+
+    public static final String XBB = "XBB";
+
+    public static final String XBC = "XBC";
+
+    public static final String XBD = "XBD";
+
+    public static final String XCD = "XCD";
+
+    public static final String XDR = "XDR";
+
+    public static final String XEU = "XEU";
+
+    public static final String XFO = "XFO";
+
+    public static final String XFU = "XFU";
+
+    public static final String XOF = "XOF";
+
+    public static final String XPD = "XPD";
+
+    public static final String XPF = "XPF";
+
+    public static final String XPT = "XPT";
+
+    public static final String XRE = "XRE";
+
+    public static final String XSU = "XSU";
+
+    public static final String XTS = "XTS";
+
+    public static final String XUA = "XUA";
+
+    public static final String XXX = "XXX";
+
+    public static final String YDD = "YDD";
+
+    public static final String YER = "YER";
+
+    public static final String YUD = "YUD";
+
+    public static final String YUM = "YUM";
+
+    public static final String YUN = "YUN";
+
+    public static final String YUR = "YUR";
+
+    public static final String ZAL = "ZAL";
+
+    public static final String ZAR = "ZAR";
+
+    public static final String ZMK = "ZMK";
+
+    public static final String ZMW = "ZMW";
+
+    public static final String ZRN = "ZRN";
+
+    public static final String ZRZ = "ZRZ";
+
+    public static final String ZWD = "ZWD";
+
+    public static final String ZWL = "ZWL";
+
+    public static final String ZWR = "ZWR";
   }
 }

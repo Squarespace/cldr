@@ -13,19 +13,19 @@ public class NumberFormatOptionsTest {
 
   @Test
   public void testDecimal() {
-    DecimalFormatOptions opts = new DecimalFormatOptions(NumberFormatStyle.LONG);
+    DecimalFormatOptions opts = new DecimalFormatOptions(DecimalFormatStyle.LONG);
     opts.setMaximumFractionDigits(1)
         .setMinimumFractionDigits(2)
         .setGrouping(true)
         .setRoundMode(NumberRoundMode.FLOOR);
 
-    assertEquals(opts.style(), NumberFormatStyle.LONG);
+    assertEquals(opts.style(), DecimalFormatStyle.LONG);
 
     NumberFormatOptions<?> base = (NumberFormatOptions<DecimalFormatOptions>) opts;
     assertEquals(base.maximumFractionDigits(), valueOf(1));
     assertEquals(base.minimumFractionDigits(), valueOf(2));
     assertEquals(base.minimumIntegerDigits(), null);
-    assertEquals(base.grouping(), true);
+    assertEquals(base.grouping(), Boolean.TRUE);
     assertEquals(base.roundMode(), NumberRoundMode.FLOOR);
 
     opts.setMinimumIntegerDigits(3);

@@ -9,7 +9,6 @@ import com.squarespace.cldr.CLDRLocale;
 import com.squarespace.cldr.plurals.PluralCategory;
 import java.lang.String;
 import java.lang.StringBuilder;
-import java.math.BigDecimal;
 
 public class _NumberFormatter_es extends NumberFormatterBase {
   public static final NumberPattern[] DECIMAL_STANDARD = patterns("#,##0.###", "-#,##0.###");
@@ -19,6 +18,10 @@ public class _NumberFormatter_es extends NumberFormatterBase {
   public static final NumberPattern[] CURRENCY_STANDARD = patterns("#,##0.00 ¤", "-#,##0.00 ¤");
 
   public static final NumberPattern[] CURRENCY_ACCOUNTING = patterns("#,##0.00 ¤", "-#,##0.00 ¤");
+
+  public static final NumberPattern[] DECIMAL_STANDARD_COMPACT = patterns("#,##0", "-#,##0");
+
+  public static final NumberPattern[] CURRENCY_STANDARD_COMPACT = patterns("#,##0 ¤", "-#,##0 ¤");
 
   private final NumberPattern[] DECIMAL_SHORT_1K_ONE = patterns("0 K", "-0 K");
 
@@ -68,29 +71,29 @@ public class _NumberFormatter_es extends NumberFormatterBase {
 
   private final NumberPattern[] DECIMAL_SHORT_100T_OTHER = patterns("000 B", "-000 B");
 
-  private final BigDecimal DECIMAL_SHORT_1K_DIV = new BigDecimal("1000");
+  private final int DECIMAL_SHORT_1K_POWER = 3;
 
-  private final BigDecimal DECIMAL_SHORT_10K_DIV = new BigDecimal("1000");
+  private final int DECIMAL_SHORT_10K_POWER = 3;
 
-  private final BigDecimal DECIMAL_SHORT_100K_DIV = new BigDecimal("1000");
+  private final int DECIMAL_SHORT_100K_POWER = 3;
 
-  private final BigDecimal DECIMAL_SHORT_1M_DIV = new BigDecimal("1000000");
+  private final int DECIMAL_SHORT_1M_POWER = 6;
 
-  private final BigDecimal DECIMAL_SHORT_10M_DIV = new BigDecimal("1000000");
+  private final int DECIMAL_SHORT_10M_POWER = 6;
 
-  private final BigDecimal DECIMAL_SHORT_100M_DIV = new BigDecimal("1000000");
+  private final int DECIMAL_SHORT_100M_POWER = 6;
 
-  private final BigDecimal DECIMAL_SHORT_1B_DIV = new BigDecimal("1000000");
+  private final int DECIMAL_SHORT_1B_POWER = 6;
 
-  private final BigDecimal DECIMAL_SHORT_10B_DIV = new BigDecimal("1000000000");
+  private final int DECIMAL_SHORT_10B_POWER = 9;
 
-  private final BigDecimal DECIMAL_SHORT_100B_DIV = new BigDecimal("1000000000");
+  private final int DECIMAL_SHORT_100B_POWER = 9;
 
-  private final BigDecimal DECIMAL_SHORT_1T_DIV = new BigDecimal("1000000000000");
+  private final int DECIMAL_SHORT_1T_POWER = 12;
 
-  private final BigDecimal DECIMAL_SHORT_10T_DIV = new BigDecimal("1000000000000");
+  private final int DECIMAL_SHORT_10T_POWER = 12;
 
-  private final BigDecimal DECIMAL_SHORT_100T_DIV = new BigDecimal("1000000000000");
+  private final int DECIMAL_SHORT_100T_POWER = 12;
 
   private final NumberPattern[] DECIMAL_LONG_1K_ONE = patterns("0 mil", "-0 mil");
 
@@ -140,29 +143,29 @@ public class _NumberFormatter_es extends NumberFormatterBase {
 
   private final NumberPattern[] DECIMAL_LONG_100T_OTHER = patterns("000 billones", "-000 billones");
 
-  private final BigDecimal DECIMAL_LONG_1K_DIV = new BigDecimal("1000");
+  private final int DECIMAL_LONG_1K_POWER = 3;
 
-  private final BigDecimal DECIMAL_LONG_10K_DIV = new BigDecimal("1000");
+  private final int DECIMAL_LONG_10K_POWER = 3;
 
-  private final BigDecimal DECIMAL_LONG_100K_DIV = new BigDecimal("1000");
+  private final int DECIMAL_LONG_100K_POWER = 3;
 
-  private final BigDecimal DECIMAL_LONG_1M_DIV = new BigDecimal("1000000");
+  private final int DECIMAL_LONG_1M_POWER = 6;
 
-  private final BigDecimal DECIMAL_LONG_10M_DIV = new BigDecimal("1000000");
+  private final int DECIMAL_LONG_10M_POWER = 6;
 
-  private final BigDecimal DECIMAL_LONG_100M_DIV = new BigDecimal("1000000");
+  private final int DECIMAL_LONG_100M_POWER = 6;
 
-  private final BigDecimal DECIMAL_LONG_1B_DIV = new BigDecimal("1000000000");
+  private final int DECIMAL_LONG_1B_POWER = 9;
 
-  private final BigDecimal DECIMAL_LONG_10B_DIV = new BigDecimal("1000000000");
+  private final int DECIMAL_LONG_10B_POWER = 9;
 
-  private final BigDecimal DECIMAL_LONG_100B_DIV = new BigDecimal("1000000000");
+  private final int DECIMAL_LONG_100B_POWER = 9;
 
-  private final BigDecimal DECIMAL_LONG_1T_DIV = new BigDecimal("1000000000000");
+  private final int DECIMAL_LONG_1T_POWER = 12;
 
-  private final BigDecimal DECIMAL_LONG_10T_DIV = new BigDecimal("1000000000000");
+  private final int DECIMAL_LONG_10T_POWER = 12;
 
-  private final BigDecimal DECIMAL_LONG_100T_DIV = new BigDecimal("1000000000000");
+  private final int DECIMAL_LONG_100T_POWER = 12;
 
   private final NumberPattern[] CURRENCY_SHORT_1K_ONE = patterns("0 K ¤", "-0 K ¤");
 
@@ -212,29 +215,29 @@ public class _NumberFormatter_es extends NumberFormatterBase {
 
   private final NumberPattern[] CURRENCY_SHORT_100T_OTHER = patterns("000 B ¤", "-000 B ¤");
 
-  private final BigDecimal CURRENCY_SHORT_1K_DIV = new BigDecimal("1000");
+  private final int CURRENCY_SHORT_1K_POWER = 3;
 
-  private final BigDecimal CURRENCY_SHORT_10K_DIV = new BigDecimal("1000");
+  private final int CURRENCY_SHORT_10K_POWER = 3;
 
-  private final BigDecimal CURRENCY_SHORT_100K_DIV = new BigDecimal("1000");
+  private final int CURRENCY_SHORT_100K_POWER = 3;
 
-  private final BigDecimal CURRENCY_SHORT_1M_DIV = new BigDecimal("1000000");
+  private final int CURRENCY_SHORT_1M_POWER = 6;
 
-  private final BigDecimal CURRENCY_SHORT_10M_DIV = new BigDecimal("1000000");
+  private final int CURRENCY_SHORT_10M_POWER = 6;
 
-  private final BigDecimal CURRENCY_SHORT_100M_DIV = new BigDecimal("1000000");
+  private final int CURRENCY_SHORT_100M_POWER = 6;
 
-  private final BigDecimal CURRENCY_SHORT_1B_DIV = new BigDecimal("1000000");
+  private final int CURRENCY_SHORT_1B_POWER = 6;
 
-  private final BigDecimal CURRENCY_SHORT_10B_DIV = new BigDecimal("1000000000");
+  private final int CURRENCY_SHORT_10B_POWER = 9;
 
-  private final BigDecimal CURRENCY_SHORT_100B_DIV = new BigDecimal("1000000000");
+  private final int CURRENCY_SHORT_100B_POWER = 9;
 
-  private final BigDecimal CURRENCY_SHORT_1T_DIV = new BigDecimal("1000000000000");
+  private final int CURRENCY_SHORT_1T_POWER = 12;
 
-  private final BigDecimal CURRENCY_SHORT_10T_DIV = new BigDecimal("1000000000000");
+  private final int CURRENCY_SHORT_10T_POWER = 12;
 
-  private final BigDecimal CURRENCY_SHORT_100T_DIV = new BigDecimal("1000000000000");
+  private final int CURRENCY_SHORT_100T_POWER = 12;
 
   public _NumberFormatter_es() {
     super(
@@ -251,30 +254,30 @@ public class _NumberFormatter_es extends NumberFormatterBase {
         );
   }
 
-  protected BigDecimal getDivisor_DECIMAL_SHORT(int digits) {
+  protected int getPowerOfTen_DECIMAL_SHORT(int digits) {
     if (digits < 4) {
-      return null;
+      return 0;
     }
     switch (digits) {
-      case 4: return DECIMAL_SHORT_1K_DIV;
-      case 5: return DECIMAL_SHORT_10K_DIV;
-      case 6: return DECIMAL_SHORT_100K_DIV;
-      case 7: return DECIMAL_SHORT_1M_DIV;
-      case 8: return DECIMAL_SHORT_10M_DIV;
-      case 9: return DECIMAL_SHORT_100M_DIV;
-      case 10: return DECIMAL_SHORT_1B_DIV;
-      case 11: return DECIMAL_SHORT_10B_DIV;
-      case 12: return DECIMAL_SHORT_100B_DIV;
-      case 13: return DECIMAL_SHORT_1T_DIV;
-      case 14: return DECIMAL_SHORT_10T_DIV;
+      case 4: return DECIMAL_SHORT_1K_POWER;
+      case 5: return DECIMAL_SHORT_10K_POWER;
+      case 6: return DECIMAL_SHORT_100K_POWER;
+      case 7: return DECIMAL_SHORT_1M_POWER;
+      case 8: return DECIMAL_SHORT_10M_POWER;
+      case 9: return DECIMAL_SHORT_100M_POWER;
+      case 10: return DECIMAL_SHORT_1B_POWER;
+      case 11: return DECIMAL_SHORT_10B_POWER;
+      case 12: return DECIMAL_SHORT_100B_POWER;
+      case 13: return DECIMAL_SHORT_1T_POWER;
+      case 14: return DECIMAL_SHORT_10T_POWER;
       case 15:
-          default: return DECIMAL_SHORT_100T_DIV;
+          default: return DECIMAL_SHORT_100T_POWER;
     }
   }
 
   protected NumberPattern[] getPattern_DECIMAL_SHORT(int digits, PluralCategory category) {
     if (digits < 4 || category == null) {
-      return DECIMAL_STANDARD;
+      return DECIMAL_STANDARD_COMPACT;
     }
     switch (digits) {
       case 4: {
@@ -364,30 +367,30 @@ public class _NumberFormatter_es extends NumberFormatterBase {
     }
   }
 
-  protected BigDecimal getDivisor_DECIMAL_LONG(int digits) {
+  protected int getPowerOfTen_DECIMAL_LONG(int digits) {
     if (digits < 4) {
-      return null;
+      return 0;
     }
     switch (digits) {
-      case 4: return DECIMAL_LONG_1K_DIV;
-      case 5: return DECIMAL_LONG_10K_DIV;
-      case 6: return DECIMAL_LONG_100K_DIV;
-      case 7: return DECIMAL_LONG_1M_DIV;
-      case 8: return DECIMAL_LONG_10M_DIV;
-      case 9: return DECIMAL_LONG_100M_DIV;
-      case 10: return DECIMAL_LONG_1B_DIV;
-      case 11: return DECIMAL_LONG_10B_DIV;
-      case 12: return DECIMAL_LONG_100B_DIV;
-      case 13: return DECIMAL_LONG_1T_DIV;
-      case 14: return DECIMAL_LONG_10T_DIV;
+      case 4: return DECIMAL_LONG_1K_POWER;
+      case 5: return DECIMAL_LONG_10K_POWER;
+      case 6: return DECIMAL_LONG_100K_POWER;
+      case 7: return DECIMAL_LONG_1M_POWER;
+      case 8: return DECIMAL_LONG_10M_POWER;
+      case 9: return DECIMAL_LONG_100M_POWER;
+      case 10: return DECIMAL_LONG_1B_POWER;
+      case 11: return DECIMAL_LONG_10B_POWER;
+      case 12: return DECIMAL_LONG_100B_POWER;
+      case 13: return DECIMAL_LONG_1T_POWER;
+      case 14: return DECIMAL_LONG_10T_POWER;
       case 15:
-          default: return DECIMAL_LONG_100T_DIV;
+          default: return DECIMAL_LONG_100T_POWER;
     }
   }
 
   protected NumberPattern[] getPattern_DECIMAL_LONG(int digits, PluralCategory category) {
     if (digits < 4 || category == null) {
-      return DECIMAL_STANDARD;
+      return DECIMAL_STANDARD_COMPACT;
     }
     switch (digits) {
       case 4: {
@@ -477,30 +480,30 @@ public class _NumberFormatter_es extends NumberFormatterBase {
     }
   }
 
-  protected BigDecimal getDivisor_CURRENCY_SHORT(int digits) {
+  protected int getPowerOfTen_CURRENCY_SHORT(int digits) {
     if (digits < 4) {
-      return null;
+      return 0;
     }
     switch (digits) {
-      case 4: return CURRENCY_SHORT_1K_DIV;
-      case 5: return CURRENCY_SHORT_10K_DIV;
-      case 6: return CURRENCY_SHORT_100K_DIV;
-      case 7: return CURRENCY_SHORT_1M_DIV;
-      case 8: return CURRENCY_SHORT_10M_DIV;
-      case 9: return CURRENCY_SHORT_100M_DIV;
-      case 10: return CURRENCY_SHORT_1B_DIV;
-      case 11: return CURRENCY_SHORT_10B_DIV;
-      case 12: return CURRENCY_SHORT_100B_DIV;
-      case 13: return CURRENCY_SHORT_1T_DIV;
-      case 14: return CURRENCY_SHORT_10T_DIV;
+      case 4: return CURRENCY_SHORT_1K_POWER;
+      case 5: return CURRENCY_SHORT_10K_POWER;
+      case 6: return CURRENCY_SHORT_100K_POWER;
+      case 7: return CURRENCY_SHORT_1M_POWER;
+      case 8: return CURRENCY_SHORT_10M_POWER;
+      case 9: return CURRENCY_SHORT_100M_POWER;
+      case 10: return CURRENCY_SHORT_1B_POWER;
+      case 11: return CURRENCY_SHORT_10B_POWER;
+      case 12: return CURRENCY_SHORT_100B_POWER;
+      case 13: return CURRENCY_SHORT_1T_POWER;
+      case 14: return CURRENCY_SHORT_10T_POWER;
       case 15:
-          default: return CURRENCY_SHORT_100T_DIV;
+          default: return CURRENCY_SHORT_100T_POWER;
     }
   }
 
   protected NumberPattern[] getPattern_CURRENCY_SHORT(int digits, PluralCategory category) {
     if (digits < 4 || category == null) {
-      return CURRENCY_STANDARD;
+      return CURRENCY_STANDARD_COMPACT;
     }
     switch (digits) {
       case 4: {
@@ -590,7 +593,7 @@ public class _NumberFormatter_es extends NumberFormatterBase {
     }
   }
 
-  protected String getCurrencySymbol(String code) {
+  public String getCurrencySymbol(String code) {
     switch (code) {
       case "UGS": return "UGS";
       case "FJD": return "FJD";
@@ -889,7 +892,7 @@ public class _NumberFormatter_es extends NumberFormatterBase {
     }
   }
 
-  protected String getCurrencyDisplayName(String code) {
+  public String getCurrencyDisplayName(String code) {
     switch (code) {
       case "UGS": return "chelín ugandés (1966–1987)";
       case "FJD": return "dólar fiyiano";

@@ -6,7 +6,7 @@ import java.util.Arrays;
 /**
  * Simple character buffer for formatting decimal numbers.
  */
-public class DigitBuffer {
+public class DigitBuffer implements CharSequence {
 
   private char buf[];
 
@@ -26,6 +26,11 @@ public class DigitBuffer {
     this.buf = new char[capacity];
   }
 
+  private DigitBuffer(char[] buf, int size) {
+    this.buf = buf;
+    this.size = size;
+  }
+
   /**
    * Reset the buffer to be used again.
    */
@@ -36,8 +41,27 @@ public class DigitBuffer {
   /**
    * Number of characters in the buffer.
    */
-  public int size() {
+  @Override
+  public int length() {
     return size;
+  }
+
+  @Override
+  public DigitBuffer subSequence(int start, int end) {
+    start = clamp(start, 0, size - 1);
+    end = clamp(end, start, size - 1);
+    int sz = end - start;
+    char[] newbuf = new char[16 + sz];
+    System.arraycopy(buf, start, newbuf, 0, sz);
+    return new DigitBuffer(newbuf, sz);
+  }
+
+  /**
+   * Returns the character at the given position.
+   */
+  @Override
+  public char charAt(int i) {
+    return buf[i];
   }
 
   /**
@@ -52,7 +76,8 @@ public class DigitBuffer {
   }
 
   public char last() {
-    return size < buf.length ? buf[size] : ' ';
+    int i = size - 1;
+    return i < buf.length ? buf[i] : ' ';
   }
 
   /**
@@ -66,6 +91,15 @@ public class DigitBuffer {
       size++;
     }
     return this;
+  }
+
+  /**
+   * Append the contents of the other buffer to this one.
+   */
+  public void append(DigitBuffer other) {
+    check(other.size);
+    System.arraycopy(other.buf, 0, buf, size, other.size);
+    size += other.size;
   }
 
   /**
@@ -102,13 +136,6 @@ public class DigitBuffer {
   }
 
   /**
-   * Returns the character at the given position.
-   */
-  public char charAt(int i) {
-    return buf[i];
-  }
-
-  /**
    * Render the buffer to a String.
    */
   @Override
@@ -123,6 +150,10 @@ public class DigitBuffer {
     if (size + length >= buf.length) {
       buf = Arrays.copyOf(buf, buf.length + length + 16);
     }
+  }
+
+  private int clamp(int v, int min, int max) {
+    return v < min ? min : (v > max ? max : v);
   }
 
 }

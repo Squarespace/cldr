@@ -1,9 +1,16 @@
 [submodule "cldr-core"]
 	path = compiler/src/main/resources/data/cldr-core
 	url = https://github.com/unicode-cldr/cldr-core.git
+	branch = 31.0.1
 [submodule "cldr-dates-modern"]
 	path = compiler/src/main/resources/data/cldr-dates-modern
 	url = https://github.com/unicode-cldr/cldr-dates-modern.git
-[submodule "cldr-numbders-modern"]
+	branch = 31.0.1
+[submodule "cldr-numbers-modern"]
 	path = compiler/src/main/resources/data/cldr-numbers-modern
 	url = https://github.com/unicode-cldr/cldr-numbers-modern.git
+	branch = 31.0.1
+[submodule "cldr-units-modern"]
+	path = compiler/src/main/resources/data/cldr-units-modern
+	url = https://github.com/unicode-cldr/cldr-units-modern.git
+	branch = 31.0.1

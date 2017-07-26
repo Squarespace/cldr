@@ -1,6 +1,9 @@
 package com.squarespace.cldr.numbers;
 
+import static com.squarespace.cldr.numbers.NumberFormattingUtils.integerDigits;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import com.squarespace.cldr.CLDRLocale;
@@ -20,6 +23,9 @@ public abstract class NumberFormatterBase implements NumberFormatter {
 
   protected static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
   protected static final BigDecimal ONE_THOUSAND = new BigDecimal("1000");
+  protected static final NumberPattern[] PLURAL = patterns("#,##0.##", "-#,##0.##");
+  protected static final DecimalFormatOptions PLURAL_OPTS = buildPluralOpts();
+  protected static final NumberFormatterParams GENERIC_PARAMS = new NumberFormatterParams();
   private static final char NBSP = '\u00a0';
 
   protected final CLDRLocale locale;
@@ -45,16 +51,17 @@ public abstract class NumberFormatterBase implements NumberFormatter {
     this.currencyAccounting = currencyAccounting;
   }
   
-  protected abstract BigDecimal getDivisor_DECIMAL_SHORT(int digits);
-  protected abstract BigDecimal getDivisor_DECIMAL_LONG(int digits);
-  protected abstract BigDecimal getDivisor_CURRENCY_SHORT(int digits);
+  protected abstract int getPowerOfTen_DECIMAL_SHORT(int digits);
+  protected abstract int getPowerOfTen_DECIMAL_LONG(int digits);
+  protected abstract int getPowerOfTen_CURRENCY_SHORT(int digits);
   protected abstract NumberPattern[] getPattern_DECIMAL_SHORT(int digits, PluralCategory category);
   protected abstract NumberPattern[] getPattern_DECIMAL_LONG(int digits, PluralCategory category);
   protected abstract NumberPattern[] getPattern_CURRENCY_SHORT(int digits, PluralCategory category);
-  protected abstract String getCurrencySymbol(String code);
-  protected abstract String getCurrencyDisplayName(String code);
   protected abstract String getCurrencyPluralName(String code, PluralCategory category);
   protected abstract void wrapUnits(PluralCategory category, DigitBuffer dbuf, String unit, StringBuilder dest);
+
+  public abstract String getCurrencySymbol(String code);
+  public abstract String getCurrencyDisplayName(String code);
 
   /**
    * Return the locale associated with this number formatter.
@@ -68,13 +75,17 @@ public abstract class NumberFormatterBase implements NumberFormatter {
    */
   public void formatDecimal(BigDecimal n, StringBuilder destination, DecimalFormatOptions options) {
     DigitBuffer dbuf = new DigitBuffer();
-    NumberOperands operands = new NumberOperands();
-    NumberFormatStyle style = options.style();
+    DecimalFormatStyle style = options.style();
+    boolean grouping = orDefault(options.grouping(), false);
+    NumberFormatMode formatMode = orDefault(options.formatMode(), NumberFormatMode.DEFAULT);
+    
     switch (style) {
       case DECIMAL:
       {
         NumberPattern pattern = select(n, decimalStandard);
-        format(pattern, n, dbuf, options, operands, null, null, -1, -1);
+        DigitBuffer number = new DigitBuffer();
+        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1);
+        format(pattern, number, dbuf, null, null);
         dbuf.appendTo(destination);
         break;
       }
@@ -83,41 +94,64 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       case SHORT:
       {
         // Set the plural category for the number
-        operands.set(n.toPlainString());
+        NumberOperands operands = new NumberOperands(n.toPlainString());
         PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
 
         int digits = integerDigits(n);
-        BigDecimal divisor;
+        int divisor;
         NumberPattern pattern;
-        
+
         // Select the divisor and pattern based on the number of integer digits and plural category.
-        if (style == NumberFormatStyle.LONG) {
-          divisor = getDivisor_DECIMAL_LONG(digits);
+        if (style == DecimalFormatStyle.LONG) {
+          divisor = getPowerOfTen_DECIMAL_LONG(digits);
           pattern = select(n, getPattern_DECIMAL_LONG(digits, category));
         } else {
-          divisor = getDivisor_DECIMAL_SHORT(digits);
+          divisor = getPowerOfTen_DECIMAL_SHORT(digits);
           pattern = select(n, getPattern_DECIMAL_SHORT(digits, category));
         }
 
-        // Optionally divide the number to get the compact form.
-        if (divisor != null) {
-          n = n.divide(divisor);
-          operands.set(n.toPlainString());
+        if (divisor != 0) {
+          //
+          // Check if we might need to select the next pattern up due to rounding.
+          // This handles cases where "999,999" formats to "1 M" instead of "1,000 K"
+          // Check if this number rounds up to exceed minimum integer digits
+          //
+          RoundingMode roundingMode = options.roundMode.toRoundingMode();
+          BigDecimal nn = n.movePointLeft(divisor);
+          
+          // TODO: Peek at the formatting mode to determine whether this number will round.
+          nn = nn.setScale(0, roundingMode);
+          
+          int nnDigits = integerDigits(nn);
+          if (nnDigits > pattern.format.minimumIntegerDigits() && digits < 15) {
+            // Select pattern that supports 1 more digit than the original number,
+            // to account for rounding.
+            digits++;
+            if (style == DecimalFormatStyle.LONG) {
+              divisor = getPowerOfTen_DECIMAL_LONG(digits);
+              pattern = select(n, getPattern_DECIMAL_LONG(digits, category));
+            } else {
+              divisor = getPowerOfTen_DECIMAL_SHORT(digits);
+              pattern = select(n, getPattern_DECIMAL_SHORT(digits, category));
+            }
+          }
+          
+          n = n.movePointLeft(divisor);
         }
-
-        // TODO: compact forms rounding twice and check if number of integer digits increased.
-        // we may need to re-select divisor and pattern. example is formatting 999999 as
-        // "1,000 K" or "1 M". To get the latter we need to select again post-rounding.
 
         // For compact forms by default we want to show a certain number of significant digits.
         // So "1200" becomes "1.2 K" instead of just "1 K". This can be overridden by the 
         // NumberFormatOptions as needed.
+        formatMode = orDefault(options.formatMode(), NumberFormatMode.SIGNIFICANT);
+        int intDigits = integerDigits(n);
         int minIntDigits = pattern.format().minimumIntegerDigits();
-        int maxSigDigits = Math.min(minIntDigits + 1, 3);
+        int maxSigDigits = Math.max(intDigits + 1, Math.min(minIntDigits + 1, 3));
         int minSigDigits = minIntDigits;
-
+        
         // Format the number according to the pattern
-        format(pattern, n, dbuf, options, operands, null, null, maxSigDigits, minSigDigits);
+        DigitBuffer number = new DigitBuffer();
+        setup(params, pattern, n, number, options, null, formatMode, grouping, maxSigDigits, minSigDigits);
+        format(pattern, number, dbuf, null, null);
         dbuf.appendTo(destination);
         break;
       }
@@ -125,10 +159,12 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       case PERCENT:
       case PERMILLE:
       {
+        n = n.multiply(style == DecimalFormatStyle.PERCENT ? ONE_HUNDRED : ONE_THOUSAND);
+        String symbol = style == DecimalFormatStyle.PERCENT ? params.percent : params.perMille;
         NumberPattern pattern = select(n, percentStandard);
-        String symbol = style == NumberFormatStyle.PERCENT ? params.percent : params.perMille;
-        n = n.multiply(style == NumberFormatStyle.PERCENT ? ONE_HUNDRED : ONE_THOUSAND);
-        format(pattern, n, dbuf, options, operands, null, symbol, -1, -1);
+        DigitBuffer number = new DigitBuffer();
+        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1);
+        format(pattern, number, dbuf, null, symbol);
         dbuf.appendTo(destination);
         break;
       }
@@ -142,8 +178,9 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       BigDecimal n, String currencyCode, StringBuilder destination, CurrencyFormatOptions options) {
     
     DigitBuffer dbuf = new DigitBuffer();
-    NumberOperands operands = new NumberOperands();
     CurrencyFormatStyle style = options.style();
+    NumberFormatMode formatMode = orDefault(options.formatMode(), NumberFormatMode.DEFAULT);
+    boolean grouping = orDefault(options.grouping(), true);
     switch (style) {
       case SYMBOL:
       case ACCOUNTING:
@@ -151,7 +188,9 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         NumberPattern[] patterns = style == CurrencyFormatStyle.SYMBOL ? currencyStandard : currencyAccounting;
         NumberPattern pattern = select(n, patterns);
         String symbol = getCurrencySymbol(currencyCode);
-        format(pattern, n, dbuf, options, operands, symbol, null, -1, -1);
+        DigitBuffer other = new DigitBuffer();
+        setup(params, pattern, n, other, options, symbol, formatMode, grouping, -1, -1);
+        format(pattern, other, dbuf, symbol, null);
         dbuf.appendTo(destination);
         break;
       }
@@ -159,23 +198,40 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       case SHORT:
       {
         // Set the plural category for the number
-        operands.set(n.toPlainString());
+        NumberOperands operands = new NumberOperands(n.toPlainString());
         PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
 
         // Select the divisor and pattern based on the number of integer digits and plural category.
         int digits = integerDigits(n);
-        BigDecimal divisor = getDivisor_CURRENCY_SHORT(digits);
+        int power = getPowerOfTen_CURRENCY_SHORT(digits);
         NumberPattern pattern = select(n, getPattern_CURRENCY_SHORT(digits, category));
         
         // Optionally divide the number to get the compact form.
-        if (divisor != null) {
-          n = n.divide(divisor);
-          operands.set(n.toPlainString());
-        }
+        if (power != 0) {
+          //
+          // Check if we might need to select the next pattern up due to rounding.
+          // This handles cases where "999,999" formats to "1 M" instead of "1,000 K"
+          // Check if this number rounds up to exceed minimum integer digits
+          //
+          RoundingMode roundingMode = options.roundMode.toRoundingMode();
+          BigDecimal nn = n.movePointLeft(power);
+          nn = nn.setScale(0, roundingMode);
 
-        // TODO: compact forms rounding twice and check if number of integer digits increased.
-        // we may need to re-select divisor and pattern. example is formatting 999999 as
-        // "1,000 K" or "1 M". To get the latter we need to select again post-rounding.
+          // TODO: Peek at the formatting mode to determine whether this number will round
+          // when we do the final format.
+
+          int nnDigits = integerDigits(nn);
+          if (nnDigits > pattern.format.minimumIntegerDigits() && digits < 15) {
+            // Select pattern that supports 1 more digit than the original number,
+            // to account for rounding.
+            digits++;
+
+            power = getPowerOfTen_CURRENCY_SHORT(digits);
+            pattern = select(n, getPattern_CURRENCY_SHORT(digits, category));
+          }
+          
+          n = n.movePointLeft(power);
+        }
         
         // For compact forms by default we want to show a certain number of significant digits.
         // So "1200" becomes "1.2 K" instead of just "1 K". This can be overridden by the 
@@ -186,7 +242,10 @@ public abstract class NumberFormatterBase implements NumberFormatter {
 
         // Format the number according to the pattern
         String symbol = getCurrencySymbol(currencyCode);
-        format(pattern, n, dbuf, options, operands, symbol, null, maxSigDigits, minSigDigits);
+        DigitBuffer other = new DigitBuffer();
+        formatMode = orDefault(options.formatMode(), NumberFormatMode.SIGNIFICANT_MAXFRAC);
+        setup(params, pattern, n, other, options, symbol, formatMode, grouping, maxSigDigits, minSigDigits);
+        format(pattern, other, dbuf, symbol, null);
         dbuf.appendTo(destination);
         break;
       }
@@ -194,10 +253,21 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       case NAME:
       case CODE:
       {
-        operands.set(n.toPlainString());
-        PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
+        // Format the number with generic formatter parameters and grouping off to get the plural category.
         NumberPattern pattern = select(n, currencyStandard);
-        format(pattern, n, dbuf, options, operands, null, null, -1, -1);
+        DigitBuffer number = new DigitBuffer();
+        setup(GENERIC_PARAMS, pattern, n, number, options, null, formatMode, false, -1, -1);
+        
+        // Set the operands and get the plural category.
+        NumberOperands operands = new NumberOperands(number);
+        PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
+        number.reset();
+
+        // Format the number
+        setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1);
+        format(pattern, number, dbuf, null, null);
+        
+        // Wrap the result with the wrapper selected by the plural category.
         String unit = style == CurrencyFormatStyle.CODE ? currencyCode : getCurrencyPluralName(currencyCode, category);
         wrapUnits(category, dbuf, unit, destination);
         break;
@@ -205,31 +275,41 @@ public abstract class NumberFormatterBase implements NumberFormatter {
     }
   }
   
-  /**
-   * Count the number of integer digits in the number.
-   */
-  protected static int integerDigits(BigDecimal n) {
-    int digits = n.precision();
-    if (n.scale() > 0) {
-      digits -= n.scale();
-    }
-    return digits;
+  private static DecimalFormatOptions buildPluralOpts() {
+    DecimalFormatOptions opts = new DecimalFormatOptions(DecimalFormatStyle.DECIMAL);
+    opts.setGrouping(false).setMinimumFractionDigits(0).setMinimumIntegerDigits(1);
+    return opts;
   }
+
 
   /**
    * Select the appropriate pattern to format a positive or negative number.
    */
   protected static NumberPattern select(BigDecimal n, NumberPattern[] patterns) {
-    return n.compareTo(BigDecimal.ZERO) == -1 ? patterns[1] : patterns[0];
+    return n.signum() == -1 ? patterns[1] : patterns[0];
   }
 
   /**
    * Return the integer, or a default if null.
   */
-  private static int orDefault(Integer n, int alt) {
+  protected static int orDefault(Integer n, int alt) {
     return n == null ? alt : n;
   }
 
+  /**
+   * Return the boolean, or a default if null.
+   */
+  protected static boolean orDefault(Boolean b, boolean alt) {
+    return b == null ? alt : b;
+  }
+
+  /**
+   * Return the format mode, or a default if null.
+   */
+  protected static NumberFormatMode orDefault(NumberFormatMode m, NumberFormatMode alt) {
+    return m == null ? alt : m;
+  }
+  
   /**
    * Construct a pair of patterns [positive, negative].
    */
@@ -244,22 +324,25 @@ public abstract class NumberFormatterBase implements NumberFormatter {
     return new NumberPatternParser().parse(pattern);
   }
 
-  /**
-   * Formats a number using a pattern and options.
-   */
-  protected void format(
+  protected void setup(
+      NumberFormatterParams formatterParams,
       NumberPattern pattern,
       BigDecimal n,
       DigitBuffer buf,
       NumberFormatOptions<?> options,
-      NumberOperands operands,
       String currency,
-      String percent,
+      NumberFormatMode formatMode,
+      boolean grouping,
       int maxSigDigits,
       int minSigDigits) {
 
+    Format format = pattern.format();
+    int minIntDigits = orDefault(options.minimumIntegerDigits(), format.minimumIntegerDigits());
+    int maxFracDigits = orDefault(options.maximumFractionDigits(), format.maximumFractionDigits());
+    int minFracDigits = orDefault(options.minimumFractionDigits(), format.minimumFractionDigits());
+
     // Only set the min and max significant digits variables in this mode.
-    switch (options.formatMode()) {
+    switch (formatMode) {
       case SIGNIFICANT:
       case SIGNIFICANT_MAXFRAC:
         maxSigDigits = orDefault(options.maximumSignificantDigits(), maxSigDigits);
@@ -272,19 +355,36 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         break;
     }
 
-    // Peek at the number format in the pattern and use it to setup the operands and
-    // counts for the number of integer and decimal digits to format.
-    Format format = pattern.format();
-    long[] digits = NumberFormattingUtils.setup(
+    n = NumberFormattingUtils.setup(
         n,
-        operands,
         options.roundMode(),
-        options.formatMode(),
-        orDefault(options.minimumIntegerDigits(), format.minimumIntegerDigits()),
-        orDefault(options.maximumFractionDigits(), format.maximumFractionDigits()),
-        orDefault(options.minimumFractionDigits(), format.minimumFractionDigits()),
+        formatMode,
+        minIntDigits,
+        maxFracDigits,
+        minFracDigits,
         maxSigDigits,
         minSigDigits);
+
+    NumberFormattingUtils.format(
+        n,
+        buf,
+        formatterParams,
+        currency != null,
+        grouping,
+        minIntDigits,
+        format.primaryGroupingSize(),
+        format.secondaryGroupingSize());
+  }
+  
+  /**
+   * Formats a number using a pattern and options.
+   */
+  protected void format(
+      NumberPattern pattern,
+      DigitBuffer number,
+      DigitBuffer buf,
+      String currency,
+      String percent) {
 
     // Flag indicating if we've emitted the formatted number yet.
     boolean emitted = false;
@@ -298,15 +398,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         buf.append(((Text)node).text());
 
       } else if (node instanceof Format) {
-        NumberFormattingUtils.format(digits,
-            buf,
-            operands,
-            params,
-            currency != null,
-            options.grouping(),
-            format.primaryGroupingSize(),
-            format.secondaryGroupingSize());
-        
+        buf.append(number);
         emitted = true;
 
       } else if (node instanceof Symbol) {

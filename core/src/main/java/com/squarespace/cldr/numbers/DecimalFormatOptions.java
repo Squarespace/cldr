@@ -8,40 +8,52 @@ package com.squarespace.cldr.numbers;
  */
 public class DecimalFormatOptions extends NumberFormatOptions<DecimalFormatOptions> {
 
-  protected NumberFormatStyle style;
+  protected static final DecimalFormatStyle DEFAULT_STYLE = DecimalFormatStyle.DECIMAL;
+
+  protected DecimalFormatStyle style;
 
   public DecimalFormatOptions() {
-    this(NumberFormatStyle.DECIMAL);
+    this(DEFAULT_STYLE);
   }
 
-  public DecimalFormatOptions(NumberFormatStyle style) {
-    this.style = style;
+  public DecimalFormatOptions(DecimalFormatStyle style) {
+    setStyle(style);
   }
 
   /**
    * Reset the options to their defaults.
    */
   public void reset() {
-    this.style = NumberFormatStyle.DECIMAL;
+    this.style = DEFAULT_STYLE;
     super.reset();
   }
 
-  public NumberFormatStyle style() {
+  public DecimalFormatStyle style() {
     return style;
   }
 
-  public DecimalFormatOptions setStyle(NumberFormatStyle style) {
-    this.style = style;
+  public DecimalFormatOptions setStyle(DecimalFormatStyle style) {
+    this.style = style == null ? DEFAULT_STYLE : style;
     return this;
   }
 
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
-    buf.append("NumberFormatOptions(style=").append(style);
-    repr(buf);
+    buf.append("CurrencyFormatOptions(");
+    repr(buf, ", ");
     buf.append(')');
     return buf.toString();
+  }
+
+  /**
+   * Format this object's properties using the given separator.
+   */
+  public void repr(StringBuilder buf, String sep) {
+    if (style != null) {
+      buf.append("style=").append(style);
+    }
+    super.repr(buf, sep);
   }
 
 }

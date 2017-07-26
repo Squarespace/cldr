@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.squarespace.cldr.numbers.DigitBuffer;
 import com.squarespace.cldr.numbers.NumberFormatterParams;
 import com.squarespace.cldr.numbers.NumberPattern;
 import com.squarespace.cldr.numbers.NumberPattern.Format;
+import com.squarespace.cldr.numbers.NumberPatternParser;
 import com.squarespace.cldr.parse.FieldPattern.Field;
 import com.squarespace.cldr.parse.FieldPattern.Node;
 import com.squarespace.cldr.parse.FieldPattern.Text;
@@ -44,6 +46,7 @@ public class NumberCodeGenerator {
 
   private static final ClassName TYPE_FORMATTER_BASE = ClassName.get(PACKAGE_CLDR_NUMBERS, "NumberFormatterBase");
   private static final WrapperPatternParser WRAPPER_PARSER = new WrapperPatternParser();
+  private static final NumberPatternParser NUMBER_PARSER = new NumberPatternParser();
 
   /**
    * Generate all number formatting classes.
@@ -71,6 +74,16 @@ public class NumberCodeGenerator {
     return numberClasses;
   }
 
+  public List<String> getCurrencies(DataReader reader) {
+    Set<String> currencies = new HashSet<>();
+    for (NumberData data : reader.numbers().values()) {
+      for (String code : data.currencyDisplayName.keySet()) {
+        currencies.add(code);
+      }
+    }
+    return new ArrayList<>(currencies);
+  }
+  
   /**
    * Creates a number formatter class.
    */
@@ -123,16 +136,18 @@ public class NumberCodeGenerator {
     type.addField(buildPatternField("CURRENCY_STANDARD", data.currencyFormatStandard));
     type.addField(buildPatternField("CURRENCY_ACCOUNTING", data.currencyFormatAccounting));
 
+    // Create default patterns for compact forms.
+    List<NumberPattern> decimalCompact = makeCompactPatterns(data.decimalFormatStandard);
+    List<NumberPattern> currencyCompact = makeCompactPatterns(data.currencyFormatStandard);
+    type.addField(buildPatternField("DECIMAL_STANDARD_COMPACT", decimalCompact));
+    type.addField(buildPatternField("CURRENCY_STANDARD_COMPACT", currencyCompact));
+    
     // Create methods for pluralized patterns, which require some logic to choose.
     addPluralPatterns(type, "DECIMAL_SHORT", data.decimalFormatShort, false, data);
     addPluralPatterns(type, "DECIMAL_LONG", data.decimalFormatLong, false, data);
     addPluralPatterns(type, "CURRENCY_SHORT", data.currencyFormatShort, true, data);
     
-    // Add methods to retrieve info on currencies.
     addCurrencyInfo(type, data);
-    
-    // Create unit wrapper method, formatting a number and string in a template of
-    // the form "{0} {1}".
     addUnitWrappers(type, data);
     
     return type.build();
@@ -261,10 +276,12 @@ public class NumberCodeGenerator {
         String fieldName = String.format("%s_%s_%s", name, shortMagnitude, category);
         List<NumberPattern> patterns = plural.getValue();
 
-        // For any pattern that is explicitly "0" we substitute the standard format.
+        // For any pattern that is explicitly "0" we substitute the standard format, but
+        // modified to be compact by default.
         String positive = patterns.get(0).pattern();
         if (positive.equals("0")) {
-          patterns = currency ? data.currencyFormatStandard : data.decimalFormatStandard;
+          List<NumberPattern> standard = currency ? data.currencyFormatStandard : data.decimalFormatStandard;
+          patterns = makeCompactPatterns(standard);
           defaulted = true;
         }
 
@@ -274,12 +291,14 @@ public class NumberCodeGenerator {
         patternFields.add(field);
       }
 
-      // Add the field that we'll use to divide the number before formatting with a given pattern.
-      // Create the divisor field for this magnitude and plural category.
-      String fieldName = String.format("%s_%s_DIV", name, shortMagnitude);
-      String value = defaulted ? "1" : n.toPlainString();
-      FieldSpec field = FieldSpec.builder(BigDecimal.class, fieldName, PRIVATE, FINAL)
-          .initializer("new $T($S)", BigDecimal.class, value)
+      // Add the field we'll use to scale the number by a power of ten for compact forms.
+      String fieldName = String.format("%s_%s_POWER", name, shortMagnitude);
+      int scale = n.precision() - 1;
+      if (defaulted) {
+        scale = 1;
+      }
+      FieldSpec field = FieldSpec.builder(int.class, fieldName, PRIVATE, FINAL)
+          .initializer("$L", scale)
           .build();
       divisorFields.add(field);
     }
@@ -297,13 +316,33 @@ public class NumberCodeGenerator {
   }
   
   /**
+   * Converts a standard decimal or currency pattern into one usable for compact forms
+   * for numbers < 1000. We parse the pattern, modify it, then render it.
+   */
+  private List<NumberPattern> makeCompactPatterns(List<NumberPattern> standard) {
+    NumberPattern pos = NUMBER_PARSER.parse(standard.get(0).pattern());
+    NumberPattern neg = NUMBER_PARSER.parse(standard.get(1).pattern());
+    
+    pos.format().setMaximumFractionDigits(0);
+    pos.format().setMinimumFractionDigits(0);
+ 
+    neg.format().setMaximumFractionDigits(0);
+    neg.format().setMinimumFractionDigits(0);
+    
+    NumberPattern positive = NUMBER_PARSER.parse(pos.render());
+    NumberPattern negative = NUMBER_PARSER.parse(neg.render());
+
+    return Arrays.asList(positive, negative);
+  }
+  
+  /**
    * Creates the method that returns the correct divisor for a given pluralized pattern.
    */
   private void pluralDivisorMethod(TypeSpec.Builder type, String name, Set<String> magnitudes) {
-    MethodSpec.Builder method = MethodSpec.methodBuilder("getDivisor_" + name)
+    MethodSpec.Builder method = MethodSpec.methodBuilder("getPowerOfTen_" + name)
         .addModifiers(PROTECTED)
         .addParameter(int.class, "digits")
-        .returns(BigDecimal.class);
+        .returns(int.class);
 
     String magnitude = null;
     int maxDigits = 0;
@@ -313,13 +352,13 @@ public class NumberCodeGenerator {
     }
     
     method.beginControlFlow("if (digits < 4)");
-    method.addStatement("return null");
+    method.addStatement("return 0");
     method.endControlFlow();
 
     method.beginControlFlow("switch (digits)");
     for (String key : magnitudes) {
       String shortMagnitude = MAGNITUDE_MAP.get(key);
-      String fieldName = String.format("%s_%s_DIV", name, shortMagnitude);
+      String fieldName = String.format("%s_%s_POWER", name, shortMagnitude);
       int digits = key.length();
       if (digits < maxDigits) {
         method.addStatement("case $L: return $L", digits, fieldName);
@@ -327,7 +366,7 @@ public class NumberCodeGenerator {
     }
     
     String shortMagnitude = MAGNITUDE_MAP.get(magnitude);
-    String fieldName = String.format("%s_%s_DIV", name, shortMagnitude);
+    String fieldName = String.format("%s_%s_POWER", name, shortMagnitude);
     method.addStatement("case $L:\ndefault: return $L", maxDigits, fieldName);
     method.endControlFlow();
 
@@ -347,7 +386,7 @@ public class NumberCodeGenerator {
         .returns(NumberPattern[].class);
     
     method.beginControlFlow("if (digits < 4 || category == null)");
-    method.addStatement("return $L", currency ? "CURRENCY_STANDARD" : "DECIMAL_STANDARD");
+    method.addStatement("return $L", currency ? "CURRENCY_STANDARD_COMPACT" : "DECIMAL_STANDARD_COMPACT");
     method.endControlFlow();
 
     int maxDigits = 0;
@@ -438,7 +477,7 @@ public class NumberCodeGenerator {
    */
   private void addCurrencyInfoMethod(TypeSpec.Builder type, String name, Map<String, String> mapping) {
     MethodSpec.Builder method = MethodSpec.methodBuilder(name)
-        .addModifiers(PROTECTED)
+        .addModifiers(PUBLIC)
         .addParameter(String.class, "code")
         .returns(String.class);
 
@@ -451,6 +490,10 @@ public class NumberCodeGenerator {
     type.addMethod(method.build());
   }
   
+  /**
+   * Adds wrappers of the form "{0} {1}" for wrapping a formatted number with a
+   * prefix or suffix.
+   */
   private void addUnitWrappers(TypeSpec.Builder type, NumberData data) {
     // TODO: optimize this by grouping on distinct patterns to eliminate redundancy.
     MethodSpec.Builder method = MethodSpec.methodBuilder("wrapUnits")

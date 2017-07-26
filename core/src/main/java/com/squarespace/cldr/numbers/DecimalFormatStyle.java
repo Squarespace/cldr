@@ -1,7 +1,7 @@
 package com.squarespace.cldr.numbers;
 
 
-public enum NumberFormatStyle {
+public enum DecimalFormatStyle {
 
   DECIMAL,
   PERCENT,
@@ -10,7 +10,7 @@ public enum NumberFormatStyle {
   LONG
   ;
 
-  public static NumberFormatStyle fromString(String v) {
+  public static DecimalFormatStyle fromString(String v) {
     switch (v) {
       case "percent":
         return PERCENT;

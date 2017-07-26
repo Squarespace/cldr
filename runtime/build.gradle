@@ -24,6 +24,7 @@ jmh {
   forceGC = true
   includeTests = false
   zip64 = true
+  //include = '.*NumberFormat.*'
 }
 
 jacocoTestReport {

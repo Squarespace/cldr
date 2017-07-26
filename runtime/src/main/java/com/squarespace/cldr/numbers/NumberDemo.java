@@ -21,11 +21,16 @@ public class NumberDemo {
         "0",
         "1",
         "1.00",
+        "1.01",
         "3.59",
         "-7.53",
+        "990",
         "1200",
+        "12345",
         "-15789.12",
         "99999",
+        "999990",
+        "999999",
         "-100200300.40",
         "10000000001"
     };
@@ -40,21 +45,21 @@ public class NumberDemo {
 
     System.out.println("DECIMAL NUMBER FORMATTING\n");
     DecimalFormatOptions[] decimalOpts = new DecimalFormatOptions[] {
-      options(NumberFormatStyle.DECIMAL)
+      options(DecimalFormatStyle.DECIMAL)
         .setGrouping(true),
-      options(NumberFormatStyle.PERCENT)
+      options(DecimalFormatStyle.PERCENT)
         .setGrouping(true),
-      options(NumberFormatStyle.PERMILLE)
+      options(DecimalFormatStyle.PERMILLE)
         .setGrouping(true),
-      options(NumberFormatStyle.LONG)
+      options(DecimalFormatStyle.LONG)
         .setFormatMode(NumberFormatMode.SIGNIFICANT),
-      options(NumberFormatStyle.SHORT)
+      options(DecimalFormatStyle.SHORT)
         .setFormatMode(NumberFormatMode.SIGNIFICANT)
     };
 
     for (CLDRLocale locale : locales) {
       for (DecimalFormatOptions opts : decimalOpts) {
-        System.out.println("Locale \"" + locale + "\" in " + opts.style() + " style\n");
+        System.out.println("Locale \"" + locale + "\":\n\n  " + formatOptions(opts) + "\n");
         decimal(locale, numbers, opts);
         System.out.println();
       }
@@ -72,7 +77,8 @@ public class NumberDemo {
           .setGrouping(true),
         options(CurrencyFormatStyle.NAME)
           .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC)
-          .setMinimumSignificantDigits(1),
+          .setMinimumSignificantDigits(1)
+          .setGrouping(true),
         options(CurrencyFormatStyle.SHORT)
           .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC),
       };
@@ -87,7 +93,7 @@ public class NumberDemo {
     
     for (CLDRLocale locale : locales) {
       for (CurrencyFormatOptions opts : currencyOpts) {
-        System.out.println("Locale \"" + locale + "\" in " + opts.style() + " style\n");
+        System.out.println("Locale \"" + locale + "\":\n\n  " + formatOptions(opts) + "\n");
         money(locale, currencies, numbers, opts);
         System.out.println();
       }
@@ -125,7 +131,7 @@ public class NumberDemo {
     System.out.println();
   }
   
-  private static DecimalFormatOptions options(NumberFormatStyle style) {
+  private static DecimalFormatOptions options(DecimalFormatStyle style) {
     return new DecimalFormatOptions(style);
   }
   
@@ -133,4 +139,17 @@ public class NumberDemo {
     return new CurrencyFormatOptions(style);
   }
  
+  private static String formatOptions(DecimalFormatOptions opts) {
+    StringBuilder buf = new StringBuilder();
+    opts.repr(buf, "  ");
+    return buf.toString();
+  }
+
+  private static String formatOptions(CurrencyFormatOptions opts) {
+    StringBuilder buf = new StringBuilder();
+    opts.repr(buf, "  ");
+    return buf.toString();
+    
+  }
+   
 }

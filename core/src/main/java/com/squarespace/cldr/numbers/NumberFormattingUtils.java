@@ -10,6 +10,20 @@ import java.math.RoundingMode;
 public class NumberFormattingUtils {
 
   /**
+   * Count the number of integer digits in the number.
+   */
+  public static int integerDigits(BigDecimal n) {
+    return n.precision() - n.scale();
+//
+//    if (n.scale() > 0) {
+//      digits -= n.scale();
+//    } else {
+//
+//    }
+//    return digits;
+  }
+
+  /**
    * Calculates the number of integer and fractional digits to emit, returning
    * them in a 2-element array, and updates the operands.
    *
@@ -19,9 +33,8 @@ public class NumberFormattingUtils {
    * For example, the value 1200 may be emitted as 1.2K using a format "0K" with
    * minSigDigits=1 and maxSigDigits=2.
    */
-  public static long[] setup(
+  public static BigDecimal setup(
       BigDecimal n,                     // number to be formatted
-      NumberOperands operands,          // helper to compute digit counts
       NumberRoundMode roundMode,        // rounding mode
       NumberFormatMode formatMode,      // formatting mode (significant digits, etc)
       int minIntDigits,                 // maximum integer digits to emit
@@ -30,10 +43,6 @@ public class NumberFormattingUtils {
       int maxSigDigits,                 // maximum significant digits to emit
       int minSigDigits) {               // minimum significant digits to emit
 
-    // Hold the exact number of digits to emit for the integer and fractional
-    // parts of the formatted number.
-    long intDigits = 0;
-    long fracDigits = 0;
     RoundingMode mode = roundMode.toRoundingMode();
     boolean useSignificant = formatMode == SIGNIFICANT || formatMode == SIGNIFICANT_MAXFRAC;
 
@@ -52,7 +61,7 @@ public class NumberFormattingUtils {
 
       // Ensure that one less digit is emitted if the number is exactly zero.
       n = n.stripTrailingZeros();
-      boolean zero = n.compareTo(BigDecimal.ZERO) == 0;
+      boolean zero = n.signum() == 0;
       int precision = n.precision();
       if (zero && n.scale() == 1) {
         precision--;
@@ -64,54 +73,49 @@ public class NumberFormattingUtils {
         n = n.setScale(scale, mode);
       }
 
-      intDigits = n.precision() - n.scale();
-      intDigits = intDigits <= 0 ? 1 : intDigits;
-      fracDigits = n.scale() > 0 ? n.scale() : 0;
-
-      // Recompute the operands.
-      operands.set(n.toPlainString());
-
     } else {
 
       // This mode provides precise control over the number of integer and fractional
       // digits to include in the result, e.g. when formatting exact currency values.
       int scale = Math.max(minFracDigits, Math.min(n.scale(), maxFracDigits));
       n = n.setScale(scale, mode);
+      n = n.stripTrailingZeros();
 
-      // Recompute the operands before using the 'w' operand below. In this mode
-      // we ignore trailing zeroes.
-      operands.set(n.toPlainString());
-
-      // Compute how many digits we'll emit based on the scaled number.
-      intDigits = Math.max(n.precision() - n.scale(), minIntDigits);
-      fracDigits = Math.min(Math.max(minFracDigits, operands.w()), maxFracDigits);
+      // Ensure minimum fraction digits is met, even if it means outputting trailing zeros
+      if (n.scale() < minFracDigits) {
+        n = n.setScale(minFracDigits, mode);
+      }
     }
 
-    return new long[] { intDigits, fracDigits };
+    return n;
   }
 
   /**
    * Formats the number into the buffer.
    */
   public static void format(
-      long[] digits,
+      BigDecimal n,
       DigitBuffer buf,
-      NumberOperands operands,
       NumberFormatterParams params,
       boolean currencyMode,
       boolean grouping,
+      int minIntDigits,
       int primaryGroupingSize,
       int secondaryGroupingSize) {
-
-    long intDigits = digits[0];
-    long fracDigits = digits[1];
 
     // Setup integer digit grouping.
     if (secondaryGroupingSize == 0) {
       secondaryGroupingSize = primaryGroupingSize;
     }
+
+    // Check if we need to perform digit grouping.
     int groupSize = primaryGroupingSize;
-    boolean shouldGroup = grouping && intDigits >= (params.minimumGroupingDigits + primaryGroupingSize);
+    boolean shouldGroup = false;
+    if (grouping) {
+      long intDigits = integerDigits(n);
+      intDigits = Math.max(intDigits, minIntDigits);
+      shouldGroup = intDigits >= (params.minimumGroupingDigits + primaryGroupingSize);
+    }
 
     // Select the decimal and grouping characters.
     String decimal = currencyMode ? params.currencyDecimal : params.decimal;
@@ -119,28 +123,36 @@ public class NumberFormattingUtils {
 
     // Keep a pointer to the end of the buffer, since we render the formatted number
     // in reverse to be a bit more compact.
-    int bufferStart = buf.size();
+    int bufferStart = buf.length();
 
-    // Fraction part.
-    if (fracDigits > 0) {
-      long value = operands.nd();
-      long zeroes = operands.v() - fracDigits;
-      for (int i = 0; i < zeroes; i++) {
-        value /= 10;
+    // We only emit the absolute value of the number, since the indication
+    // for negative numbers is part of the larger pattern.
+    if (n.signum() == -1) {
+      n = n.negate();
+    }
+
+    // Translate the standard decimal representation into the localized form.
+    // At this point the number of integer and decimal digits is set, all we're
+    // doing is outputting the correct decimal symbol and grouping symbols.
+
+    String s = n.toPlainString();
+    int end = s.length() - 1;
+
+    // Emit decimal digits and decimal point.
+    int idx = s.lastIndexOf('.');
+    if (idx != -1) {
+      while (end > idx) {
+        buf.append(s.charAt(end));
+        end--;
       }
-      for (int i = 0; i < fracDigits; i++) {
-        int ix = (int)(value % 10);
-        buf.append(params.digits[ix]);
-        value /= 10;
-      }
+
+      end--;
       buf.append(decimal);
     }
 
-    // Integer part.
-    long value = operands.n();
+    // Emit integer part with optional grouping
     int emitted = 0;
-    for (int i = 0; i < intDigits; i++) {
-
+    while (end >= 0) {
       // Emit grouping digits.
       if (shouldGroup) {
         boolean emit = emitted > 0 && emitted % groupSize == 0;
@@ -151,14 +163,29 @@ public class NumberFormattingUtils {
           groupSize = secondaryGroupingSize;
         }
       }
-
-      int ix = (int)(value % 10);
-      buf.append(params.digits[ix]);
-      value /= 10;
+      buf.append(s.charAt(end));
+      end--;
       emitted++;
+      minIntDigits--;
     }
 
-    // Reverse just the characters we formatted.
+    // Emit zeroes to pad integer part out to minIntDigits with optional grouping
+    if (minIntDigits > 0) {
+      for (int i = 0; i < minIntDigits; i++) {
+        // Emit grouping digits.
+        if (shouldGroup) {
+          boolean emit = emitted > 0 && emitted % groupSize == 0;
+          if (emit) {
+            // Append a grouping character and switch to the secondary grouping size
+            buf.append(group);
+            emitted -= groupSize;
+            groupSize = secondaryGroupingSize;
+          }
+        }
+        buf.append('0');
+      }
+    }
+
     buf.reverse(bufferStart);
   }
 

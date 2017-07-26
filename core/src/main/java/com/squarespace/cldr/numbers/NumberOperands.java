@@ -18,6 +18,9 @@ package com.squarespace.cldr.numbers;
  */
 public class NumberOperands {
 
+  private static final long LIMIT = 100000000000000000L;
+  private static final long INTEGER_REDUCER = 100000000000000L;
+
   private boolean negative;
 
   private boolean decimal;
@@ -37,9 +40,6 @@ public class NumberOperands {
   // Visible fractional digits in n, without trailing zeroes
   private long t;
 
-  // Number of digits in integer portion of n
-  private long nid;
-
   // Number of leading digits on the decimal portion of 'n'
   private long z;
 
@@ -47,7 +47,7 @@ public class NumberOperands {
   public NumberOperands() {
   }
 
-  public NumberOperands(String number) {
+  public NumberOperands(CharSequence number) {
     set(number);
   }
 
@@ -115,13 +115,6 @@ public class NumberOperands {
   }
 
   /**
-   * Number of digits in the integer portion of 'n'.
-   */
-  public long nid() {
-    return nid;
-  }
-
-  /**
    * Number of leading zeroes on the decimal portion of 'n'.
    */
   public long z() {
@@ -141,7 +134,6 @@ public class NumberOperands {
     v = 0;
     w = 0;
     t = 0;
-    nid = 0;
     z = 0;
 
     int length = number.length();
@@ -176,8 +168,6 @@ public class NumberOperands {
             } else {
               z++;
             }
-          } else {
-            nid++;
           }
           if (nd > 0) {
             nd *= 10;
@@ -197,8 +187,6 @@ public class NumberOperands {
           if (decimal) {
             v++;
             leading = true;
-          } else {
-            nid++;
           }
           trail = 0;
           if (nd > 0) {
@@ -224,6 +212,15 @@ public class NumberOperands {
 
       if (fail) {
         break;
+      }
+
+      // Check for imminent overflow and reduce or bail out.
+      if (decimal) {
+        if (nd >= LIMIT) {
+          break;
+        }
+      } else {
+        nd = integerReduce(nd);
       }
 
       i++;
@@ -252,6 +249,16 @@ public class NumberOperands {
   }
 
   /**
+   * Periodically reduce the integer digits to prevent overflow.
+   * Once the number exceeds this limit we truncate it, preserving the
+   * values in the lowest N digits.
+   */
+  private static long integerReduce(long n) {
+    long m = n > LIMIT ? n % INTEGER_REDUCER : n;
+    return m;
+  }
+
+  /**
    * Used as a shortcut for comparisons in test cases.
    */
   @Override
@@ -272,7 +279,6 @@ public class NumberOperands {
     buf.append("w=").append(w).append(' ');
     buf.append("f=").append(nd).append(' ');
     buf.append("t=").append(t).append(' ');
-    buf.append("nid=").append(nid).append(' ');
     buf.append("z=").append(z);
     return buf.toString();
   }
