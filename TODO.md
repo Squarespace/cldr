@@ -4,6 +4,7 @@
 
 ### High test coverage for main formatter code pathways.
 
+
 ### Timezone formatting
 
 This was punted in the initial pass for date/time formatting.
@@ -17,6 +18,10 @@ Unit formatting (square feet, Megabytes, etc)
 ----------------------------------------------------------
 
 # FIXED
+
+### Currency digit defaulting
+
+Use default decimal digits for currencies, overriding the pattern defaults.
 
 
 ### Support narrow currency symbols
