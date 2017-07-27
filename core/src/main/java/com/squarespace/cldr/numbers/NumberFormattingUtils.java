@@ -14,13 +14,6 @@ public class NumberFormattingUtils {
    */
   public static int integerDigits(BigDecimal n) {
     return n.precision() - n.scale();
-//
-//    if (n.scale() > 0) {
-//      digits -= n.scale();
-//    } else {
-//
-//    }
-//    return digits;
   }
 
   /**
@@ -111,9 +104,17 @@ public class NumberFormattingUtils {
     // Check if we need to perform digit grouping.
     int groupSize = primaryGroupingSize;
     boolean shouldGroup = false;
-    if (grouping) {
-      long intDigits = integerDigits(n);
+
+    // Output as many integer digits as are available, unless minIntDigits == 0
+    // and our value is < 1.
+    long intDigits = integerDigits(n);
+    if (minIntDigits == 0 && n.compareTo(BigDecimal.ONE) == -1) {
+      intDigits = 0;
+    } else {
       intDigits = Math.max(intDigits, minIntDigits);
+    }
+
+    if (grouping) {
       shouldGroup = intDigits >= (params.minimumGroupingDigits + primaryGroupingSize);
     }
 
@@ -152,7 +153,7 @@ public class NumberFormattingUtils {
 
     // Emit integer part with optional grouping
     int emitted = 0;
-    while (end >= 0) {
+    while (intDigits > 0 && end >= 0) {
       // Emit grouping digits.
       if (shouldGroup) {
         boolean emit = emitted > 0 && emitted % groupSize == 0;
@@ -166,12 +167,12 @@ public class NumberFormattingUtils {
       buf.append(s.charAt(end));
       end--;
       emitted++;
-      minIntDigits--;
+      intDigits--;
     }
 
     // Emit zeroes to pad integer part out to minIntDigits with optional grouping
-    if (minIntDigits > 0) {
-      for (int i = 0; i < minIntDigits; i++) {
+    if (intDigits > 0) {
+      for (int i = 0; i < intDigits; i++) {
         // Emit grouping digits.
         if (shouldGroup) {
           boolean emit = emitted > 0 && emitted % groupSize == 0;
@@ -183,6 +184,7 @@ public class NumberFormattingUtils {
           }
         }
         buf.append('0');
+        emitted++;
       }
     }
 

@@ -10,6 +10,7 @@ import static com.squarespace.cldr.numbers.NumberRoundMode.TRUNCATE;
 import static org.testng.Assert.assertEquals;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.testng.annotations.Test;
 
@@ -18,6 +19,15 @@ import org.testng.annotations.Test;
  * Exercises the low-level number formatting implementation.
  */
 public class NumberFormattingUtilsTest {
+
+  @Test
+  public void testIntegerDigits() {
+    for (int i = 1; i < 10; i++) {
+      intDigits(num("12345", i), 5);
+      intDigits(num("0.12345", i), 0);
+      intDigits(num("12345.12345", i), 5);
+    }
+  }
 
   @Test
   public void testSetup() {
@@ -475,9 +485,6 @@ public class NumberFormattingUtilsTest {
 
   @Test
   public void testIntegers() {
-
-    // TODO:
-
     Builder fmt = format(DEFAULT).minIntDigits(3);
 
     format(fmt.get(), "0", "000");
@@ -507,6 +514,20 @@ public class NumberFormattingUtilsTest {
 
     format(fmt.get(), "1.20000", "1.200");
     format(fmt.get(), "0.0020000", "0.002");
+
+    fmt.minIntDigits(0);
+
+    format(fmt.get(), "0.002", ".002");
+    format(fmt.get(), "0.556", ".556");
+    format(fmt.get(), "0.66", ".660");
+    format(fmt.get(), "1.234", "1.234");
+    format(fmt.get(), "12345", "12345.000");
+
+    fmt.minFracDigits(0).maxFracDigits(1);
+
+    format(fmt.get(), "0.94", ".9");
+    format(fmt.get(), "0.95", "1");
+    format(fmt.get(), "0.99", "1");
   }
 
   @Test
@@ -616,8 +637,6 @@ public class NumberFormattingUtilsTest {
   public void testGrouping() {
     Builder fmt = format(DEFAULT).grouping(true);
 
-    // TODO: FIXME
-
     format(fmt.get(), "1234567", "1,234,567");
     format(fmt.get(), "11111111111111.123", "11,111,111,111,111.12");
 
@@ -631,6 +650,25 @@ public class NumberFormattingUtilsTest {
 
     format(fmt.get(), "1234567", "1,23,4567");
     format(fmt.get(), "11111111111111.123", "11,11,11,11,11,1111.12");
+
+    fmt.minIntDigits(12);
+
+    format(fmt.get(), "123", "00,00,00,00,0123");
+
+    fmt.primaryGroupingSize(3).secondaryGroupingSize(3);
+
+    format(fmt.get(), "123", "000,000,000,123");
+  }
+
+  private static BigDecimal num(String num, int significant) {
+    BigDecimal n = new BigDecimal(num);
+    int scale = significant - n.precision() + n.scale();
+    return n.setScale(scale, RoundingMode.HALF_EVEN);
+  }
+
+  private static void intDigits(BigDecimal n, int expected) {
+    int actual = NumberFormattingUtils.integerDigits(n);
+    assertEquals(actual, expected);
   }
 
   private static void format(Fmt call, String number, String expected) {

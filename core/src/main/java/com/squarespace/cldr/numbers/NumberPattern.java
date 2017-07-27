@@ -5,6 +5,7 @@ import java.util.List;
 
 public class NumberPattern {
 
+  private static final char CURRENCY_SYM = '\u00a4';
   private static final Format DEFAULT_FORMAT = buildDefaultFormat();
 
   protected String pattern;
@@ -44,7 +45,7 @@ public class NumberPattern {
             break;
 
           case CURRENCY:
-            buf.append('\u00a4');
+            buf.append(CURRENCY_SYM);
             break;
 
           case PERCENT:

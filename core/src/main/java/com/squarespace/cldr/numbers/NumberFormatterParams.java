@@ -17,7 +17,4 @@ public class NumberFormatterParams {
   protected String currencyGroup = ",";
   protected int minimumGroupingDigits = 1;
 
-  //Currently we only output Latin digits, but generalize it for future use.
-  protected String[] digits = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
-
 }

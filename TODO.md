@@ -19,6 +19,8 @@ Unit formatting (square feet, Megabytes, etc)
 
 # FIXED
 
+### Remove leading zero when minIntDigits == 0
+
 ### Currency digit defaulting
 
 Use default decimal digits for currencies, overriding the pattern defaults.
