@@ -1,8 +1,14 @@
 package com.squarespace.cldr.dates;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.zone.ZoneRules;
+import java.time.zone.ZoneRulesException;
+import java.util.Map;
 
 import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.dates.TimeZoneNames.Name;
 
 
 /**
@@ -28,7 +34,11 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   protected FieldVariants weekdaysStandalone;
   protected FieldVariants dayPeriodsFormat;
   protected FieldVariants dayPeriodsStandalone;
-
+  protected String gmtZeroFormat;
+  protected Map<String, String> exemplarCities;
+  protected Map<String, TimeZoneNames> timezoneNames;
+  protected Map<String, TimeZoneNames> metazoneNames;
+  
   public CLDRLocale locale() {
     return locale;
   }
@@ -55,6 +65,54 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
    */
   public abstract boolean formatSkeleton(String skeleton, ZonedDateTime d, StringBuilder b);
 
+  /**
+   * Wraps the GMT hours and minutes, e.g. "GMT{0}" -> "GMT-04:00".
+   */
+  protected abstract void wrapTimeZoneGMT(StringBuilder b, boolean negative, int hours, int mins, boolean _short);
+  
+  /**
+   * Wraps a location in the region format, e.g. "{0} Time" -> "Los Angeles Time"
+   */
+  protected abstract void wrapTimeZoneRegion(StringBuilder b, String region);
+  
+  /**
+   * Retrieves the exemplar city for a timezone, e.g. "America/Los_Angeles" -> "Los Angeles".
+   */
+  public String getExemplarCity(String zoneId) {
+    return exemplarCities.get(zoneId);
+  }
+  
+  public String resolveTimeZoneId(String zoneId) {
+    String alias = _CalendarUtils.getTimeZoneAlias(zoneId);
+    if (alias != null) {
+      zoneId = alias;
+    }
+    alias = TimeZoneAliases.getAlias(zoneId);
+    if (alias != null) {
+      zoneId = alias;
+    }
+    return zoneId;
+  }
+  
+  /**
+   * Lookup the time zone name variants (long or short) for the given zoneId and datetime.
+   */
+  public Name getTimeZoneName(String zoneId, ZonedDateTime date, boolean long_) {
+    TimeZoneNames names = timezoneNames.get(zoneId);
+    if (names != null) {
+      return long_ ? names.longName() : names.shortName();
+    }
+    
+    zoneId = _CalendarUtils.getMetazone(zoneId, date);
+    if (zoneId == null) {
+      return null;
+    }
+    names = metazoneNames.get(zoneId);
+    if (names != null) {
+      return long_ ? names.longName() : names.shortName();
+    }
+    return null;
+  }
 
   /**
    * Formats a single field, based on the first character in the pattern string,
@@ -212,16 +270,28 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'z':
-        formatTimeZone(b, d, width);
+        formatTimeZone_z(b, d, width);
         break;
 
       case 'Z':
+        formatTimeZone_Z(b, d, width);
+        break;
+        
       case 'O':
+        formatTimeZone_O(b, d, width);
+        break;
+        
       case 'v':
+        formatTimeZone_v(b, d, width);
+        break;
+        
       case 'V':
+        formatTimeZone_V(b, d, width);
+        break;
+        
       case 'X':
       case 'x':
-        // TODO:
+        formatTimeZone_X(b, d, width, field);
         break;
     }
   }
@@ -539,14 +609,240 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
     }
   }
 
+ 
   /**
-   *
+   * Format timezone in localized GMT format for field 'O'.
    */
-  void formatTimeZone(StringBuilder b, ZonedDateTime d, int width) {
-// TODO: complete timezone implementation
-//    ZoneId zone = d.getZone();
+  void formatTimeZone_O(StringBuilder b, ZonedDateTime d, int width) {
+    int[] tz = getTzComponents(d);
+    switch (width) {
+      case 1:
+        wrapTimeZoneGMT(b, tz[TZNEG] == -1, tz[TZHOURS], tz[TZMINS], true);
+        break;
+        
+      case 4:
+        wrapTimeZoneGMT(b, tz[TZNEG] == -1, tz[TZHOURS], tz[TZMINS], false);
+        break;
+    }
+  }
+  
+  /**
+   * Timezone as short / long generic non-location format.
+   */
+  void formatTimeZone_v(StringBuilder b, ZonedDateTime d, int width) {
+    if (width != 1 && width != 4) {
+      return;
+    }
+    
+    ZoneId zone = d.getZone();
+    Name variants = getTimeZoneName(zone.getId(), d, width == 4);
+    String name = variants == null ? null : variants.generic();
+
+    if (name != null) {
+      b.append(name);
+    } else {
+      // Falls back to 'O' or 'OOOO'.
+      formatTimeZone_O(b, d, width);
+    }
+  }
+  
+  /**
+   * Timezone as short / long ids and exemplar city.
+   */
+  void formatTimeZone_V(StringBuilder b, ZonedDateTime d, int width) {
+    switch (width) {
+      case 4:
+      {
+        // "VVVV" - Generic location format, e.g. "Los Angeles Time".
+        String zoneId = d.getZone().getId();
+        String region = getExemplarCity(zoneId);
+        if (region != null) {
+          wrapTimeZoneRegion(b, region);
+        }
+        break;
+      }
+      
+      case 3:
+      {
+        // "VVV" - Exemplar city (location) for the time zone, e.g. "Los Angeles"
+        String zoneId = d.getZone().getId();
+        String city = getExemplarCity(zoneId);
+        if (city != null) {
+          b.append(city);
+        }
+        break;
+      }
+      
+      case 2:
+        // "VV" - Long time zone ID, e.g. "America/Los_Angeles"
+        String zoneId = d.getZone().getId();
+        zoneId = resolveTimeZoneId(zoneId);
+        if (zoneId != null) {
+          b.append(zoneId);
+        }
+        break;
+      
+      case 1:
+        // "V" - Short time zone ID, e.g. "uslax". 
+        // Not available in the JSON CLDR data, so appending "unk".
+        b.append("unk");
+        break;
+    }
+  }
+  
+  /**
+   * Format timezone in ISO8601 basic or extended format for field 'x' or 'X'.
+   * http://www.unicode.org/reports/tr35/tr35-dates.html#dfst-zone
+   */
+  void formatTimeZone_X(StringBuilder b, ZonedDateTime d, int width, char ch) {
+    int[] tz = getTzComponents(d);
+    
+    // Emit a 'Z' by itself for X if time is exactly GMT
+    if (ch == 'X' && tz[TZOFFSET] == 0) {
+      b.append('Z');
+      return;
+    }
+
+    switch (width) {
+      case 5:
+      case 4:
+      case 3:
+      case 2:
+      case 1:
+        if (tz[TZNEG] == -1) {
+          b.append('-');
+        } else {
+          b.append('+');
+        }
+
+        zeroPad2(b, tz[TZHOURS], 2);
+        
+        // Delimiter is omitted for X, XX and XXXX
+        if (width == 3 || width == 5) {
+          b.append(':');
+        }
+        int mins = tz[TZMINS];
+
+        // Minutes are optional for X
+        if (width != 1 || mins > 0) {
+          zeroPad2(b, mins, 2);
+        }
+        break;
+    }
+  }
+  
+  /**
+   * Format a time zone using a non-location format.
+   */
+  void formatTimeZone_z(StringBuilder b, ZonedDateTime d, int width) {
+    if (width > 4) {
+      return;
+    }
+
+    ZoneId zone = d.getZone();
+    ZoneRules zoneRules = null;
+    try {
+      zoneRules = zone.getRules();
+    } catch (ZoneRulesException e) {
+      // not expected, but catching for safety
+      return;
+    }
+    
+    boolean daylight = zoneRules.isDaylightSavings(d.toInstant());
+
+    // Select long or short name variants and select the standard or daylight name.
+    Name variants = getTimeZoneName(zone.getId(), d, width == 4);
+    String name = variants == null ? null : (daylight ? variants.daylight() : variants.standard());
+
+    switch (width) {
+      case 4:
+      {
+        if (name != null) {
+          b.append(name);
+        } else {
+          // Falls back to 'OOOO'
+          formatTimeZone_O(b, d, 4);
+        }
+        break;
+      }
+        
+      case 3:
+      case 2:
+      case 1:
+      {
+        if (name != null) {
+          b.append(name);
+        } else {
+          // Falls back to 'O'
+          formatTimeZone_O(b, d, 1);
+        }
+        break;
+      }
+    }
+  }
+  
+  /**
+   * Format time zone in ISO8601 basic or extended format for field 'Z'.
+   * http://www.unicode.org/reports/tr35/tr35-dates.html#dfst-zone
+   */
+  void formatTimeZone_Z(StringBuilder b, ZonedDateTime d, int width) {
+    if (width == 4) {
+      // ZZZZ is same as OOOO
+      formatTimeZone_O(b, d, width);
+      return;
+    }
+
+    int[] tz = getTzComponents(d);
+    if (width == 5 && tz[TZOFFSET] == 0) {
+      b.append('Z');
+      return;
+    }
+
+    switch (width) {
+      case 5:
+      case 3:
+      case 2:
+      case 1:
+        if (tz[TZNEG] == -1) {
+          b.append('-');
+        } else {
+          b.append('+');
+        }
+        
+        zeroPad2(b, tz[TZHOURS], 2);
+        // Delimiter omitted for all except XXXXX
+        if (width == 5) {
+          b.append(':');
+        }
+        zeroPad2(b, tz[TZMINS], 2);
+        break;
+    }
   }
 
+  /** Indicates time zone offset is negative if == -1 */
+  private static final int TZNEG = 0;
+  /** Absolute value of the original offset in seconds */
+  private static final int TZOFFSET = 1;
+  /** Absolute value of the hours */
+  private static final int TZHOURS = 2;
+  /** Absolute value of the minutes */
+  private static final int TZMINS = 3;
+  
+  /**
+   * Decode some fields about a time zone.
+   */
+  private int[] getTzComponents(ZonedDateTime d) {
+    ZoneOffset offset = d.getOffset();
+    int secs = offset.getTotalSeconds();
+    boolean negative = secs < 0;
+    if (negative) {
+      secs = -secs;
+    }
+    int hours = secs / 3600;
+    int mins = (secs % 3600) / 60;
+    return new int[] { negative ? -1 : 1, secs, hours, mins };
+  }
+  
   /**
    * Format 2-digit number with 0-padding.
    */

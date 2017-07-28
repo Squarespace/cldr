@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import com.google.common.collect.Streams;
@@ -31,8 +36,14 @@ import com.squarespace.cldr.codegen.parse.PluralType;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Format;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Skeleton;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Variants;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZone;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneEntry;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneInfo;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneInfo;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneName;
 import com.squarespace.cldr.numbers.NumberPattern;
 import com.squarespace.cldr.numbers.NumberPatternParser;
+import com.squarespace.cldr.parse.DateTimePatternParser;
 import com.squarespace.compiler.common.Maybe;
 import com.squarespace.compiler.parse.Node;
 import com.squarespace.compiler.parse.Pair;
@@ -96,24 +107,21 @@ public class DataReader {
   }
   
   private final Map<String, JsonObject> patches = new LinkedHashMap<>();
-
   private final List<String> availableLocales = new ArrayList<>();
-
   private final List<LocaleID> defaultContent = new ArrayList<>();
-  
   private final Map<LocaleID, DateTimeData> calendars = new HashMap<>();
-
+  private final Map<LocaleID, TimeZoneData> timezones = new HashMap<>();
+  private final Map<String, MetaZone> metazones = new HashMap<>();
+  private final Map<String, String> timezoneAliases = new LinkedHashMap<>();
   private final Map<LocaleID, NumberData> numbers = new HashMap<>();
-
   private final Map<String, CurrencyData> currencies = new LinkedHashMap<>();
-
   private final Map<String, PluralData> ordinals = new HashMap<>();
-
   private final Map<String, PluralData> cardinals = new HashMap<>();
-
   private final Map<String, String> likelySubtags = new HashMap<>();
-
   private final NumberPatternParser numberPatternParser = new NumberPatternParser();
+  
+  private final DateTimeFormatter metazoneFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+      .withZone(ZoneId.of("UTC"));
   
   /**
    * Flag indicating whether we've populated the global DataReader instance.
@@ -155,6 +163,27 @@ public class DataReader {
     return calendars;
   }
 
+  /**
+   * List of all timezones by locale.
+   */
+  public Map<LocaleID, TimeZoneData> timezones() {
+    return timezones;
+  }
+
+  /**
+   * List of timezone aliases, e.g. in case of deprecation.
+   */
+  public Map<String, String> timezoneAliases() {
+    return timezoneAliases;
+  }
+
+  /**
+   * List of all metazones.
+   */
+  public Map<String, MetaZone> metazones() {
+    return metazones;
+  }
+  
   /**
    * Return pluralization rules for ordinal numbers.
    */
@@ -210,6 +239,12 @@ public class DataReader {
       JsonObject root = load(path);
       switch (fileName) {
 
+        case "aliases.json":
+        {
+          parseTimeZoneAliases(root);
+          break;
+        }
+        
         case "availableLocales.json":
           JsonObject locales = resolve(root, "availableLocales");
           for (JsonElement elem : locales.getAsJsonArray("modern")) {
@@ -223,26 +258,8 @@ public class DataReader {
           LocaleID id = parseIdentity(code, root);
           root = resolve(root, "main", code);
           DateTimeData data = parseCalendar(root);
-          data.setID(id);
+          data.id = id;
           calendars.put(id, data);
-          break;
-        }
-        
-        case "defaultContent.json":
-          parseDefaultContent(root);
-          break;
-          
-        case "likelySubtags.json":
-          parseLikelySubtags(root);
-          break;
-
-        case "numbers.json":
-        {
-          String code = localeCode(root);
-          root = patch(fileName, code, root);
-          LocaleID id = parseIdentity(code, root);
-          root = resolve(root, "main", code);
-          parseNumberData(id, code, root);
           break;
         }
 
@@ -259,6 +276,30 @@ public class DataReader {
           parseSupplementalCurrencyData(root);
           break;
 
+        case "defaultContent.json":
+          parseDefaultContent(root);
+          break;
+          
+        case "likelySubtags.json":
+          parseLikelySubtags(root);
+          break;
+
+        case "metaZones.json":
+        {
+          parseMetaZones(root);
+          break;
+        }
+          
+        case "numbers.json":
+        {
+          String code = localeCode(root);
+          root = patch(fileName, code, root);
+          LocaleID id = parseIdentity(code, root);
+          root = resolve(root, "main", code);
+          parseNumberData(id, code, root);
+          break;
+        }
+
         case "ordinals.json":
           parsePlurals(root, "plurals-type-ordinal", ordinals);
           break;
@@ -267,6 +308,15 @@ public class DataReader {
           parsePlurals(root, "plurals-type-cardinal", cardinals);
           break;
 
+        case "timeZoneNames.json":
+        {
+          String code = localeCode(root);
+          LocaleID id = parseIdentity(code, root);
+          TimeZoneData data = parseTimeZoneData(code, root);
+          timezones.put(id, data);
+          break;
+        }
+        
         case "weekData.json":
           minDays = parseMinDays(root);
           firstDays = parseFirstDays(root);
@@ -282,10 +332,10 @@ public class DataReader {
       DateTimeData data = entry.getValue();
 
       Integer value = minDays.getOrDefault(territory, defaultMinDays);
-      data.setMinDays(value);
+      data.minDays = value;
 
       value = firstDays.getOrDefault(territory, defaultFirstDay);
-      data.setFirstDay(value - 1);
+      data.firstDay = value - 1;
     }
   }
 
@@ -426,19 +476,19 @@ public class DataReader {
     DateTimeData data = new DateTimeData();
     JsonObject node = resolve(root, "dates", "calendars", "gregorian");
 
-    data.setEras(parseEras(node));
-    data.setDayPeriodsFormat(parseDayPeriods(node, "format"));
-    data.setDayPeriodsStandalone(parseDayPeriods(node, "stand-alone"));
-    data.setMonthsFormat(parseMonths(node, "format"));
-    data.setMonthsStandalone(parseMonths(node, "stand-alone"));
-    data.setWeekdaysFormat(parseWeekdays(node, "format"));
-    data.setWeekdaysStandalone(parseWeekdays(node, "stand-alone"));
-    data.setQuartersFormat(parseQuarters(node, "format"));
-    data.setQuartersStandalone(parseQuarters(node, "stand-alone"));
-    data.setDateFormats(parseDateFormats(node));
-    data.setTimeFormats(parseTimeFormats(node));
-    data.setDateTimeFormats(parseDateTimeFormats(node));
-    data.setDateTimeSkeletons(parseDateTimeSkeletons(node));
+    data.eras = parseEras(node);
+    data.dayPeriodsFormat = parseDayPeriods(node, "format");
+    data.dayPeriodsStandalone = parseDayPeriods(node, "stand-alone");
+    data.monthsFormat = parseMonths(node, "format");
+    data.monthsStandalone = parseMonths(node, "stand-alone");
+    data.weekdaysFormat = parseWeekdays(node, "format");
+    data.weekdaysStandalone = parseWeekdays(node, "stand-alone");
+    data.quartersFormat = parseQuarters(node, "format");
+    data.quartersStandalone = parseQuarters(node, "stand-alone");
+    data.dateFormats = parseDateFormats(node);
+    data.timeFormats = parseTimeFormats(node);
+    data.dateTimeFormats = parseDateTimeFormats(node);
+    data.dateTimeSkeletons = parseDateTimeSkeletons(node);
 
     return data;
   }
@@ -745,29 +795,6 @@ public class DataReader {
     return data;
   }
 
-//  /**
-//   * Parse a number format with optional separate pattern for negative values. If no explicit
-//   * negative pattern exists, we generate one by prepending the implicit minus character.
-//   * See "subpattern boundary" here:
-//   *   http://www.unicode.org/reports/tr35/tr35-numbers.html#Number_Pattern_Character_Definitions
-//   */
-//  private List<Integer> parseNumberFormat(String format) {
-//    int i = format.indexOf(';');
-//    if (i == -1) {
-//      // Minus form is normalized by prepending the "-".
-//      return Arrays.asList(
-//          numberPatternCache.get(format),
-//          numberPatternCache.get("-" + format));
-//    }
-//
-//    // Separate the positive and negative patterns.
-//    String pos = format.substring(0, i);
-//    String neg = format.substring(i+1);
-//    return Arrays.asList(
-//        numberPatternCache.get(pos),
-//        numberPatternCache.get(neg));
-//  }
-
   /**
    * Return a pair of patterns (positive, negative) derived from the given pattern string.
    */
@@ -810,6 +837,201 @@ public class DataReader {
     return result;
   }
 
+  private TimeZoneData parseTimeZoneData(String code, JsonObject root) {
+    TimeZoneData data = new TimeZoneData();
+    
+    data.timeZoneInfo = parseTimeZoneInfos(code, root);
+    data.metaZoneInfo = parseMetaZoneInfos(code, root);
+
+    JsonObject node = resolve(root, "main", code, "dates", "timeZoneNames");
+    data.hourFormat = string(node, "hourFormat");
+    data.gmtFormat = string(node, "gmtFormat");
+    data.gmtZeroFormat = string(node, "gmtZeroFormat");
+    data.regionFormat = string(node, "regionFormat");
+    data.regionFormatStandard = string(node, "regionFormat-type-standard");
+    data.regionFormatDaylight = string(node, "regionFormat-type-daylight");
+    data.fallbackFormat = string(node, "fallbackFormat");
+    
+    return data;
+  }
+  
+  /**
+   * Parse timezone names.
+   */
+  private List<TimeZoneInfo> parseTimeZoneInfos(String code, JsonObject root) {
+    JsonObject node = resolve(root, "main", code, "dates", "timeZoneNames", "zone");
+    return parseTimeZoneInfo(node, Collections.emptyList());
+  }
+
+  /**
+   * Recursively parse the zone labels until we get to a zone info object.
+   */
+  private List<TimeZoneInfo> parseTimeZoneInfo(JsonObject root, List<String> prefix) {
+    List<TimeZoneInfo> zones = new ArrayList<>();
+    for (String label : objectKeys(root)) {
+      JsonObject value = resolve(root, label);
+      List<String> zone = new ArrayList<>(prefix);
+      zone.add(label);
+      if (isTimeZone(value)) {
+        TimeZoneInfo info = parseTimeZoneObject(value, zone);
+        zones.add(info);
+      } else {
+        zones.addAll(parseTimeZoneInfo(value, zone));
+      }
+    }
+    return zones;
+  }
+  
+  private static final String[] TIMEZONE_KEYS = new String[] {
+    "exemplarCity", "long", "short"  
+  };
+ 
+  /**
+   * Returns true if this object looks like it holds TimeZoneInfo, otherwise false.
+   */
+  private boolean isTimeZone(JsonObject root) {
+    for (String key : TIMEZONE_KEYS) {
+      if (root.has(key)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  private TimeZoneInfo parseTimeZoneObject(JsonObject root, List<String> zone) {
+    TimeZoneInfo info = new TimeZoneInfo();
+    info.zone = StringUtils.join(zone, '/');
+    info.exemplarCity = string(root, "exemplarCity");
+    info.nameLong = parseTimeZoneName(root, "long");
+    info.nameShort = parseTimeZoneName(root, "short");
+    return info;
+  }
+  
+  private TimeZoneName parseTimeZoneName(JsonObject root, String width) {
+    JsonObject node = resolve(root, width);
+    if (node == null) {
+      return null;
+    }
+    TimeZoneName name = new TimeZoneName();
+    name.generic = string(node, "generic", null);
+    name.standard = string(node, "standard", null);
+    name.daylight = string(node, "daylight", null);
+    return name;
+  }
+
+  private List<MetaZoneInfo> parseMetaZoneInfos(String code, JsonObject root) {
+    JsonObject node = resolve(root, "main", code, "dates", "timeZoneNames", "metazone");
+    if (node == null) {
+      return Collections.emptyList();
+    }
+    return parseMetaZoneInfo(node, Collections.emptyList());
+  }
+  
+  private List<MetaZoneInfo> parseMetaZoneInfo(JsonObject root, List<String> prefix) {
+    List<MetaZoneInfo> zones = new ArrayList<>();
+    for (String label : objectKeys(root)) {
+      JsonObject value = resolve(root, label);
+      List<String> zone = new ArrayList<>(prefix);
+      zone.add(label);
+      if (isTimeZone(value)) {
+        MetaZoneInfo info = parseMetaZoneObject(value, zone);
+        zones.add(info);
+      } else {
+        zones.addAll(parseMetaZoneInfo(value, zone));
+      }
+    }
+    return zones;
+  }
+
+  private MetaZoneInfo parseMetaZoneObject(JsonObject root, List<String> zone) {
+    MetaZoneInfo info = new MetaZoneInfo();
+    info.zone = StringUtils.join(zone, '/');
+    info.nameLong = parseTimeZoneName(root, "long");
+    info.nameShort = parseTimeZoneName(root, "short");
+    return info;
+  }
+  
+  /**
+   * Parses timezone aliases. These are timezone ids that have been removed
+   * for a given reason.
+   */
+  private void parseTimeZoneAliases(JsonObject root) {
+    JsonObject node = resolve(root, "supplemental", "metadata", "alias", "zoneAlias");
+    parseTimeZoneAlias(node, Collections.emptyList());
+  }
+
+  /**
+   * Recursively parse timezone aliases.
+   */
+  private void parseTimeZoneAlias(JsonObject root, List<String> prefix) {
+    for (String label : objectKeys(root)) {
+      JsonObject node = resolve(root, label);
+      List<String> zone = new ArrayList<>(prefix);
+      zone.add(label);
+      String replacement = string(node, "_replacement", null);
+      if (replacement != null) {
+        String name = StringUtils.join(zone, '/');
+        timezoneAliases.put(name, replacement);
+      } else {
+        parseTimeZoneAlias(node, zone);
+      }
+    }
+  }
+  
+  /**
+   * Parse the metazone mapping from supplemental data.
+   */
+  private void parseMetaZones(JsonObject root) {
+    JsonObject node = resolve(root, "supplemental", "metaZones", "metazoneInfo", "timezone");
+    for (MetaZone zone : _parseMetaZones(node, Collections.emptyList())) {
+      metazones.put(zone.zone, zone);
+    }
+  }
+  
+  private List<MetaZone> _parseMetaZones(JsonObject root, List<String> prefix) {
+    List<MetaZone> zones = new ArrayList<>();
+    for (String label : objectKeys(root)) {
+      JsonElement node = root.get(label);
+      List<String> zone = new ArrayList<>(prefix);
+      zone.add(label);
+      if (node.isJsonArray()) {
+        // Parse list of metazones
+        MetaZone metazone = parseMetaZone(zone, node.getAsJsonArray());
+        zones.add(metazone);
+      } else {
+        zones.addAll(_parseMetaZones(node.getAsJsonObject(), zone));
+      }
+    }
+    return zones;
+  }
+
+  private MetaZone parseMetaZone(List<String> prefix, JsonArray zones) {
+    MetaZone zone = new MetaZone();
+    zone.zone = StringUtils.join(prefix, '/');
+    zone.metazones = new ArrayList<>();
+    for (JsonElement elem : zones) {
+      JsonObject node = resolve(elem.getAsJsonObject(), "usesMetazone");
+      MetaZoneEntry entry = new MetaZoneEntry();
+      entry.metazone = string(node, "_mzone");
+      String from = string(node, "_from", null);
+      String to = string(node, "_to", null);
+      if (from != null) {
+        entry.fromString = from;
+        entry.from = parseMetaZoneTimestamp(from);
+      }
+      if (to != null) {
+        entry.toString = to;
+        entry.to = parseMetaZoneTimestamp(to);
+      }
+      zone.metazones.add(entry);
+    }
+    return zone;
+  }
+  
+  private ZonedDateTime parseMetaZoneTimestamp(String rep) {
+    return ZonedDateTime.parse(rep, metazoneFmt);
+  }
+  
   /**
    * Extract the locale codes from a JSON object.
    */
@@ -823,7 +1045,11 @@ public class DataReader {
    */
   private JsonObject resolve(JsonObject node, String ...keys) {
     for (String key : keys) {
-      node = node.get(key).getAsJsonObject();
+      JsonElement n = node.get(key);
+      if (n == null) {
+        return null;
+      }
+      node = n.getAsJsonObject();
     }
     return node;
   }
@@ -840,7 +1066,10 @@ public class DataReader {
    */
   private String string(JsonObject node, String key, String default_) {
     JsonElement value = node.get(key);
-    return value == null ? default_ : value.getAsString();
+    if (value != null && value.isJsonPrimitive()) {
+      return value.getAsString();
+    }
+    return default_;
   }
 
   /**

@@ -11,174 +11,29 @@ import com.squarespace.cldr.codegen.LocaleID;
  */
 public class DateTimeData {
 
-  private LocaleID id;
+  public LocaleID id;
+  public int minDays;
+  public int firstDay;
+  public Variants eras;
+  public Variants dayPeriodsFormat;
+  public Variants dayPeriodsStandalone;
+  public Variants monthsFormat;
+  public Variants monthsStandalone;
+  public Variants weekdaysFormat;
+  public Variants weekdaysStandalone;
+  public Variants quartersFormat;
+  public Variants quartersStandalone;
+  public Format dateFormats;
+  public Format timeFormats;
+  public Format dateTimeFormats;
+  public List<Skeleton> dateTimeSkeletons;
 
-  private int minDays;
-
-  private int firstDay;
-
-  private Variants eras;
-
-  private Variants dayPeriodsFormat;
-
-  private Variants dayPeriodsStandalone;
-
-  private Variants monthsFormat;
-
-  private Variants monthsStandalone;
-
-  private Variants weekdaysFormat;
-
-  private Variants weekdaysStandalone;
-
-  private Variants quartersFormat;
-
-  private Variants quartersStandalone;
-
-  private Format dateFormats;
-
-  private Format timeFormats;
-
-  private Format dateTimeFormats;
-
-  private List<Skeleton> dateTimeSkeletons;
-
-
-  public DateTimeData() {
-  }
-
-  public void setID(LocaleID value) {
-    this.id = value;
-  }
-
-  public LocaleID id() {
-    return id;
-  }
-
-  public int minDays() {
-    return minDays;
-  }
-
-  public void setMinDays(int value) {
-    this.minDays = value;
-  }
-
-  public int firstDay() {
-    return firstDay;
-  }
-
-  public void setFirstDay(int value) {
-    this.firstDay = value;
-  }
-
-  public Variants eras() {
-    return eras;
-  }
-
-  public void setEras(Variants value) {
-    this.eras = value;
-  }
-
-  public Variants dayPeriodsFormat() {
-    return dayPeriodsFormat;
-  }
-
-  public void setDayPeriodsFormat(Variants value) {
-    this.dayPeriodsFormat = value;
-  }
-
-  public Variants dayPeriodsStandalone() {
-    return dayPeriodsStandalone;
-  }
-
-  public void setDayPeriodsStandalone(Variants value) {
-    this.dayPeriodsStandalone = value;
-  }
-
-  public Variants monthsFormat() {
-    return monthsFormat;
-  }
-
-  public void setMonthsFormat(Variants value) {
-    this.monthsFormat = value;
-  }
-
-  public Variants monthsStandalone() {
-    return monthsStandalone;
-  }
-
-  public void setMonthsStandalone(Variants value) {
-    this.monthsStandalone = value;
-  }
-
-  public Variants weekdaysFormat() {
-    return this.weekdaysFormat;
-  }
-
-  public void setWeekdaysFormat(Variants value) {
-    this.weekdaysFormat = value;
-  }
-
-  public Variants weekdaysStandalone() {
-    return this.weekdaysStandalone;
-  }
-
-  public void setWeekdaysStandalone(Variants value) {
-    this.weekdaysStandalone = value;
-  }
-
-  public Variants quartersFormat() {
-    return quartersFormat;
-  }
-
-  public void setQuartersFormat(Variants value) {
-    this.quartersFormat = value;
-  }
-
-  public Variants quartersStandalone() {
-    return quartersStandalone;
-  }
-
-  public void setQuartersStandalone(Variants value) {
-    this.quartersStandalone = value;
-  }
-
-  public Format dateFormats() {
-    return dateFormats;
-  }
-
-  public void setDateFormats(Format value) {
-    this.dateFormats = value;
-  }
-
-  public Format timeFormats() {
-    return timeFormats;
-  }
-
-  public void setTimeFormats(Format value) {
-    this.timeFormats = value;
-  }
-
-  public Format dateTimeFormats() {
-    return dateTimeFormats;
-  }
-
-  public void setDateTimeFormats(Format value) {
-    this.dateTimeFormats = value;
-  }
-
-  public List<Skeleton> dateTimeSkeletons() {
-    return dateTimeSkeletons;
-  }
-
-  public void setDateTimeSkeletons(List<Skeleton> value) {
-    this.dateTimeSkeletons = value;
-  }
-
+  /**
+   * Holds a datetime skeleton.
+   */
   public static class Skeleton {
 
     public final String skeleton;
-
     public final String pattern;
 
     public Skeleton(String skeleton, String pattern) {
@@ -191,14 +46,14 @@ public class DateTimeData {
     }
   }
 
+  /**
+   * Holds a list of datetime formats of different widths.
+   */
   public static class Format {
 
     public final String short_;
-
     public final String medium;
-
     public final String long_;
-
     public final String full;
 
     public Format(String short_, String medium, String long_, String full) {
@@ -214,14 +69,14 @@ public class DateTimeData {
     }
   }
 
+  /**
+   * Holds a generic set of variants of different widths.
+   */
   public static class Variants {
 
     public final String[] abbreviated;
-
     public final String[] narrow;
-
     public final String[] short_;
-
     public final String[] wide;
 
     public Variants(String[] abbreviated, String[] narrow, String[] short_, String[] wide) {

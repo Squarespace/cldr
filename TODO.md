@@ -5,9 +5,7 @@
 ### High test coverage for main formatter code pathways.
 
 
-### Timezone formatting
-
-This was punted in the initial pass for date/time formatting.
+### Add coveralls coverage report to README
 
 
 ### Units
@@ -15,9 +13,21 @@ This was punted in the initial pass for date/time formatting.
 Unit formatting (square feet, Megabytes, etc)
 
 
+### Intern strings and duplicate constants to reduce jar size
+
+Many of the strings are duplicated across many locales and can be defined in
+one place as constants and referenced.
+
+
 ----------------------------------------------------------
 
 # FIXED
+
+
+### Timezone formatting
+
+This was punted in the initial pass for date/time formatting.
+
 
 ### Remove leading zero when minIntDigits == 0
 

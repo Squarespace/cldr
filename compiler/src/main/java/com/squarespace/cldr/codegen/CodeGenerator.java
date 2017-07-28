@@ -62,7 +62,7 @@ public class CodeGenerator {
    */
   public static void generate(Path outputDir) throws IOException {
     DataReader reader = DataReader.get();
-    DateTimeCodeGenerator datetimeGenerator = new DateTimeCodeGenerator();
+    CalendarCodeGenerator datetimeGenerator = new CalendarCodeGenerator();
     Map<LocaleID, ClassName> dateClasses = datetimeGenerator.generate(outputDir, reader);
 
     PluralCodeGenerator pluralGenerator = new PluralCodeGenerator();

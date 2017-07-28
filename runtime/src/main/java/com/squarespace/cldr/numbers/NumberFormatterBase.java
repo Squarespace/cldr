@@ -16,8 +16,7 @@ import com.squarespace.cldr.plurals.PluralRules;
 
 
 /**
- * General-purpose decimal number formatter. NOTE: These methods are not intended to be
- * called directly by clients, only from generated or test code.
+ * Base class for localized decimal number formatters.
  */
 public abstract class NumberFormatterBase implements NumberFormatter {
 

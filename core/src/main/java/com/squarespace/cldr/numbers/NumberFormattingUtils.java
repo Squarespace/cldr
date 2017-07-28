@@ -7,6 +7,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
+/**
+ * Low-level number formatting.
+ */
 public class NumberFormattingUtils {
 
   /**
@@ -20,11 +23,13 @@ public class NumberFormattingUtils {
    * Calculates the number of integer and fractional digits to emit, returning
    * them in a 2-element array, and updates the operands.
    *
-   * Note: If the significant digit parameters are both positive, we switch into
-   * "significant digit mode". Some formatting operations require a minimum number
-   * of significant digits to be emitted, as in the case of compact formats.
-   * For example, the value 1200 may be emitted as 1.2K using a format "0K" with
-   * minSigDigits=1 and maxSigDigits=2.
+   * In one of the two significant digit modes, SIGNIFICANT and SIGNIFICANT_MAXFRAC,
+   * a min/max number significant digits will be emitted. This is useful for formatting
+   * compact formats where the width of the final output is constrained to <= N chars.
+   *
+   * For example, with the settings minSigDigits=1 and maxSigDigits=2, and a format
+   * pattern "0K", the value 1000 would produce "1K", the values 1200 and 1234 would
+   * produce "1.2K", and 1599 would produce "1.6K".
    */
   public static BigDecimal setup(
       BigDecimal n,                     // number to be formatted
@@ -84,7 +89,7 @@ public class NumberFormattingUtils {
   }
 
   /**
-   * Formats the number into the buffer.
+   * Formats the number into the digit buffer.
    */
   public static void format(
       BigDecimal n,
@@ -97,7 +102,7 @@ public class NumberFormattingUtils {
       int secondaryGroupingSize) {
 
     // Setup integer digit grouping.
-    if (secondaryGroupingSize == 0) {
+    if (secondaryGroupingSize <= 0) {
       secondaryGroupingSize = primaryGroupingSize;
     }
 
@@ -126,8 +131,8 @@ public class NumberFormattingUtils {
     // in reverse to be a bit more compact.
     int bufferStart = buf.length();
 
-    // We only emit the absolute value of the number, since the indication
-    // for negative numbers is part of the larger pattern.
+    // We only emit the absolute value of the number, since the indication of
+    // negative numbers is pattern and locale-specific.
     if (n.signum() == -1) {
       n = n.negate();
     }
@@ -170,7 +175,7 @@ public class NumberFormattingUtils {
       intDigits--;
     }
 
-    // Emit zeroes to pad integer part out to minIntDigits with optional grouping
+    // Emit zeroes to pad integer part with optional grouping
     if (intDigits > 0) {
       for (int i = 0; i < intDigits; i++) {
         // Emit grouping digits.

@@ -2,12 +2,17 @@ package com.squarespace.cldr.codegen;
 
 import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR;
 import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR_DATES;
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,13 +25,22 @@ import com.squarespace.cldr.codegen.reader.DateTimeData;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Format;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Skeleton;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Variants;
+import com.squarespace.cldr.codegen.reader.TimeZoneData;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZone;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneEntry;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneInfo;
+import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneInfo;
 import com.squarespace.cldr.parse.DateTimePatternParser;
 import com.squarespace.cldr.parse.FieldPattern.Field;
 import com.squarespace.cldr.parse.FieldPattern.Node;
 import com.squarespace.cldr.parse.FieldPattern.Text;
 import com.squarespace.cldr.parse.WrapperPatternParser;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 
@@ -34,17 +48,21 @@ import com.squareup.javapoet.TypeSpec;
  * Generates the CLDR classes that encapsulate the formatting instructions for
  * date-time patterns in a given locale.
  */
-public class DateTimeCodeGenerator {
+public class CalendarCodeGenerator {
 
   private static final ClassName ZONED_DATETIME_TYPE = ClassName.get("java.time", "ZonedDateTime");
   private static final ClassName STRINGBUILDER_TYPE = ClassName.get("java.lang", "StringBuilder");
-
+  private static final ClassName STRING_TYPE = ClassName.get("java.lang", "String");
+  private static final ClassName MAP_TYPE = ClassName.get("java.util", "Map");
+  private static final ClassName HASHMAP_TYPE = ClassName.get("java.util", "HashMap");
+  
   private static final ClassName LOCALE_TYPE = ClassName.get(PACKAGE_CLDR, "CLDRLocale");
 
   private static final ClassName FORMATTER_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "CalendarFormatterBase");
   private static final ClassName FIELD_VARIANTS_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FieldVariants");
   private static final ClassName SKELETON_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "SkeletonType");
   private static final ClassName FORMAT_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FormatType");
+  private static final ClassName TIMEZONENAMES_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "TimeZoneNames");
 
   private static final DateTimePatternParser DATETIME_PARSER = new DateTimePatternParser();
   private static final WrapperPatternParser WRAPPER_PARSER = new WrapperPatternParser();
@@ -56,25 +74,33 @@ public class DateTimeCodeGenerator {
       throws IOException {
 
     Map<LocaleID, ClassName> dateClasses = new LinkedHashMap<>();
-    List<DateTimeData> dateTimeData = new ArrayList<>();
+    List<DateTimeData> dateTimeDataList = new ArrayList<>();
 
     for (Map.Entry<LocaleID, DateTimeData> entry : reader.calendars().entrySet()) {
-      DateTimeData data = entry.getValue();
+      DateTimeData dateTimeData = entry.getValue();
 
       LocaleID localeId = entry.getKey();
       String className = "_CalendarFormatter_" + localeId.safe;
 
-      TypeSpec type = createFormatter(data, className);
+      TimeZoneData timeZoneData = reader.timezones().get(localeId);
+      
+      TypeSpec type = createFormatter(dateTimeData, timeZoneData, className);
       CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_DATES, className, type);
 
       ClassName cls = ClassName.get(PACKAGE_CLDR_DATES, className);
       dateClasses.put(localeId, cls);
-      dateTimeData.add(data);
+      dateTimeDataList.add(dateTimeData);
     }
 
-    // Categorize the default skeletons as DATE or TIME.
-    TypeSpec type = createSkeletonClassifier(dateTimeData);
-    CodeGenerator.saveClass(outputDir, PACKAGE_CLDR, "_CalendarUtils", type);
+    String className = "_CalendarUtils";
+    TypeSpec.Builder utilsType = TypeSpec.classBuilder(className)
+        .addModifiers(PUBLIC);
+    
+    addSkeletonClassifierMethod(utilsType, dateTimeDataList);
+    addMetaZones(utilsType, reader.metazones());
+    buildTimeZoneAliases(utilsType, reader.timezoneAliases());
+
+    CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_DATES, "_CalendarUtils", utilsType.build());
 
     return dateClasses;
   }
@@ -82,11 +108,11 @@ public class DateTimeCodeGenerator {
   /**
    * Create a helper class to classify skeletons as either DATE or TIME.
    */
-  private TypeSpec createSkeletonClassifier(List<DateTimeData> dataList) {
+  private void addSkeletonClassifierMethod(TypeSpec.Builder type, List<DateTimeData> dataList) {
     Set<String> dates = new LinkedHashSet<>();
     Set<String> times = new LinkedHashSet<>();
     for (DateTimeData data : dataList) {
-      for (Skeleton skeleton : data.dateTimeSkeletons()) {
+      for (Skeleton skeleton : data.dateTimeSkeletons) {
         if (isDateSkeleton(skeleton.skeleton)) {
           dates.add(skeleton.skeleton);
         } else {
@@ -95,43 +121,112 @@ public class DateTimeCodeGenerator {
       }
     }
 
-    MethodSpec.Builder skeletonTypeMethod = buildSkeletonType(dates, times);
+    MethodSpec.Builder method = buildSkeletonType(dates, times);
+    type.addMethod(method.build());
+  }
 
-    return TypeSpec.classBuilder("_CalendarUtils")
-        .addModifiers(PUBLIC)
-        .addMethod(skeletonTypeMethod.build())
-        .build();
+  /**
+   * Populate the metaZone mapping.
+   */
+  private void addMetaZones(TypeSpec.Builder type, Map<String, MetaZone> metazones) {
+    ClassName metazoneType = ClassName.get(PACKAGE_CLDR_DATES, "MetaZone");
+    TypeName mapType = ParameterizedTypeName.get(MAP_TYPE, STRING_TYPE, metazoneType);
+    FieldSpec.Builder field = FieldSpec.builder(mapType, "metazones", PROTECTED, STATIC, FINAL);
+    
+    CodeBlock.Builder code = CodeBlock.builder();
+    code.beginControlFlow("new $T<$T, $T>() {", HASHMAP_TYPE, STRING_TYPE, metazoneType);
+    for (Map.Entry<String, MetaZone> entry : metazones.entrySet()) {
+      String zoneId = entry.getKey();
+      MetaZone zone = entry.getValue();
+
+      code.beginControlFlow("\nput($S, new $T($S,\n  new $T.Entry[] ", zoneId, metazoneType, zoneId, metazoneType);
+      int size = zone.metazones.size();
+      Collections.reverse(zone.metazones);
+      for (int i = 0; i < size; i++) {
+        MetaZoneEntry meta = zone.metazones.get(i);
+        if (i > 0) {
+          code.add(",\n");
+        }
+        
+        code.add("  new $T.Entry($S, ", metazoneType, meta.metazone);
+        if (meta.from != null) {
+          code.add("/* $L */ $L, ", meta.fromString, meta.from.toEpochSecond());
+        } else {
+          code.add("-1, ");
+        }
+
+        if (meta.to != null) {
+          code.add("/* $L */ $L)", meta.toString, meta.to.toEpochSecond());
+        } else {
+          code.add("-1)");
+        }
+      }
+      code.endControlFlow("))");
+    }
+    code.endControlFlow("\n}");
+    field.initializer(code.build());
+    
+    type.addField(field.build());
+    
+    MethodSpec.Builder method = MethodSpec.methodBuilder("getMetazone")
+        .addModifiers(PUBLIC, STATIC)
+        .addParameter(String.class, "zoneId")
+        .addParameter(ZonedDateTime.class, "date")
+        .returns(String.class);
+    method.addStatement("$T zone = metazones.get(zoneId)", metazoneType);
+    method.addStatement("return zone == null ? null : zone.applies(date)");
+    type.addMethod(method.build());
+  }
+  
+  
+  private void buildTimeZoneAliases(TypeSpec.Builder type, Map<String, String> map) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("getTimeZoneAlias")
+        .addModifiers(PUBLIC, STATIC)
+        .addParameter(String.class, "zoneId")
+        .returns(String.class);
+
+    method.beginControlFlow("switch (zoneId)");
+    for (Map.Entry<String, String> entry : map.entrySet()) {
+      method.addStatement("case $S: return $S", entry.getKey(), entry.getValue());
+    }
+    method.addStatement("default: return null");
+    method.endControlFlow();
+    type.addMethod(method.build());
   }
 
   /**
    * Create a Java class that captures all data formats for a given locale.
    */
-  private TypeSpec createFormatter(DateTimeData data, String className) {
-    LocaleID id = data.id();
+  private TypeSpec createFormatter(DateTimeData dateTimeData, TimeZoneData timeZoneData, String className) {
+    LocaleID id = dateTimeData.id;
 
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
         .addModifiers(PUBLIC);
 
     constructor.addStatement("this.locale = new $T($S, $S, $S, $S)",
         LOCALE_TYPE, id.language, id.script, id.territory, id.variant);
-    constructor.addStatement("this.firstDay = $L", data.firstDay());
-    constructor.addStatement("this.minDays = $L", data.minDays());
+    constructor.addStatement("this.firstDay = $L", dateTimeData.firstDay);
+    constructor.addStatement("this.minDays = $L", dateTimeData.minDays);
 
-    variantsFieldInit(constructor, "this.eras", data.eras());
-    variantsFieldInit(constructor, "this.quartersFormat", data.quartersFormat());
-    variantsFieldInit(constructor, "this.quartersStandalone", data.quartersStandalone());
-    variantsFieldInit(constructor, "this.monthsFormat", data.monthsFormat());
-    variantsFieldInit(constructor, "this.monthsStandalone", data.monthsStandalone());
-    variantsFieldInit(constructor, "this.weekdaysFormat", data.weekdaysFormat());
-    variantsFieldInit(constructor, "this.weekdaysStandalone", data.weekdaysStandalone());
-    variantsFieldInit(constructor, "this.dayPeriodsFormat", data.dayPeriodsFormat());
-    variantsFieldInit(constructor, "this.dayPeriodsStandalone", data.dayPeriodsStandalone());
+    variantsFieldInit(constructor, "this.eras", dateTimeData.eras);
+    variantsFieldInit(constructor, "this.quartersFormat", dateTimeData.quartersFormat);
+    variantsFieldInit(constructor, "this.quartersStandalone", dateTimeData.quartersStandalone);
+    variantsFieldInit(constructor, "this.monthsFormat", dateTimeData.monthsFormat);
+    variantsFieldInit(constructor, "this.monthsStandalone", dateTimeData.monthsStandalone);
+    variantsFieldInit(constructor, "this.weekdaysFormat", dateTimeData.weekdaysFormat);
+    variantsFieldInit(constructor, "this.weekdaysStandalone", dateTimeData.weekdaysStandalone);
+    variantsFieldInit(constructor, "this.dayPeriodsFormat", dateTimeData.dayPeriodsFormat);
+    variantsFieldInit(constructor, "this.dayPeriodsStandalone", dateTimeData.dayPeriodsStandalone);
 
+    buildTimeZoneExemplarCities(constructor, timeZoneData);
+    buildTimeZoneNames(constructor, timeZoneData);
+    buildMetaZoneNames(constructor, timeZoneData);
+    
     TypeSpec.Builder type = TypeSpec.classBuilder(className)
         .superclass(FORMATTER_TYPE)
         .addModifiers(PUBLIC)
         .addJavadoc(
-            "Locale \"" + data.id() + "\"\n" +
+            "Locale \"" + dateTimeData.id + "\"\n" +
             "See http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table\n")
         .addMethod(constructor.build());
 
@@ -142,7 +237,7 @@ public class DateTimeCodeGenerator {
         .addParameter(ZONED_DATETIME_TYPE, "d")
         .addParameter(STRINGBUILDER_TYPE, "b");
 
-    addTypedPattern(dateMethod, FORMAT_TYPE, data.dateFormats());
+    addTypedPattern(dateMethod, FORMAT_TYPE, dateTimeData.dateFormats);
 
     MethodSpec.Builder timeMethod = MethodSpec.methodBuilder("formatTime")
       .addAnnotation(Override.class)
@@ -151,9 +246,9 @@ public class DateTimeCodeGenerator {
       .addParameter(ZONED_DATETIME_TYPE, "d")
       .addParameter(STRINGBUILDER_TYPE, "b");
 
-    addTypedPattern(timeMethod, FORMAT_TYPE, data.timeFormats());
+    addTypedPattern(timeMethod, FORMAT_TYPE, dateTimeData.timeFormats);
 
-    MethodSpec.Builder wrapperMethod = buildWrappers(data.dateTimeFormats());
+    MethodSpec.Builder wrapperMethod = buildWrappers(dateTimeData.dateTimeFormats);
 
     MethodSpec.Builder formatMethod = MethodSpec.methodBuilder("formatSkeleton")
         .addAnnotation(Override.class)
@@ -166,7 +261,7 @@ public class DateTimeCodeGenerator {
     formatMethod.beginControlFlow("switch (skeleton)");
 
     // Skeleton patterns.
-    for (Skeleton skeleton : data.dateTimeSkeletons()) {
+    for (Skeleton skeleton : dateTimeData.dateTimeSkeletons) {
       formatMethod.beginControlFlow("case $S:", skeleton.skeleton)
         .addComment("Pattern: $S", skeleton.pattern);
 
@@ -183,11 +278,15 @@ public class DateTimeCodeGenerator {
     formatMethod.endControlFlow();
     formatMethod.addStatement("return true");
 
+    MethodSpec.Builder gmtMethod = buildWrapTimeZoneGMTMethod(timeZoneData);
+    MethodSpec.Builder regionFormatMethod = buildWrapTimeZoneRegionMethod(timeZoneData);
     return type
         .addMethod(dateMethod.build())
         .addMethod(timeMethod.build())
         .addMethod(wrapperMethod.build())
         .addMethod(formatMethod.build())
+        .addMethod(gmtMethod.build())
+        .addMethod(regionFormatMethod.build())
         .build();
   }
 
@@ -361,6 +460,178 @@ public class DateTimeCodeGenerator {
     method.addStatement(b.format(), b.args());
   }
 
+  /**
+   * Mapping locale identifiers to their localized exemplar cities.
+   */
+  private void buildTimeZoneExemplarCities(MethodSpec.Builder method, TimeZoneData data) {
+    CodeBlock.Builder code = CodeBlock.builder();
+    code.beginControlFlow("this.exemplarCities = new $T<$T, $T>() {", HashMap.class, String.class, String.class);
+    for (TimeZoneInfo info : data.timeZoneInfo) {
+      code.addStatement("put($S, $S)", info.zone, info.exemplarCity);
+    }
+    code.endControlFlow("}");
+    method.addCode(code.build());
+  }
+
+  /**
+   * Builds localized timezone name mapping.
+   */
+  private void buildTimeZoneNames(MethodSpec.Builder method, TimeZoneData data) {
+    CodeBlock.Builder code = CodeBlock.builder();
+    code.beginControlFlow("\nthis.$L = new $T<$T, $T>() {", "timezoneNames", 
+        HASHMAP_TYPE, STRING_TYPE, TIMEZONENAMES_TYPE);
+    
+    for (TimeZoneInfo info : data.timeZoneInfo) {
+      if (info.nameLong == null && info.nameShort == null) {
+        continue;
+      }
+      code.add("\nput($S, new $T($S, ", info.zone, TIMEZONENAMES_TYPE, info.zone);
+      if (info.nameLong == null) {
+        code.add("  null,");
+      } else {
+        code.add("  new $T.Name($S, $S, $S),", TIMEZONENAMES_TYPE, 
+            info.nameLong.generic, info.nameLong.standard, info.nameLong.daylight);
+      }
+      if (info.nameShort == null) {
+        code.add("\n  null");
+      } else {
+        code.add("\n  new $T.Name($S, $S, $S)", TIMEZONENAMES_TYPE, 
+            info.nameShort.generic, info.nameShort.standard, info.nameShort.daylight);
+      }
+      code.add("));\n");
+    }
+    code.endControlFlow("}");
+    method.addCode(code.build());
+  }
+  
+  /**
+   * Builds localized metazone name mapping.
+   */
+  private void buildMetaZoneNames(MethodSpec.Builder method, TimeZoneData data) {
+    CodeBlock.Builder code = CodeBlock.builder();
+    code.beginControlFlow("\nthis.$L = new $T<$T, $T>() {", "metazoneNames", 
+        HASHMAP_TYPE, STRING_TYPE, TIMEZONENAMES_TYPE);
+    
+    for (MetaZoneInfo info : data.metaZoneInfo) {
+      if (info.nameLong == null && info.nameShort == null) {
+        continue;
+      }
+      code.add("\nput($S, new $T($S, ", info.zone, TIMEZONENAMES_TYPE, info.zone);
+      if (info.nameLong == null) {
+        code.add("\n  null,");
+      } else {
+        code.add("\n  new $T.Name($S, $S, $S),", TIMEZONENAMES_TYPE, 
+            info.nameLong.generic, info.nameLong.standard, info.nameLong.daylight);
+      }
+      if (info.nameShort == null) {
+        code.add("\n  null");
+      } else {
+        code.add("\n  new $T.Name($S, $S, $S)", TIMEZONENAMES_TYPE, 
+            info.nameShort.generic, info.nameShort.standard, info.nameShort.daylight);
+      }
+      code.add("));\n");
+    }
+    code.endControlFlow("}");
+    method.addCode(code.build());
+  }
+  
+  /**
+   * Builds a method to format the timezone as hourFormat with a GMT wrapper.
+   */
+  private MethodSpec.Builder buildWrapTimeZoneGMTMethod(TimeZoneData data) {
+    String[] hourFormat = data.hourFormat.split(";");
+    List<Node> positive = DATETIME_PARSER.parse(hourFormat[0]);
+    List<Node> negative = DATETIME_PARSER.parse(hourFormat[1]);
+    List<Node> format = WRAPPER_PARSER.parseWrapper(data.gmtFormat);
+    
+    MethodSpec.Builder method = MethodSpec.methodBuilder("wrapTimeZoneGMT")
+        .addModifiers(PROTECTED)
+        .addParameter(StringBuilder.class, "b")
+        .addParameter(boolean.class, "neg")
+        .addParameter(int.class, "hours")
+        .addParameter(int.class, "mins")
+        .addParameter(boolean.class, "_short");
+
+    // Special format for zero
+    method.beginControlFlow("if (hours == 0 && mins == 0)");
+    method.addStatement("b.append($S)", data.gmtZeroFormat);
+    method.addStatement("return");
+    method.endControlFlow();
+
+    method.addStatement("boolean emitMins = !_short || mins > 0");
+
+    for (Node node : format) {
+      if (node instanceof Text) {
+        Text text = (Text) node;
+        method.addStatement("b.append($S)", text.text());
+      } else {
+        method.beginControlFlow("if (neg)");
+        appendHourFormat(method, negative);
+        method.endControlFlow();
+        method.beginControlFlow("else");
+        appendHourFormat(method, positive);
+        method.endControlFlow();
+      }
+    }
+    return method;
+  }
+  
+  /**
+   * Build a method to wrap a region in the regionFormat.
+   */
+  private MethodSpec.Builder buildWrapTimeZoneRegionMethod(TimeZoneData data) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("wrapTimeZoneRegion")
+        .addModifiers(PROTECTED)
+        .addParameter(StringBuilder.class, "b")
+        .addParameter(String.class, "region");
+        
+    List<Node> format = WRAPPER_PARSER.parseWrapper(data.regionFormat);
+    
+    for (Node node : format) {
+      if (node instanceof Text) {
+        Text text = (Text) node;
+        method.addStatement("b.append($S)", text.text());
+      } else {
+        method.addStatement("b.append(region)");
+      }
+    }
+    
+    return method;
+  }
+  
+  /**
+   * Appends code to emit the hourFormat for positive or negative.
+   */
+  private void appendHourFormat(MethodSpec.Builder method, List<Node> fmt) {
+    for (Node n : fmt) {
+      if (n instanceof Text) {
+        String t = ((Text)n).text();
+        boolean minute = t.equals(":") || t.equals(".");
+        if (minute) {
+          method.beginControlFlow("if (emitMins)");
+        }
+        method.addStatement("b.append($S)", t);
+        if (minute) {
+          method.endControlFlow();
+        }
+      } else {
+        Field f = (Field)n;
+        if (f.ch() == 'H') {
+          if (f.width() == 1) {
+            method.addStatement("zeroPad2(b, hours, 1)");
+          } else {
+            method.addStatement("zeroPad2(b, hours, _short ? 1 : $L)", f.width());
+          }
+        } else {
+          method.beginControlFlow("if (emitMins)");
+          method.addStatement("zeroPad2(b, mins, $L)", f.width());
+          method.endControlFlow();
+        }
+      }
+    }
+  }
+  
+  
   /**
    * De-duplication of formats.
    */

@@ -2,8 +2,7 @@ package com.squarespace.cldr.numbers;
 
 
 /**
- * Operands for use in number formatting and evaluating localized plural rules:
- * See: http://www.unicode.org/reports/tr35/tr35-numbers.html#Number_Format_Patterns
+ * Operands for use in evaluating localized plural rules:
  * See: http://www.unicode.org/reports/tr35/tr35-numbers.html#Plural_Operand_Meanings
  *
  * symbol    value

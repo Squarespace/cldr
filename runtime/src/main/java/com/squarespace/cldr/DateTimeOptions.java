@@ -1,6 +1,6 @@
 package com.squarespace.cldr;
 
-import static com.squarespace.cldr._CalendarUtils.skeletonType;
+import static com.squarespace.cldr.dates._CalendarUtils.skeletonType;
 
 import java.util.List;
 

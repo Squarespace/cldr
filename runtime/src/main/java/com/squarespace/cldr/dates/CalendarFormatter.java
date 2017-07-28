@@ -45,5 +45,4 @@ public interface CalendarFormatter {
    * Format a single field of a given width.
    */
   void formatField(ZonedDateTime d, StringBuilder b, char field, int width);
-
 }

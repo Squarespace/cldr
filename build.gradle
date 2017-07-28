@@ -5,6 +5,7 @@ import groovy.swing.SwingBuilder
 
 plugins {
   id 'net.researchgate.release' version '2.0.2'
+  id 'com.github.kt3k.coveralls' version '2.4.0'
 }
 
 repositories {
@@ -168,6 +169,16 @@ subprojects {
 		}
 	}
 
+  jacocoTestReport {
+    group = 'Reporting'
+    additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
+    reports {
+      xml.enabled = true
+      html.enabled = true
+      html.destination = "${buildDir}/jacoco-report"
+    }
+	}
+
 	uploadArchives {
 		repositories.mavenDeployer {
 			beforeDeployment {
@@ -241,4 +252,6 @@ def configurePom(def pom) {
     }
   }
 }
+
+apply from: 'gradle/coverage.gradle'
 

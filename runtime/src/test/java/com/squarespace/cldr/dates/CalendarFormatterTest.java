@@ -19,14 +19,14 @@ import com.squarespace.cldr.CLDRLocale;
  */
 public class CalendarFormatterTest {
 
-//  private static final ZoneId LONDON = ZoneId.of("Europe/London");
-
+  private static final ZoneId UTC = ZoneId.of("Universal");
+  private static final ZoneId LONDON = ZoneId.of("Europe/London");
   private static final ZoneId NEW_YORK = ZoneId.of("America/New_York");
+  private static final ZoneId LOS_ANGELES = ZoneId.of("America/Los_Angeles");
+  private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
+  private static final ZoneId TOKYO = ZoneId.of("Asia/Tokyo");
 
-//  private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
-//
-//  private static final ZoneId TOKYO = ZoneId.of("Asia/Tokyo");
-
+  private final CLDRLocale AM = new CLDRLocale("am", "", "", "");
   private final CLDRLocale EN = new CLDRLocale("en", "", "", "");
   private final CLDRLocale FR = new CLDRLocale("fr", "", "", "");
   private final CLDRLocale DE = new CLDRLocale("de", "", "", "");
@@ -276,8 +276,85 @@ public class CalendarFormatterTest {
   }
 
   @Test
-  public void testFormatTimeZone() {
-    // TODO:
+  public void testFormatTimeZone_O() {
+    Datetime dt = may_1_2017();
+    
+    assertFormat(EN, 'O', dt, "GMT-4", "", "", "GMT-04:00");
+    assertFormat(EN, 'O', dt.timeZone(UTC), "GMT", "", "", "GMT");
+    assertFormat(EN, 'O', dt.timeZone(LONDON), "GMT+1", "", "", "GMT+01:00");
+
+    assertFormat(FR, 'O', dt, "UTC−4", "", "", "UTC−04:00");
+    assertFormat(FR, 'O', dt.timeZone(UTC), "UTC", "", "", "UTC");
+    assertFormat(FR, 'O', dt.timeZone(LONDON), "UTC+1", "", "", "UTC+01:00");
+  }
+  
+  @Test
+  public void testFormatTimeZone_v() {
+    Datetime dt = may_1_2017();
+    
+    assertFormat(EN, 'v', dt, "ET", "", "", "Eastern Time");
+    assertFormat(EN, 'v', dt.timeZone(LOS_ANGELES), "PT", "", "", "Pacific Time");
+    assertFormat(EN, 'v', dt.timeZone(LONDON), "GMT+1", "", "", "GMT+01:00");
+    assertFormat(EN, 'v', dt.timeZone(PARIS), "GMT+2", "", "", "Central European Time");
+    assertFormat(EN, 'v', dt.timeZone(TOKYO), "GMT+9", "", "", "Japan Time");
+  }
+
+  @Test
+  public void testFormatTimeZone_V() {
+    Datetime dt = may_1_2017();
+    
+    assertFormat(EN, 'V', dt, "unk", "America/New_York", "New York", "New York Time");
+    assertFormat(EN, 'V', dt.timeZone(LOS_ANGELES), "unk", "America/Los_Angeles", "Los Angeles", "Los Angeles Time");
+    assertFormat(EN, 'V', dt.timeZone(LONDON), "unk", "Europe/London", "London", "London Time");
+    assertFormat(EN, 'V', dt.timeZone(PARIS), "unk", "Europe/Paris", "Paris", "Paris Time");
+    assertFormat(EN, 'V', dt.timeZone(TOKYO), "unk", "Asia/Tokyo", "Tokyo", "Tokyo Time");
+  }
+  
+  @Test
+  public void testFormatTimeZone_X() {
+    Datetime dt = may_1_2017();
+    
+    assertFormat(EN, 'X', dt.second(0), "-04", "-0400", "-04:00", "-0400", "-04:00");
+    assertFormat(EN, 'X', dt.timeZone(UTC), "Z", "Z", "Z", "Z", "Z");
+    assertFormat(EN, 'X', dt.timeZone(LONDON), "+01", "+0100", "+01:00", "+0100", "+01:00");
+
+    assertFormat(EN, 'x', dt.second(0), "-04", "-0400", "-04:00", "-0400", "-04:00");
+    assertFormat(EN, 'x', dt.timeZone(UTC), "+00", "+0000", "+00:00", "+0000", "+00:00");
+    assertFormat(EN, 'x', dt.timeZone(LONDON), "+01", "+0100", "+01:00", "+0100", "+01:00");
+  }
+
+  @Test
+  public void testFormatTimeZone_z() {
+    Datetime dt = may_1_2017();
+    
+    assertFormat(EN, 'z', dt, "EDT", "EDT", "EDT", "Eastern Daylight Time");
+    assertFormat(EN, 'z', dt.timeZone(LOS_ANGELES), "PDT", "PDT", "PDT", "Pacific Daylight Time");
+    assertFormat(EN, 'z', dt.timeZone(UTC), "GMT", "GMT", "GMT", "GMT");
+    assertFormat(EN, 'z', dt.timeZone(LONDON), "GMT+1", "GMT+1", "GMT+1", "British Summer Time");
+    assertFormat(EN, 'z', dt.timeZone(PARIS), "GMT+2", "GMT+2", "GMT+2", "Central European Summer Time");
+    assertFormat(EN, 'z', dt.timeZone(TOKYO), "GMT+9", "GMT+9", "GMT+9", "Japan Standard Time");
+    
+    dt = dt.month(12);
+    
+    assertFormat(EN, 'z', dt, "EST", "EST", "EST", "Eastern Standard Time");
+    assertFormat(EN, 'z', dt.timeZone(LOS_ANGELES), "PST", "PST", "PST", "Pacific Standard Time");
+    assertFormat(EN, 'z', dt.timeZone(UTC), "GMT", "GMT", "GMT", "GMT");
+    assertFormat(EN, 'z', dt.timeZone(LONDON), "GMT", "GMT", "GMT", "GMT");
+    assertFormat(EN, 'z', dt.timeZone(PARIS), "GMT+1", "GMT+1", "GMT+1", "Central European Standard Time");
+    assertFormat(EN, 'z', dt.timeZone(TOKYO), "GMT+9", "GMT+9", "GMT+9", "Japan Standard Time");
+  }
+  
+  @Test
+  public void testFormatTimeZone_Z() {
+    Datetime dt = may_1_2017();
+    
+    assertFormat(EN, 'Z', dt, "-0400", "-0400", "-0400", "GMT-04:00", "-04:00");
+    assertFormat(EN, 'Z', dt.timeZone(UTC), "+0000", "+0000", "+0000", "GMT", "Z");
+    assertFormat(EN, 'Z', dt.timeZone(LONDON), "+0100", "+0100", "+0100", "GMT+01:00", "+01:00");
+
+    assertFormat(FR, 'Z', dt, "-0400", "-0400", "-0400", "UTC−04:00", "-04:00");
+    assertFormat(FR, 'Z', dt.timeZone(UTC), "+0000", "+0000", "+0000", "UTC", "Z");
+    assertFormat(FR, 'Z', dt.timeZone(LONDON), "+0100", "+0100", "+0100", "UTC+01:00", "+01:00");
   }
 
   private Datetime may_1_2017() {
@@ -306,7 +383,7 @@ public class CalendarFormatterTest {
 
   private static class Datetime {
 
-    private final ZonedDateTime d;
+    private ZonedDateTime d;
 
     public Datetime(ZonedDateTime initial) {
       this.d = initial;
@@ -316,36 +393,44 @@ public class CalendarFormatterTest {
       this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), zone));
     }
 
-    private ZonedDateTime year(int year) {
-      return d.withYear(year);
+    private Datetime make(ZonedDateTime datetime) {
+      return new Datetime(datetime);
+    }
+    
+    private Datetime year(int year) {
+      return make(d.withYear(year));
     }
 
-    private ZonedDateTime month(int month) {
-      return d.withMonth(month);
+    private Datetime month(int month) {
+      return make(d.withMonth(month));
     }
 
-    private ZonedDateTime dayOfMonth(int dayOfMonth) {
-      return d.withDayOfMonth(dayOfMonth);
+    private Datetime dayOfMonth(int dayOfMonth) {
+      return make(d.withDayOfMonth(dayOfMonth));
     }
 
-    private ZonedDateTime dayOfYear(int dayOfYear) {
-      return d.withDayOfYear(dayOfYear);
+    private Datetime dayOfYear(int dayOfYear) {
+      return make(d.withDayOfYear(dayOfYear));
     }
 
-    private ZonedDateTime hour(int hour) {
-      return d.withHour(hour);
+    private Datetime hour(int hour) {
+      return make(d.withHour(hour));
     }
 
-    private ZonedDateTime minute(int minute) {
-      return d.withMinute(minute);
+    private Datetime minute(int minute) {
+      return make(d.withMinute(minute));
     }
 
-    private ZonedDateTime second(int second) {
-      return d.withSecond(second);
+    private Datetime second(int second) {
+      return make(d.withSecond(second));
     }
 
-    private ZonedDateTime nanos(int nanos) {
-      return d.withNano(nanos);
+    private Datetime nanos(int nanos) {
+      return make(d.withNano(nanos));
+    }
+    
+    private Datetime timeZone(ZoneId zoneId) {
+      return make(d.withZoneSameLocal(zoneId));
     }
 
   }
@@ -354,13 +439,13 @@ public class CalendarFormatterTest {
    * Formats a date using the given field. The array of expected strings correspond to increasing field
    * width, starting width 1, increasing by 1.
    */
-  private void assertFormat(CLDRLocale locale, char field, ZonedDateTime d, String... expected) {
+  private void assertFormat(CLDRLocale locale, char field, Datetime datetime, String... expected) {
     CalendarFormatter fmt = CLDR.get().getCalendarFormatter(locale);
     StringBuilder b = new StringBuilder();
     for (int i = 0; i < expected.length; i++) {
       int width = i + 1;
-      fmt.formatField(d, b, field, width);
-      assertEquals(b.toString(), expected[i]);
+      fmt.formatField(datetime.d, b, field, width);
+      assertEquals(b.toString(), expected[i], "width " + width + " failed");
       b.setLength(0);
     }
   }
