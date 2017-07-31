@@ -1,0 +1,15 @@
+
+language: java
+
+jdk:
+ - oraclejdk8
+
+branches:
+  only:
+    - master
+
+script: "./gradlew check test --info --continue"
+
+after_success:
+  - ./gradlew jacocoTestReport coveralls --info
+
