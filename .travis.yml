@@ -8,8 +8,8 @@ branches:
   only:
     - master
 
-script: "./gradlew check test --info --continue --stacktrace"
+script: "./gradlew --no-daemon check test --info --continue --stacktrace"
 
 after_success:
-  - ./gradlew jacocoTestReport coveralls --info
+  - ./gradlew --no-daemon jacocoTestReport coveralls --info
 
