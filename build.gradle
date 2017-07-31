@@ -194,7 +194,7 @@ subprojects {
 					authentication(userName: OSS_USERNAME, password: OSS_PASSWORD)
 				}
 			} else {
-				logger.error('Missing OSS_USERNAME, OSS_PASSWORD properties.')
+				logger.info('Missing OSS_USERNAME, OSS_PASSWORD properties.')
 			}
 
 			configurePom(pom)
