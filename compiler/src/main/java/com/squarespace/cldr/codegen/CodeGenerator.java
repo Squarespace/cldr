@@ -46,6 +46,7 @@ public class CodeGenerator {
 
   private static final TypeName CLDR_TYPE = ClassName.get(PACKAGE_CLDR, "CLDR");
   private static final ClassName CLDRBASE_TYPE = ClassName.get(PACKAGE_CLDR, "CLDRBase");
+  private static final TypeName PLURAL_RULES_TYPE = ClassName.get(PACKAGE_CLDR_PLURALS, "_PluralRules");
   private static final TypeName LOCALE_LIST_TYPE = ParameterizedTypeName.get(List.class, CLDRLocale.class);
   private static final TypeName CURRENCY_LIST_TYPE = ParameterizedTypeName.get(List.class, String.class);
   
@@ -107,6 +108,8 @@ public class CodeGenerator {
     List<String> currencies = numberGenerator.getCurrencies(reader);
     createCurrencies(type, currencies);
     
+    addPluralRules(type);
+    
     saveClass(outputDir, PACKAGE_CLDR, "CLDR", type.build());
   }
 
@@ -131,6 +134,24 @@ public class CodeGenerator {
     sink.write(javaFile.toString());
   }
 
+  /**
+   * Add static instance of plural rules and accessor method.
+   */
+  private static void addPluralRules(TypeSpec.Builder type) {
+    FieldSpec field = FieldSpec.builder(PLURAL_RULES_TYPE, "pluralRules", PRIVATE, STATIC, FINAL)
+        .initializer("new $T()", PLURAL_RULES_TYPE)
+        .build();
+    
+    MethodSpec method = MethodSpec.methodBuilder("getPluralRules")
+        .addModifiers(PUBLIC)
+        .returns(PLURAL_RULES_TYPE)
+        .addStatement("return pluralRules")
+        .build();
+
+    type.addField(field);
+    type.addMethod(method);
+  }
+  
   /**
    * Generates a static code block that populates the formatter map.
    */

@@ -31,6 +31,8 @@ public abstract class CLDRBase {
     return numberFormatters.get(getLocale(locale));
   }
   
+  public abstract PluralRules getPluralRules();
+  
   protected static void registerCalendarFormatter(CLDRLocale locale, Class<? extends CalendarFormatter> cls) {
     calendarFormatters.put(locale, cls);
   }

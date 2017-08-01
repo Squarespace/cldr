@@ -27,7 +27,6 @@ public class MessageFormatBenchmark {
       + "you ordered is {1 currency style:name min-fractional-digits:2} at {2 datetime time-medium}.";
 
   private static final CLDRLocale EN_US = new CLDRLocale("en", "", "US", "POSIX");
-
   private static final ZoneId ZONEID = ZoneId.of("America/New_York");
 
   private static final MessageArgs ARGS1 = MessageArgs.newBuilder()

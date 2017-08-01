@@ -6,13 +6,14 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
+import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.PluralRules;
 import com.squarespace.cldr.numbers.NumberPattern.Format;
 import com.squarespace.cldr.numbers.NumberPattern.Node;
 import com.squarespace.cldr.numbers.NumberPattern.Symbol;
 import com.squarespace.cldr.numbers.NumberPattern.Text;
 import com.squarespace.cldr.plurals.PluralCategory;
-import com.squarespace.cldr.plurals.PluralRules;
 
 
 /**
@@ -20,6 +21,8 @@ import com.squarespace.cldr.plurals.PluralRules;
  */
 public abstract class NumberFormatterBase implements NumberFormatter {
 
+  protected static final PluralRules PLURAL_RULES = CLDR.get().getPluralRules();
+  
   protected static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
   protected static final BigDecimal ONE_THOUSAND = new BigDecimal("1000");
   protected static final NumberPattern[] PLURAL = patterns("#,##0.##", "-#,##0.##");
@@ -96,7 +99,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       {
         // Set the plural category for the number
         NumberOperands operands = new NumberOperands(n.toPlainString());
-        PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
+        PluralCategory category = PLURAL_RULES.evalCardinal(locale.language(), operands);
 
         int digits = integerDigits(n);
         int divisor;
@@ -203,7 +206,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
       {
         // Set the plural category for the number
         NumberOperands operands = new NumberOperands(n.toPlainString());
-        PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
+        PluralCategory category = PLURAL_RULES.evalCardinal(locale.language(), operands);
 
         // Select the divisor and pattern based on the number of integer digits and plural category.
         int digits = integerDigits(n);
@@ -264,7 +267,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
         
         // Set the operands and get the plural category.
         NumberOperands operands = new NumberOperands(number);
-        PluralCategory category = PluralRules.evalCardinal(locale.language(), operands);
+        PluralCategory category = PLURAL_RULES.evalCardinal(locale.language(), operands);
         number.reset();
 
         // Format the number

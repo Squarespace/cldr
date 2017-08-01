@@ -26,7 +26,6 @@ public class CalendarFormatterTest {
   private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
   private static final ZoneId TOKYO = ZoneId.of("Asia/Tokyo");
 
-  private final CLDRLocale AM = new CLDRLocale("am", "", "", "");
   private final CLDRLocale EN = new CLDRLocale("en", "", "", "");
   private final CLDRLocale FR = new CLDRLocale("fr", "", "", "");
   private final CLDRLocale DE = new CLDRLocale("de", "", "", "");

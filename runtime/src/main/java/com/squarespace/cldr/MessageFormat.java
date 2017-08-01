@@ -1,7 +1,5 @@
 package com.squarespace.cldr;
 
-import static com.squarespace.cldr.plurals.PluralRules.evalCardinal;
-import static com.squarespace.cldr.plurals.PluralRules.evalOrdinal;
 import static com.squarespace.compiler.match.Recognizers.charClass;
 import static com.squarespace.compiler.match.Recognizers.characters;
 import static com.squarespace.compiler.match.Recognizers.choice;
@@ -91,6 +89,8 @@ public class MessageFormat {
   private static final String CURRENCY = "currency";
   private static final String NUMBER = "number";
 
+  private static final PluralRules PLURAL_RULES = CLDR.get().getPluralRules();
+  
   // Pattern to match a valid tag type.
   private static final Recognizer FORMATTER = choice(
       literal(PLURAL),
@@ -376,7 +376,10 @@ public class MessageFormat {
 
     // Evaluate the plural operands for the current argument.
     String language = locale.language();
-    PluralCategory category = cardinal ? evalCardinal(language, operands) : evalOrdinal(language, operands);
+    PluralCategory category = cardinal 
+        ? PLURAL_RULES.evalCardinal(language, operands) 
+        : PLURAL_RULES.evalOrdinal(language, operands);
+        
     Recognizer matcher = PLURAL_MATCHERS[category.ordinal()];
 
     // Scan over the potential choices inside this tag. We will evaluate

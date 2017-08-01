@@ -4,10 +4,6 @@
 
 ### High test coverage for main formatter code pathways.
 
-
-### Add coveralls coverage report to README
-
-
 ### Units
 
 Unit formatting (square feet, Megabytes, etc)
@@ -19,9 +15,21 @@ Many of the strings are duplicated across many locales and can be defined in
 one place as constants and referenced.
 
 
+### Update unit test and benchmarks with timezone support
+
+
 ----------------------------------------------------------
 
 # FIXED
+
+
+### Make apis more consistent across formatters
+
+* All generated types -> _<name>
+* Create PluralRules interface, rename base to _PluralRules
+
+
+### Add coveralls coverage report to README
 
 
 ### Timezone formatting

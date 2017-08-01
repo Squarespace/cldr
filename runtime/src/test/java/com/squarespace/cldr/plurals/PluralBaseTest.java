@@ -1,15 +1,16 @@
 package com.squarespace.cldr.plurals;
 
-import static com.squarespace.cldr.plurals.PluralRules.evalCardinal;
-import static com.squarespace.cldr.plurals.PluralRules.evalOrdinal;
-
 import org.testng.Assert;
 
+import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.PluralRules;
 import com.squarespace.cldr.numbers.NumberOperands;
 
 public class PluralBaseTest {
 
+  private static final PluralRules PLURAL_RULES = CLDR.get().getPluralRules();
+  
   protected Fixture cardinal(CLDRLocale locale) {
     return new Fixture(locale, false);
   }
@@ -31,7 +32,9 @@ public class PluralBaseTest {
     public void check(String number, PluralCategory expected) {
       String language = locale.language();
       NumberOperands operands = new NumberOperands(number);
-      PluralCategory actual = ordinal ? evalOrdinal(language, operands) : evalCardinal(language, operands);
+      PluralCategory actual = ordinal 
+          ? PLURAL_RULES.evalOrdinal(language, operands) 
+          : PLURAL_RULES.evalCardinal(language, operands);
       Assert.assertEquals(actual, expected, "Failed plural for '" + number + "'");
     }
   }

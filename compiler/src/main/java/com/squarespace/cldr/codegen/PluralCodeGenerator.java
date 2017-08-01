@@ -49,7 +49,8 @@ public class PluralCodeGenerator {
    * and methods which call these AND conditions joined by an OR operator.
    */
   public void generate(Path outputDir, DataReader reader) throws IOException {
-    TypeSpec.Builder type = TypeSpec.classBuilder("PluralRules")
+    String className = "_PluralRules";
+    TypeSpec.Builder type = TypeSpec.classBuilder(className)
         .addModifiers(PUBLIC)
         .superclass(TYPE_BASE);
 
@@ -61,7 +62,7 @@ public class PluralCodeGenerator {
     buildPluralMethod(type, "Cardinal", reader.cardinals(), fieldMap);
     buildPluralMethod(type, "Ordinal", reader.ordinals(), fieldMap);
 
-    CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_PLURALS, "PluralRules", type.build());
+    CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_PLURALS, className, type.build());
   }
 
   /**
@@ -72,7 +73,7 @@ public class PluralCodeGenerator {
       TypeSpec.Builder type, String pluralType, Map<String, PluralData> pluralMap, Map<String, FieldSpec> fieldMap) {
 
     MethodSpec.Builder method = MethodSpec.methodBuilder("eval" + pluralType)
-        .addModifiers(PUBLIC, STATIC)
+        .addModifiers(PUBLIC)
         .addParameter(String.class, "language")
         .addParameter(TYPE_NUMBER_OPERANDS, "o")
         .returns(TYPE_PLURAL_CATEGORY);

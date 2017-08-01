@@ -31,8 +31,9 @@ jacocoTestReport {
   afterEvaluate {
     classDirectories = files(classDirectories.files.collect {
       fileTree(dir: it, exclude: [
-        'com/squarespace/cldr/dates/_CalendarFormatter_*',
-        'com/squarespace/cldr/numbers/_NumberFormatter_*'
+        'com/squarespace/cldr/dates/_*',
+        'com/squarespace/cldr/numbers/_*',
+        'com/squarespace/cldr/plurals/_*'
       ])
     })
   }

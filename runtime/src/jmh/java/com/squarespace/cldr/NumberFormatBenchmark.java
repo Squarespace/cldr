@@ -31,9 +31,7 @@ import com.squarespace.cldr.numbers.NumberFormatter;
 public class NumberFormatBenchmark {
 
   private static final StringBuilder BUF = new StringBuilder();
-
   private static final BigDecimal DECIMAL_N1 = new BigDecimal("123456.123456");
-  
   private static final BigDecimal CURRENCY_N1 = new BigDecimal("15161789.19");
   
   private static final DecimalFormatOptions DECIMAL_OPTS1 = new DecimalFormatOptions(DecimalFormatStyle.DECIMAL)

@@ -43,7 +43,6 @@ import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneInfo;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneName;
 import com.squarespace.cldr.numbers.NumberPattern;
 import com.squarespace.cldr.numbers.NumberPatternParser;
-import com.squarespace.cldr.parse.DateTimePatternParser;
 import com.squarespace.compiler.common.Maybe;
 import com.squarespace.compiler.parse.Node;
 import com.squarespace.compiler.parse.Pair;
@@ -56,14 +55,18 @@ import com.squarespace.compiler.parse.Struct;
 public class DataReader {
 
   private static final List<String> FILENAMES_MUST_EXIST = Arrays.asList(
+      "aliases.json",
       "availableLocales.json",
       "ca-gregorian.json",
       "currencies.json",
       "currencyData.json",
+      "defaultContent.json",
       "likelySubtags.json",
+      "metaZones.json",
       "numbers.json",
       "ordinals.json",
       "plurals.json",
+      "timeZoneNames.json",
       "weekData.json"
   );
 
