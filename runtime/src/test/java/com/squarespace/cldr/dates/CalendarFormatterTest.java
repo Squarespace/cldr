@@ -32,7 +32,7 @@ public class CalendarFormatterTest {
 
 
   @Test
-  public void testFormatEra() {
+  public void testEra() {
     Datetime dt = may_1_2017();
     assertFormat(EN, 'G', dt.year(-10), "BC", "BC", "BC", "Before Christ", "B");
     assertFormat(EN, 'G', dt.year(10), "AD", "AD", "AD", "Anno Domini", "A");
@@ -42,13 +42,13 @@ public class CalendarFormatterTest {
   }
 
   @Test
-  public void testFormatYear() {
+  public void testYear() {
     Datetime dt = may_1_2017();
     assertFormat(EN, 'y', dt.year(2), "2", "02", "002", "0002", "00002");
     assertFormat(EN, 'y', dt.year(20), "20", "20", "020", "0020", "00020");
     assertFormat(EN, 'y', dt.year(201), "201", "01", "201", "0201", "00201");
     assertFormat(EN, 'y', dt.year(2017), "2017", "17", "2017", "2017", "02017");
-    assertFormat(EN, 'y', dt.year(20173),"20173", "73", "20173", "20173", "20173");
+    assertFormat(EN, 'y', dt.year(20173), "20173", "73", "20173", "20173", "20173");
   }
 
   @Test
@@ -236,6 +236,36 @@ public class CalendarFormatterTest {
   }
 
   @Test
+  public void testWeekOfMonth() {
+    Datetime dt = may_1_2017();
+    assertFormat(EN, 'W', dt, "1", "");
+    assertFormat(EN, 'W', dt.dayOfMonth(10), "2", "");
+    assertFormat(EN, 'W', dt.dayOfMonth(18), "3", "");
+  }
+  
+  @Test
+  public void testISOYearWeekOfYear() {
+    Datetime dt = jan_1_2005();
+    
+    assertFormat(EN, 'Y', dt, "2004", "04", "2004", "2004", "02004");
+    
+    dt = dt.month(12).dayOfMonth(31);
+    
+    assertFormat(EN, 'Y', dt, "2005", "05", "2005", "2005", "02005");
+  }
+  
+  @Test
+  public void testISOWeekOfYear() {
+    Datetime dt = jan_1_2005();
+
+    assertFormat(EN, 'w', dt, "53", "53", "");
+    
+    dt = dt.month(12).dayOfMonth(31);
+    
+    assertFormat(EN, 'w', dt, "52", "52", "");
+  }
+  
+  @Test
   public void testDayPeriod() {
     Datetime dt = may_1_2017();
     assertFormat(EN, 'a', dt.hour(11), "AM", "AM", "AM", "AM", "a");
@@ -243,7 +273,7 @@ public class CalendarFormatterTest {
   }
 
   @Test
-  public void testFormatHour() {
+  public void testHour() {
     Datetime dt = may_1_2017();
 
     assertFormat(EN, 'h', dt.hour(3), "3", "03", "");
@@ -256,28 +286,47 @@ public class CalendarFormatterTest {
   }
 
   @Test
-  public void testFormatMinute() {
+  public void testHourAlt() {
+    Datetime dt = may_1_2017();
+    
+    assertFormat(EN, 'K', dt.hour(0), "0", "00", "");
+    assertFormat(EN, 'K', dt.hour(3), "3", "03", "");
+    assertFormat(EN, 'K', dt.hour(11), "11", "11", "");
+    assertFormat(EN, 'K', dt.hour(12), "0", "00", "");
+    assertFormat(EN, 'K', dt.hour(13), "1", "01", "");
+    assertFormat(EN, 'K', dt.hour(23), "11", "11", "");
+    
+    assertFormat(EN, 'k', dt.hour(0), "1", "01", "");
+    assertFormat(EN, 'k', dt.hour(3), "4", "04", "");
+    assertFormat(EN, 'k', dt.hour(11), "12", "12", "");
+    assertFormat(EN, 'k', dt.hour(12), "13", "13", "");
+    assertFormat(EN, 'k', dt.hour(13), "14", "14", "");
+    assertFormat(EN, 'k', dt.hour(23), "24", "24", "");
+  }
+  
+  @Test
+  public void testMinute() {
     Datetime dt = may_1_2017();
     assertFormat(EN, 'm', dt.minute(3), "3", "03", "");
     assertFormat(EN, 'm', dt.minute(45), "45", "45", "");
   }
 
   @Test
-  public void testFormatSecond() {
+  public void testSecond() {
     Datetime dt = may_1_2017();
     assertFormat(EN, 's', dt.second(3), "3", "03", "");
     assertFormat(EN, 's', dt.second(45), "45", "45", "");
   }
 
   @Test
-  void testFormatFractionalSecond() {
+  public void testFractionalSecond() {
     Datetime dt = may_1_2017();
     assertFormat(EN, 'S', dt.nanos(1234567),
         "0", "00", "001", "0012", "00123", "001234", "0012345", "00123456", "001234567", "0012345670", "00123456700");
   }
 
   @Test
-  public void testFormatTimeZone_O() {
+  public void testTimeZone_O() {
     Datetime dt = may_1_2017();
     
     assertFormat(EN, 'O', dt, "GMT-4", "", "", "GMT-04:00");
@@ -290,7 +339,7 @@ public class CalendarFormatterTest {
   }
   
   @Test
-  public void testFormatTimeZone_v() {
+  public void testTimeZone_v() {
     Datetime dt = may_1_2017();
     
     assertFormat(EN, 'v', dt, "ET", "", "", "Eastern Time");
@@ -301,7 +350,7 @@ public class CalendarFormatterTest {
   }
 
   @Test
-  public void testFormatTimeZone_V() {
+  public void testTimeZone_V() {
     Datetime dt = may_1_2017();
     
     assertFormat(EN, 'V', dt, "unk", "America/New_York", "New York", "New York Time");
@@ -312,7 +361,7 @@ public class CalendarFormatterTest {
   }
   
   @Test
-  public void testFormatTimeZone_X() {
+  public void testTimeZone_X() {
     Datetime dt = may_1_2017();
     
     assertFormat(EN, 'X', dt.second(0), "-04", "-0400", "-04:00", "-0400", "-04:00");
@@ -325,7 +374,7 @@ public class CalendarFormatterTest {
   }
 
   @Test
-  public void testFormatTimeZone_z() {
+  public void testTimeZone_z() {
     Datetime dt = may_1_2017();
     
     assertFormat(EN, 'z', dt, "EDT", "EDT", "EDT", "Eastern Daylight Time");
@@ -346,7 +395,7 @@ public class CalendarFormatterTest {
   }
   
   @Test
-  public void testFormatTimeZone_Z() {
+  public void testTimeZone_Z() {
     Datetime dt = may_1_2017();
     
     assertFormat(EN, 'Z', dt, "-0400", "-0400", "-0400", "GMT-04:00", "-04:00");
@@ -366,6 +415,14 @@ public class CalendarFormatterTest {
     return datetime(ZonedDateTime.of(2017, 5, 2, 12, 13, 14, 1516, zone));
   }
 
+  private Datetime jan_1_2005() {
+    return jan_1_2005(NEW_YORK);
+  }
+  
+  private Datetime jan_1_2005(ZoneId zone) {
+    return datetime(ZonedDateTime.of(2005, 1, 1, 0, 0, 0, 0, zone));
+  }
+  
   private Datetime nov_11_2017() {
     return nov_11_2017(NEW_YORK);
   }

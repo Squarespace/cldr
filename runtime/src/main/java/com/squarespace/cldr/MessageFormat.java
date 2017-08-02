@@ -1,6 +1,5 @@
 package com.squarespace.cldr;
 
-import static com.squarespace.cldr.dates._CalendarUtils.skeletonType;
 import static com.squarespace.compiler.match.Recognizers.charClass;
 import static com.squarespace.compiler.match.Recognizers.characters;
 import static com.squarespace.compiler.match.Recognizers.choice;
@@ -27,7 +26,6 @@ import com.squarespace.cldr.dates.CalendarFormat;
 import com.squarespace.cldr.dates.CalendarFormatOptions;
 import com.squarespace.cldr.dates.CalendarFormatter;
 import com.squarespace.cldr.dates.CalendarSkeleton;
-import com.squarespace.cldr.dates.SkeletonType;
 import com.squarespace.cldr.numbers.NumberOperands;
 import com.squarespace.cldr.plurals.PluralCategory;
 import com.squarespace.compiler.match.Recognizers.Recognizer;

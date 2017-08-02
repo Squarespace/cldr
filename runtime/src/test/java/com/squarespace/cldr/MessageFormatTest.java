@@ -1,5 +1,7 @@
 package com.squarespace.cldr;
 
+import static com.squarespace.cldr.CLDR.EN_US;
+import static com.squarespace.cldr.CLDR.PL;
 import static org.testng.Assert.assertEquals;
 
 import java.time.ZoneId;
@@ -8,9 +10,6 @@ import org.testng.annotations.Test;
 
 
 public class MessageFormatTest {
-
-  private static CLDRLocale EN_US = new CLDRLocale("en", "", "US", "POSIX");
-  private static CLDRLocale PL = new CLDRLocale("pl", "", "", "");
 
   private static String EUR = "EUR";
   private static String USD = "USD";
@@ -95,8 +94,8 @@ public class MessageFormatTest {
   @Test
   public void testRecursive() {
     String format = "{0 plural " +
-        "    =1 {# action on {1 datetime date-long}} " +
-        " other {# actions starting on {1 datetime date-long}}" +
+        "    =1 {# action on {1 datetime date:long}} " +
+        " other {# actions starting on {1 datetime date:long}}" +
         "}";
     MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
     assertEquals(format(msg, args("1", "1498583746000")), "1 action on June 27, 2017");
@@ -121,7 +120,7 @@ public class MessageFormatTest {
 
   @Test
   public void testDateTime() {
-    String format = "{0 datetime date-long time-medium}";
+    String format = "{0 datetime date:long time:medium}";
     MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
     assertEquals(format(msg, args("1498583746000")), "June 27, 2017 at 1:15:46 PM");
   }

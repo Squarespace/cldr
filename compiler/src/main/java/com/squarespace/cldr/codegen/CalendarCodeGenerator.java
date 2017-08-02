@@ -56,7 +56,7 @@ public class CalendarCodeGenerator {
   private static final ClassName MAP_TYPE = ClassName.get("java.util", "Map");
   private static final ClassName HASHMAP_TYPE = ClassName.get("java.util", "HashMap");
   
-  private static final ClassName LOCALE_TYPE = ClassName.get(PACKAGE_CLDR, "CLDRLocale");
+  private static final ClassName CLDR_TYPE = ClassName.get(PACKAGE_CLDR, "CLDR");
 
   private static final ClassName FORMATTER_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "CalendarFormatterBase");
   private static final ClassName FIELD_VARIANTS_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FieldVariants");
@@ -203,8 +203,7 @@ public class CalendarCodeGenerator {
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
         .addModifiers(PUBLIC);
 
-    constructor.addStatement("this.locale = new $T($S, $S, $S, $S)",
-        LOCALE_TYPE, id.language, id.script, id.territory, id.variant);
+    constructor.addStatement("this.locale = $T.$L", CLDR_TYPE, id.safe.toUpperCase());
     constructor.addStatement("this.firstDay = $L", dateTimeData.firstDay);
     constructor.addStatement("this.minDays = $L", dateTimeData.minDays);
 
@@ -258,6 +257,10 @@ public class CalendarCodeGenerator {
         .addParameter(STRINGBUILDER_TYPE, "b")
         .returns(boolean.class);
 
+    formatMethod.beginControlFlow("if (skeleton == null)");
+    formatMethod.addStatement("return false");
+    formatMethod.endControlFlow();
+    
     formatMethod.beginControlFlow("switch (skeleton)");
 
     // Skeleton patterns.
@@ -296,6 +299,10 @@ public class CalendarCodeGenerator {
    * See CLDR "dateFormats" and "timeFormats" nodes.
    */
   private void addTypedPattern(MethodSpec.Builder method, ClassName type, Format format) {
+    method.beginControlFlow("if (type == null)");
+    method.addStatement("return");
+    method.endControlFlow();
+    
     method.beginControlFlow("switch (type)", type);
     addTypedPattern(method, "SHORT", format.short_);
     addTypedPattern(method, "MEDIUM", format.medium);

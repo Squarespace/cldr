@@ -15,6 +15,7 @@ public class DateTimeData {
   public int minDays;
   public int firstDay;
   public Variants eras;
+  
   public Variants dayPeriodsFormat;
   public Variants dayPeriodsStandalone;
   public Variants monthsFormat;

@@ -3,6 +3,8 @@ package com.squarespace.cldr.dates;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.IsoFields;
 import java.time.zone.ZoneRules;
 import java.time.zone.ZoneRulesException;
 import java.util.Map;
@@ -82,21 +84,30 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
     String dateSkeleton = options.dateSkeleton() == null ? null : options.dateSkeleton().skeleton();
     String timeSkeleton = options.timeSkeleton() == null ? null : options.timeSkeleton().skeleton();
 
-    if (options.wrapperFormat() != null) {
-      CalendarFormat dateFormat = null;
-      if (options.dateFormat() == null) {
-        dateFormat = dateSkeleton == null ? options.wrapperFormat() : null;
+    CalendarFormat wrapperFormat = options.wrapperFormat();
+    CalendarFormat dateFormat = options.dateFormat();
+    CalendarFormat timeFormat = options.timeFormat();
+    if (wrapperFormat != null) {
+      // If wrapper is set it implies we want to output both a date and a time. If either is unset
+      // we need to set it to the wrapper's format, unless a skeleton is defined.
+      dateFormat = dateFormat != null ? dateFormat : (dateSkeleton == null ? wrapperFormat : null);
+      timeFormat = timeFormat != null ? timeFormat : (timeSkeleton == null ? wrapperFormat : null);
+    } else {
+      // If wrapper is null, attempt to default it using the date's format or SHORT.
+      if ((dateFormat != null || dateSkeleton != null) && (timeFormat != null || timeSkeleton != null)) {
+        wrapperFormat = dateFormat != null ? dateFormat : CalendarFormat.SHORT;
       }
-      CalendarFormat timeFormat = null;
-      if (options.timeFormat() == null) {
-        timeFormat = timeSkeleton == null ? options.wrapperFormat() : null;
-      }
+    }
+
+    if (wrapperFormat != null) {
+      formatWrapped(wrapperFormat, dateFormat, timeFormat, dateSkeleton, timeSkeleton, datetime, buffer);
       
-      formatWrapped(options.wrapperFormat(), dateFormat, timeFormat, dateSkeleton, timeSkeleton, datetime, buffer);
     } else if (options.dateFormat() != null) {
       formatDate(options.dateFormat(), datetime, buffer);
+
     } else if (options.timeFormat() != null) {
       formatTime(options.timeFormat(), datetime, buffer);
+    
     } else {
       String skeleton = dateSkeleton != null ? dateSkeleton : timeSkeleton;
 
@@ -195,13 +206,13 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'Y':
-        formatYearWeekOfYear(buffer, datetime, width);
+        formatISOYearWeekOfYear(buffer, datetime, width);
         break;
 
       case 'u':
       case 'U':
       case 'r':
-        // only used for non-Gregorian calendars
+        // Only used for non-Gregorian calendars
         break;
 
       case 'Q':
@@ -225,7 +236,7 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'w':
-        formatWeekOfYear(buffer, datetime, width);
+        formatISOWeekOfYear(buffer, datetime, width);
         break;
 
       case 'W':
@@ -265,8 +276,13 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'b':
+        // Not yet in use.
+        // TODO: day periods: am, pm, noon, midnight
+        break;
+        
       case 'B':
-        // TODO
+        // Not yet in use.
+        // TODO: flexible day periods: "at night"
         break;
 
       case 'h':
@@ -278,12 +294,17 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'K':
+        formatHoursAlt(buffer, datetime, width, true);
         break;
 
       case 'k':
+        formatHoursAlt(buffer, datetime, width, false);
+        break;
+        
       case 'j':
       case 'J':
       case 'C':
+        // Input skeleton symbols, not implemented.
         break;
 
       case 'm':
@@ -357,6 +378,18 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
    */
   void formatYear(StringBuilder b, ZonedDateTime d, int width) {
     int year = d.getYear();
+    _formatYearValue(b, year, width);
+  }
+
+  /**
+   * Formats the year according to ISO week-year.
+   */
+  void formatISOYearWeekOfYear(StringBuilder b, ZonedDateTime d, int width) {
+    int year = d.get(IsoFields.WEEK_BASED_YEAR);
+    _formatYearValue(b, year, width);
+  }
+  
+  void _formatYearValue(StringBuilder b, int year, int width) {
     if (width == 2) {
       year %= 100;
     }
@@ -372,13 +405,6 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
       }
     }
     b.append(year);
-  }
-
-  /**
-   *
-   */
-  void formatYearWeekOfYear(StringBuilder b, ZonedDateTime d, int width) {
-    throw new RuntimeException("TODO: implement me");
   }
 
   /**
@@ -443,14 +469,26 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
    * Format the week number of the month.
    */
   void formatWeekOfMonth(StringBuilder b, ZonedDateTime d, int width) {
-    throw new RuntimeException("TODO: implement me");
+    int w = d.get(ChronoField.ALIGNED_WEEK_OF_MONTH);
+    if (width == 1) {
+      b.append(w);
+    }
   }
 
   /**
    * Format the week number of the year.
    */
-  void formatWeekOfYear(StringBuilder b, ZonedDateTime d, int width) {
-    throw new RuntimeException("TODO: implement me");
+  void formatISOWeekOfYear(StringBuilder b, ZonedDateTime d, int width) {
+    int w = d.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+    switch (width) {
+      case 2:
+        zeroPad2(b, w, 2);
+        break;
+        
+      case 1:
+        b.append(w);
+        break;
+    }
   }
 
   /**
@@ -598,17 +636,32 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   /**
    * Format the hours in 12- or 24-hour format, optionally zero-padded.
    */
-  void formatHours(StringBuilder b, ZonedDateTime d, int width, boolean truncate) {
+  void formatHours(StringBuilder b, ZonedDateTime d, int width, boolean twelveHour) {
     int hours = d.getHour();
-    if (truncate && hours > 12) {
+    if (twelveHour && hours > 12) {
       hours = hours - 12;
     }
-    if (truncate && hours == 0) {
+    if (twelveHour && hours == 0) {
       hours = 12;
     }
     zeroPad2(b, hours, width);
   }
 
+  /**
+   * Format hours in 0-11 and 1-24 format, optionally zero-padded.
+   */
+  void formatHoursAlt(StringBuilder b, ZonedDateTime d, int width, boolean twelveHour) {
+    int hours = d.getHour();
+    if (twelveHour) {
+      if (hours >= 12) {
+        hours = hours - 12;
+      }
+    } else {
+      hours++;
+    }
+    zeroPad2(b, hours, width);
+  }
+  
   /**
    * Format the minutes, optionally zero-padded.
    */
