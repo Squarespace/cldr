@@ -66,25 +66,6 @@ public class ReadmeExamples {
     // 50%
   }
   
-  /**
-   
-.currencyFormatter( "USD" )( 1 )
-// > "$1.00"
-
-.currencyFormatter( "USD", { style: "accounting" })( -1 )
-// > "($1.00)"
-
-.currencyFormatter( "USD", { style: "name" })( 69900 )
-// > "69,900.00 US dollars"
-
-.currencyFormatter( "USD", { style: "code" })( 69900 )
-// > "69,900.00 USD"
-
-.currencyFormatter( "USD", { round: "ceil" })( 1.491 )
-// > "$1.50"
-   
-   */
-  
   private static void currencies() {
     NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.EN_US);
     
