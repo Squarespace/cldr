@@ -4,7 +4,7 @@ from collections import defaultdict
 
 join = os.path.join
 PWD = os.path.realpath(os.path.dirname(__file__))
-DATA = join(PWD, '..', 'buildsrc', 'src', 'main', 'resources', 'data')
+DATA = join(PWD, '..', 'compiler', 'src', 'main', 'resources', 'data')
 
 FMTS = ('dates', 'calendars', 'gregorian', 'dateTimeFormats', 'availableFormats')
 

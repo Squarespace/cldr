@@ -1,7 +1,7 @@
 package com.squarespace.cldr.dates;
 
 
-public enum FormatType {
+public enum CalendarFormat {
 
   SHORT,
   MEDIUM,

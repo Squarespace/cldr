@@ -1,5 +1,6 @@
 package com.squarespace.cldr;
 
+import static com.squarespace.cldr.dates._CalendarUtils.skeletonType;
 import static com.squarespace.compiler.match.Recognizers.charClass;
 import static com.squarespace.compiler.match.Recognizers.characters;
 import static com.squarespace.compiler.match.Recognizers.choice;
@@ -22,7 +23,11 @@ import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.squarespace.cldr.dates.CalendarFormat;
+import com.squarespace.cldr.dates.CalendarFormatOptions;
 import com.squarespace.cldr.dates.CalendarFormatter;
+import com.squarespace.cldr.dates.CalendarSkeleton;
+import com.squarespace.cldr.dates.SkeletonType;
 import com.squarespace.cldr.numbers.NumberOperands;
 import com.squarespace.cldr.plurals.PluralCategory;
 import com.squarespace.compiler.match.Recognizers.Recognizer;
@@ -128,6 +133,8 @@ public class MessageFormat {
 //  private final DecimalFormatOptions decimalOptions = new DecimalFormatOptions();
 //  private final CurrencyFormatOptions currencyOptions = new CurrencyFormatOptions();
   
+  private final CalendarFormatOptions calendarOptions = new CalendarFormatOptions();
+
   // Locale, currency and time zone defaults.
   private CLDRLocale locale = EN_US;
   private ZoneId timeZone;
@@ -445,29 +452,14 @@ public class MessageFormat {
     String value = arg.asString();
     
     Map<String, String> args = parseArgs();
-    DateTimeOptions options = new DateTimeOptions();
-    for (String option : args.keySet()) {
-      options.add(option);
-    }
-    options.done();
+    setCalendarOption(args);
 
     // TODO: timezone support, which has to be passed to the formatter separately
 
     long instant = toLong(value, 0, value.length());
-    ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(instant), DEFAULT_ZONEID);
+    ZonedDateTime datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(instant), DEFAULT_ZONEID);
     CalendarFormatter formatter = CLDR.get().getCalendarFormatter(locale);
-
-    if (options.wrapperType() != null) {
-      formatter.formatWrapped(options.wrapperType(), options.dateType(), options.timeType(),
-          options.dateSkeleton(), options.timeSkeleton(), dateTime, buf);
-    } else if (options.dateType() != null) {
-      formatter.formatDate(options.dateType(), dateTime, buf);
-    } else if (options.timeType() != null) {
-      formatter.formatTime(options.timeType(), dateTime, buf);
-    } else {
-      String skeleton = options.dateSkeleton() != null ? options.dateSkeleton() : options.timeSkeleton();
-      formatter.formatSkeleton(skeleton, dateTime, buf);
-    }
+    formatter.format(datetime, calendarOptions, buf);
   }
 
   /**
@@ -544,4 +536,65 @@ public class MessageFormat {
     return n;
   }
 
+  private void setCalendarOption(Map<String, String> args) {
+    calendarOptions.reset();
+
+    for (Map.Entry<String, String> entry : args.entrySet()) {
+      String key = entry.getKey();
+      String value = entry.getValue();
+      
+      switch (key) {
+        case "date":
+        {
+          CalendarFormat format = calendarFormat(value);
+          if (format == null) {
+            calendarOptions.setDateSkeleton(CalendarSkeleton.fromString(value));
+          } else {
+            calendarOptions.setDateFormat(format);
+          }
+          break;
+        }
+          
+        case "time":
+        {
+          CalendarFormat format = calendarFormat(value);
+          if (format == null) {
+            calendarOptions.setTimeSkeleton(CalendarSkeleton.fromString(value));
+          } else {
+            calendarOptions.setTimeFormat(calendarFormat(value));
+          }
+          break;
+        }
+        
+        case "datetime":
+        case "wrap":
+        case "wrapper":
+          calendarOptions.setWrapperFormat(calendarFormat(value));
+          break;
+      }
+    }
+  }
+  
+  private CalendarFormat calendarFormat(String arg) {
+    if (arg == null) {
+      return null;
+    }
+    switch (arg) {
+      case "short":
+        return CalendarFormat.SHORT;
+        
+      case "medium":
+        return CalendarFormat.MEDIUM;
+        
+      case "long":
+        return CalendarFormat.LONG;
+        
+      case "full":
+        return CalendarFormat.FULL;
+        
+      default:
+        return null;
+    }
+  }
+  
 }

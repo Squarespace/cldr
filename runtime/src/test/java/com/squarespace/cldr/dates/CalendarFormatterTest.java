@@ -248,9 +248,11 @@ public class CalendarFormatterTest {
 
     assertFormat(EN, 'h', dt.hour(3), "3", "03", "");
     assertFormat(EN, 'h', dt.hour(15), "3", "03", "");
+    assertFormat(EN, 'h', dt.hour(0), "12", "12", "");
 
     assertFormat(EN, 'H', dt.hour(3), "3", "03", "");
     assertFormat(EN, 'H', dt.hour(15), "15", "15", "");
+    assertFormat(EN, 'H', dt.hour(0), "0", "00", "");
   }
 
   @Test
@@ -440,12 +442,12 @@ public class CalendarFormatterTest {
    */
   private void assertFormat(CLDRLocale locale, char field, Datetime datetime, String... expected) {
     CalendarFormatter fmt = CLDR.get().getCalendarFormatter(locale);
-    StringBuilder b = new StringBuilder();
+    StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < expected.length; i++) {
       int width = i + 1;
-      fmt.formatField(datetime.d, b, field, width);
-      assertEquals(b.toString(), expected[i], "width " + width + " failed");
-      b.setLength(0);
+      fmt.formatField(datetime.d, field, width, buffer);
+      assertEquals(buffer.toString(), expected[i], "width " + width + " failed");
+      buffer.setLength(0);
     }
   }
 

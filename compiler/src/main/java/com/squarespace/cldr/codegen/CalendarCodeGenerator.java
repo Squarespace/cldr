@@ -61,7 +61,7 @@ public class CalendarCodeGenerator {
   private static final ClassName FORMATTER_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "CalendarFormatterBase");
   private static final ClassName FIELD_VARIANTS_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FieldVariants");
   private static final ClassName SKELETON_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "SkeletonType");
-  private static final ClassName FORMAT_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FormatType");
+  private static final ClassName CALENDARFORMAT_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "CalendarFormat");
   private static final ClassName TIMEZONENAMES_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "TimeZoneNames");
 
   private static final DateTimePatternParser DATETIME_PARSER = new DateTimePatternParser();
@@ -233,20 +233,20 @@ public class CalendarCodeGenerator {
     MethodSpec.Builder dateMethod = MethodSpec.methodBuilder("formatDate")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
-        .addParameter(FORMAT_TYPE, "type")
+        .addParameter(CALENDARFORMAT_TYPE, "type")
         .addParameter(ZONED_DATETIME_TYPE, "d")
         .addParameter(STRINGBUILDER_TYPE, "b");
 
-    addTypedPattern(dateMethod, FORMAT_TYPE, dateTimeData.dateFormats);
+    addTypedPattern(dateMethod, CALENDARFORMAT_TYPE, dateTimeData.dateFormats);
 
     MethodSpec.Builder timeMethod = MethodSpec.methodBuilder("formatTime")
       .addAnnotation(Override.class)
       .addModifiers(PUBLIC)
-      .addParameter(FORMAT_TYPE, "type")
+      .addParameter(CALENDARFORMAT_TYPE, "type")
       .addParameter(ZONED_DATETIME_TYPE, "d")
       .addParameter(STRINGBUILDER_TYPE, "b");
 
-    addTypedPattern(timeMethod, FORMAT_TYPE, dateTimeData.timeFormats);
+    addTypedPattern(timeMethod, CALENDARFORMAT_TYPE, dateTimeData.timeFormats);
 
     MethodSpec.Builder wrapperMethod = buildWrappers(dateTimeData.dateTimeFormats);
 
@@ -326,7 +326,7 @@ public class CalendarCodeGenerator {
         method.addStatement("b.append($S)", ((Text)node).text());
       } else if (node instanceof Field) {
         Field field = (Field)node;
-        method.addStatement("formatField(d, b, '$L', $L)", field.ch(), field.width());
+        method.addStatement("formatField(d, '$L', $L, b)", field.ch(), field.width());
       }
     }
   }
@@ -339,9 +339,9 @@ public class CalendarCodeGenerator {
     MethodSpec.Builder method = MethodSpec.methodBuilder("formatWrapped")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
-        .addParameter(FORMAT_TYPE, "wrapperType")
-        .addParameter(FORMAT_TYPE, "dateType")
-        .addParameter(FORMAT_TYPE, "timeType")
+        .addParameter(CALENDARFORMAT_TYPE, "wrapperType")
+        .addParameter(CALENDARFORMAT_TYPE, "dateType")
+        .addParameter(CALENDARFORMAT_TYPE, "timeType")
         .addParameter(String.class, "dateSkel")
         .addParameter(String.class, "timeSkel")
         .addParameter(ZONED_DATETIME_TYPE, "d")

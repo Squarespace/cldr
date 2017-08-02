@@ -14,35 +14,15 @@ public interface CalendarFormatter {
    * Returns the locale associated with this formatter.
    */
   CLDRLocale locale();
-  
-  /**
-   * Formats a date using a given pattern. See CLDR "dateFormats"
-   */
-  void formatDate(FormatType type, ZonedDateTime d, StringBuilder b);
 
   /**
-   * Formats a time using a given pattern. See CLDR "timeFormats"
+   * Format a date time with the given options, writing the output to the buffer.
    */
-  void formatTime(FormatType type, ZonedDateTime d, StringBuilder b);
-  
-  /**
-   * Formats a date and time (either a named format or a skeleton) using a localized wrapper.
-   */
-  void formatWrapped(FormatType wrapperType, FormatType dateType, FormatType timeType,
-      String dateSkel, String timeSkel, ZonedDateTime d, StringBuilder b);
+  void format(ZonedDateTime datetime, CalendarFormatOptions options, StringBuilder buffer);
 
-  /**
-   * Formats using a skeleton pattern. See CLDR "dateTimeFormats / availableFormats".
-   */
-  boolean formatSkeleton(String skeleton, ZonedDateTime d, StringBuilder b);
-
-  /**
-   * Format a field descriptor.
-   */
-  void formatField(String field, ZonedDateTime dateTime, StringBuilder buf);
-  
   /**
    * Format a single field of a given width.
    */
-  void formatField(ZonedDateTime d, StringBuilder b, char field, int width);
+  void formatField(ZonedDateTime datetime, char field, int width, StringBuilder buffer);
+  
 }

@@ -42,28 +42,28 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   public CLDRLocale locale() {
     return locale;
   }
-
+  
   /**
    * Formats a date using a given pattern. See CLDR "dateFormats"
    */
-  public abstract void formatDate(FormatType type, ZonedDateTime d, StringBuilder b);
+  protected abstract void formatDate(CalendarFormat type, ZonedDateTime d, StringBuilder b);
 
   /**
    * Formats a time using a given pattern. See CLDR "timeFormats"
    */
-  public abstract void formatTime(FormatType type, ZonedDateTime d, StringBuilder b);
+  protected abstract void formatTime(CalendarFormat type, ZonedDateTime d, StringBuilder b);
 
   /**
    * Formats a date and time (either a named format or a skeleton) using a localized wrapper.
    */
-  public abstract void formatWrapped(
-      FormatType wrapperType, FormatType dateType, FormatType timeType,
+  protected abstract void formatWrapped(
+      CalendarFormat wrapperType, CalendarFormat dateType, CalendarFormat timeType,
       String dateSkel, String timeSkel, ZonedDateTime d, StringBuilder b);
 
   /**
    * Formats using a skeleton pattern. See CLDR "dateTimeFormats / availableFormats".
    */
-  public abstract boolean formatSkeleton(String skeleton, ZonedDateTime d, StringBuilder b);
+  protected abstract boolean formatSkeleton(String skeleton, ZonedDateTime d, StringBuilder b);
 
   /**
    * Wraps the GMT hours and minutes, e.g. "GMT{0}" -> "GMT-04:00".
@@ -74,6 +74,39 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
    * Wraps a location in the region format, e.g. "{0} Time" -> "Los Angeles Time"
    */
   protected abstract void wrapTimeZoneRegion(StringBuilder b, String region);
+  
+  /**
+   * Main entry point for date time formatting.
+   */
+  public void format(ZonedDateTime datetime, CalendarFormatOptions options, StringBuilder buffer) {
+    String dateSkeleton = options.dateSkeleton() == null ? null : options.dateSkeleton().skeleton();
+    String timeSkeleton = options.timeSkeleton() == null ? null : options.timeSkeleton().skeleton();
+
+    if (options.wrapperFormat() != null) {
+      CalendarFormat dateFormat = null;
+      if (options.dateFormat() == null) {
+        dateFormat = dateSkeleton == null ? options.wrapperFormat() : null;
+      }
+      CalendarFormat timeFormat = null;
+      if (options.timeFormat() == null) {
+        timeFormat = timeSkeleton == null ? options.wrapperFormat() : null;
+      }
+      
+      formatWrapped(options.wrapperFormat(), dateFormat, timeFormat, dateSkeleton, timeSkeleton, datetime, buffer);
+    } else if (options.dateFormat() != null) {
+      formatDate(options.dateFormat(), datetime, buffer);
+    } else if (options.timeFormat() != null) {
+      formatTime(options.timeFormat(), datetime, buffer);
+    } else {
+      String skeleton = dateSkeleton != null ? dateSkeleton : timeSkeleton;
+
+      // If every property is null, fall back to this default "yMd"
+      if (skeleton == null) {
+        skeleton = CalendarSkeleton.yMd.skeleton();
+      }
+      formatSkeleton(skeleton, datetime, buffer);
+    }
+  }
   
   /**
    * Retrieves the exemplar city for a timezone, e.g. "America/Los_Angeles" -> "Los Angeles".
@@ -118,7 +151,7 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
    * Formats a single field, based on the first character in the pattern string,
    * with repeated characters indicating the field width.
    */
-  public void formatField(String pattern, ZonedDateTime d, StringBuilder b) {
+  public void formatField(String pattern, ZonedDateTime datetime, StringBuilder buffer) {
     int length = pattern.length();
     if (length == 0) {
       return;
@@ -145,24 +178,24 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
       i++;
     }
 
-    formatField(d, b, field, width);
+    formatField(datetime, field, width, buffer);
   }
 
   /**
    * Format a single field of a given width.
    */
-  public void formatField(ZonedDateTime d, StringBuilder b, char field, int width) {
+  public void formatField(ZonedDateTime datetime, char field, int width, StringBuilder buffer) {
     switch (field) {
       case 'G':
-        formatEra(b, d, width, eras);
+        formatEra(buffer, datetime, width, eras);
         break;
 
       case 'y':
-        formatYear(b, d, width);
+        formatYear(buffer, datetime, width);
         break;
 
       case 'Y':
-        formatYearWeekOfYear(b, d, width);
+        formatYearWeekOfYear(buffer, datetime, width);
         break;
 
       case 'u':
@@ -172,19 +205,19 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'Q':
-        formatQuarter(b, d, width, quartersFormat);
+        formatQuarter(buffer, datetime, width, quartersFormat);
         break;
 
       case 'q':
-        formatQuarter(b, d, width, quartersStandalone);
+        formatQuarter(buffer, datetime, width, quartersStandalone);
         break;
 
       case 'M':
-        formatMonth(b, d, width, monthsFormat);
+        formatMonth(buffer, datetime, width, monthsFormat);
         break;
 
       case 'L':
-        formatMonth(b, d, width, monthsStandalone);
+        formatMonth(buffer, datetime, width, monthsStandalone);
         break;
 
       case 'l':
@@ -192,23 +225,23 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'w':
-        formatWeekOfYear(b, d, width);
+        formatWeekOfYear(buffer, datetime, width);
         break;
 
       case 'W':
-        formatWeekOfMonth(b, d, width);
+        formatWeekOfMonth(buffer, datetime, width);
         break;
 
       case 'd':
-        formatDayOfMonth(b, d, width);
+        formatDayOfMonth(buffer, datetime, width);
         break;
 
       case 'D':
-        formatDayOfYear(b, d, width);
+        formatDayOfYear(buffer, datetime, width);
         break;
 
       case 'F':
-        formatDayOfWeekInMonth(b, d, width);
+        formatDayOfWeekInMonth(buffer, datetime, width);
         break;
 
       case 'g':
@@ -216,19 +249,19 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'E':
-        formatWeekday(b, d, width, weekdaysFormat);
+        formatWeekday(buffer, datetime, width, weekdaysFormat);
         break;
 
       case 'e':
-        formatLocalWeekday(b, d, width, weekdaysFormat, firstDay);
+        formatLocalWeekday(buffer, datetime, width, weekdaysFormat, firstDay);
         break;
 
       case 'c':
-        formatLocalWeekdayStandalone(b, d, width, weekdaysStandalone, firstDay);
+        formatLocalWeekdayStandalone(buffer, datetime, width, weekdaysStandalone, firstDay);
         break;
 
       case 'a':
-        formatDayPeriod(b, d, width, dayPeriodsFormat);
+        formatDayPeriod(buffer, datetime, width, dayPeriodsFormat);
         break;
 
       case 'b':
@@ -237,11 +270,11 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'h':
-        formatHours(b, d, width, true);
+        formatHours(buffer, datetime, width, true);
         break;
 
       case 'H':
-        formatHours(b, d, width, false);
+        formatHours(buffer, datetime, width, false);
         break;
 
       case 'K':
@@ -254,15 +287,15 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'm':
-        formatMinutes(b, d, width);
+        formatMinutes(buffer, datetime, width);
         break;
 
       case 's':
-        formatSeconds(b, d, width);
+        formatSeconds(buffer, datetime, width);
         break;
 
       case 'S':
-        formatFractionalSeconds(b, d, width);
+        formatFractionalSeconds(buffer, datetime, width);
         break;
 
       case 'A':
@@ -270,28 +303,28 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
         break;
 
       case 'z':
-        formatTimeZone_z(b, d, width);
+        formatTimeZone_z(buffer, datetime, width);
         break;
 
       case 'Z':
-        formatTimeZone_Z(b, d, width);
+        formatTimeZone_Z(buffer, datetime, width);
         break;
         
       case 'O':
-        formatTimeZone_O(b, d, width);
+        formatTimeZone_O(buffer, datetime, width);
         break;
         
       case 'v':
-        formatTimeZone_v(b, d, width);
+        formatTimeZone_v(buffer, datetime, width);
         break;
         
       case 'V':
-        formatTimeZone_V(b, d, width);
+        formatTimeZone_V(buffer, datetime, width);
         break;
         
       case 'X':
       case 'x':
-        formatTimeZone_X(b, d, width, field);
+        formatTimeZone_X(buffer, datetime, width, field);
         break;
     }
   }

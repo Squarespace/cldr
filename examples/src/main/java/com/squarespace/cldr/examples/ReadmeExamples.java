@@ -6,8 +6,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import com.squarespace.cldr.CLDR;
+import com.squarespace.cldr.dates.CalendarFormat;
+import com.squarespace.cldr.dates.CalendarFormatOptions;
 import com.squarespace.cldr.dates.CalendarFormatter;
-import com.squarespace.cldr.dates.FormatType;
+import com.squarespace.cldr.dates.CalendarSkeleton;
 import com.squarespace.cldr.numbers.CurrencyFormatOptions;
 import com.squarespace.cldr.numbers.CurrencyFormatStyle;
 import com.squarespace.cldr.numbers.DecimalFormatOptions;
@@ -149,9 +151,6 @@ public class ReadmeExamples {
   }
   
   private static void datetime() {
-    
-    // TODO: revise public api for datetime formatting to match number formatting.
-    
     long epoch = 1288648500000L;
     ZoneId zoneId = ZoneId.of("America/New_York");
     ZonedDateTime datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
@@ -159,35 +158,48 @@ public class ReadmeExamples {
     StringBuilder buffer = new StringBuilder();
     CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.EN_US);
 
-    f.formatSkeleton("yMd", datetime, buffer);
+    CalendarFormatOptions options = new CalendarFormatOptions();
+    
+    f.format(datetime, options, buffer);
     System.out.println(buffer);
     // 11/1/2010
-    
+
+    options = new CalendarFormatOptions().setDateSkeleton(CalendarSkeleton.GyMMMd);
+
     buffer.setLength(0);
-    f.formatSkeleton("GyMMMd", datetime, buffer);
+    f.format(datetime, options, buffer);
     System.out.println(buffer);
     // Nov 1, 2010 AD
     
-    buffer.setLength(0);
-    f.formatDate(FormatType.MEDIUM, datetime, buffer);
-    System.out.println(buffer);
-    // Nov 1, 2010
+    options = new CalendarFormatOptions().setDateFormat(CalendarFormat.MEDIUM);
     
     buffer.setLength(0);
-    f.formatTime(FormatType.MEDIUM, datetime, buffer);
+    f.format(datetime, options, buffer);
+    System.out.println(buffer);
+    // Nov 1, 2010
+
+    options = new CalendarFormatOptions().setTimeFormat(CalendarFormat.MEDIUM);
+    
+    buffer.setLength(0);
+    f.format(datetime, options, buffer);
     System.out.println(buffer);
     // 5:55:00 PM
     
+    options = new CalendarFormatOptions().setWrapperFormat(CalendarFormat.MEDIUM);
+    
     buffer.setLength(0);
-    f.formatWrapped(FormatType.MEDIUM, FormatType.MEDIUM, FormatType.MEDIUM, null, null, datetime, buffer);
+    
+    f.format(datetime, options, buffer);
     System.out.println(buffer);
     // Nov 1, 2010, 5:55:00 PM
     
     epoch = 1288598100000L;
     datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
     
+    options = new CalendarFormatOptions().setWrapperFormat(CalendarFormat.FULL);
+    
     buffer.setLength(0);
-    f.formatWrapped(FormatType.FULL, FormatType.FULL, FormatType.FULL, null, null, datetime, buffer);
+    f.format(datetime, options, buffer);
     System.out.println(buffer);
     // Monday, November 1, 2010 at 3:55:00 AM Eastern Daylight Time
     
@@ -195,7 +207,8 @@ public class ReadmeExamples {
     datetime = datetime.withZoneSameInstant(zoneId);
 
     buffer.setLength(0);
-    f.formatWrapped(FormatType.FULL, FormatType.FULL, FormatType.FULL, null, null, datetime, buffer);
+    f.format(datetime, options, buffer);
+
     System.out.println(buffer);
     // Monday, November 1, 2010 at 12:55:00 AM Pacific Daylight Time
   }
