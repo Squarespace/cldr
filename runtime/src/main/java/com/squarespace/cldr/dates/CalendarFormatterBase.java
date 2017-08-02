@@ -570,6 +570,9 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
     if (truncate && hours > 12) {
       hours = hours - 12;
     }
+    if (truncate && hours == 0) {
+      hours = 12;
+    }
     zeroPad2(b, hours, width);
   }
 

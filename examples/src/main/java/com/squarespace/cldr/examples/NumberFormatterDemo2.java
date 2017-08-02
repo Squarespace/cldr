@@ -1,10 +1,16 @@
-package com.squarespace.cldr.numbers;
+package com.squarespace.cldr.examples;
 
 import java.math.BigDecimal;
 
 import com.squarespace.cldr.CLDR;
+import com.squarespace.cldr.numbers.CurrencyFormatOptions;
+import com.squarespace.cldr.numbers.CurrencyFormatStyle;
+import com.squarespace.cldr.numbers.DecimalFormatOptions;
+import com.squarespace.cldr.numbers.DecimalFormatStyle;
+import com.squarespace.cldr.numbers.NumberFormatMode;
+import com.squarespace.cldr.numbers.NumberFormatter;
 
-public class PluralDemo {
+public class NumberFormatterDemo2 {
 
   public static void main(String[] args) {
     BigDecimal[] numbers = new BigDecimal[] {
@@ -22,6 +28,7 @@ public class PluralDemo {
         .setGrouping(true).setFormatMode(NumberFormatMode.DEFAULT)
         .setMinimumFractionDigits(0)
         .setMaximumFractionDigits(2),
+        
       new DecimalFormatOptions(DecimalFormatStyle.LONG)
         .setFormatMode(NumberFormatMode.SIGNIFICANT)
         .setMinimumSignificantDigits(3)
@@ -35,11 +42,13 @@ public class PluralDemo {
         fmt.formatDecimal(n, buf, o);
         System.out.println(buf.toString());
       }
+      System.out.println();
     }
     
     System.out.println("-----------------------------");
     CurrencyFormatOptions[] copts = new CurrencyFormatOptions[] {
         new CurrencyFormatOptions(CurrencyFormatStyle.NAME),
+
         new CurrencyFormatOptions(CurrencyFormatStyle.NAME)
           .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC)
           .setMinimumSignificantDigits(1)
@@ -52,6 +61,7 @@ public class PluralDemo {
         fmt.formatCurrency(n, "USD", buf, o);
         System.out.println(buf.toString());
       }
+      System.out.println();
     }
   }
   

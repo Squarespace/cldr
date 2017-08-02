@@ -1,14 +1,17 @@
-package com.squarespace.cldr;
+package com.squarespace.cldr.examples;
 
 import java.time.ZoneId;
+
+import com.squarespace.cldr.CLDR;
+import com.squarespace.cldr.MessageArgs;
+import com.squarespace.cldr.MessageFormat;
 
 
 /**
  * Trivial demonstration of recursive formatting, showing 2 levels of pluralization.
  */
-public class MsgDemo {
+public class MessageFormatDemo {
 
-  private static final CLDRLocale EN_US = new CLDRLocale("en", "", "US", "POSIX");
   private static final ZoneId ZONEID = ZoneId.of("America/New_York");
 
   public static void main(String[] ignore) {
@@ -24,7 +27,9 @@ public class MsgDemo {
         "    one {You and someone else liked this}" +
         "  other {You and # others liked {1, plural, =1{this item} other{these # items}}}" +
         "}";
-    MessageFormat msg = new MessageFormat(EN_US, ZONEID, format);
+
+    MessageFormat msg = new MessageFormat(CLDR.EN_US, ZONEID, format);
+    
     for (int i = 0; i < 6; i++) {
       StringBuilder buf = new StringBuilder();
       msg.format(args("" + i, i % 2 == 0 ? "1" : "2"), buf);

@@ -2,6 +2,12 @@
 # TODO
 
 
+### Higher-level options-based api for datetime formatting.
+
+Current methods were developed quickly and are too low-level.
+Create DateTimeFormatOptions similar to DecimalOptions and
+revise CalendarFormatter api accordingly.
+
 ### High test coverage for main formatter code pathways.
 
 ### Units

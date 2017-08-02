@@ -1,4 +1,4 @@
-package com.squarespace.cldr.numbers;
+package com.squarespace.cldr.examples;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -12,10 +12,17 @@ import java.util.List;
 
 import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.numbers.CurrencyFormatOptions;
+import com.squarespace.cldr.numbers.CurrencyFormatStyle;
+import com.squarespace.cldr.numbers.DecimalFormatOptions;
+import com.squarespace.cldr.numbers.DecimalFormatStyle;
+import com.squarespace.cldr.numbers.NumberFormatter;
 
 
 /**
- * Execute
+ * Generates a large output file by formatting a list of numbers using 
+ * permutations of the basic decimal and currency format options, across
+ * all locales and currencies.
  */
 public class NumberStress {
 
@@ -69,6 +76,7 @@ public class NumberStress {
     long start = System.currentTimeMillis();
     StringBuilder buf = new StringBuilder();
     for (CLDRLocale locale : locales) {
+      System.out.println("generating " + locale);
       NumberFormatter fmt = cldr.getNumberFormatter(locale);
 
       for (BigDecimal n : nums) {
@@ -86,7 +94,7 @@ public class NumberStress {
       }
     }
     long elapsed = System.currentTimeMillis() - start;
-    System.out.println("ms: " + elapsed);
+    System.out.println("elapsed ms: " + elapsed);
     
     FileWriter writer = new FileWriter(file);
     writer.write(buf.toString());

@@ -1,16 +1,22 @@
-package com.squarespace.cldr.numbers;
+package com.squarespace.cldr.examples;
 
 import java.math.BigDecimal;
 
 import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.numbers.CurrencyFormatOptions;
+import com.squarespace.cldr.numbers.CurrencyFormatStyle;
+import com.squarespace.cldr.numbers.DecimalFormatOptions;
+import com.squarespace.cldr.numbers.DecimalFormatStyle;
+import com.squarespace.cldr.numbers.NumberFormatMode;
+import com.squarespace.cldr.numbers.NumberFormatter;
+
 
 /**
- * Demonstration of number / currency formatting.
- * 
- * TODO: Convert into unit test and remove.
+ * Demonstration of number / currency formatting. Formats a list of numbers
+ * using permutations of locales, options, currencies, etc.
  */
-public class NumberDemo {
+public class NumberFormatterDemo {
 
   public static void main(String[] args) {
     demo();
