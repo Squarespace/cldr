@@ -3,8 +3,10 @@ rootProject.name='cldr'
 include ':cldr-core'
 include ':cldr-compiler'
 include ':cldr-runtime'
+include ':cldr-examples'
 
 project(':cldr-compiler').projectDir = "$rootDir/compiler" as File
 project(':cldr-core').projectDir = "$rootDir/core" as File
 project(':cldr-runtime').projectDir = "$rootDir/runtime" as File
+project(':cldr-examples').projectDir = "$rootDir/examples" as File
 
