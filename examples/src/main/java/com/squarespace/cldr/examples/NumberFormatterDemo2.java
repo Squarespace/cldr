@@ -10,6 +10,7 @@ import com.squarespace.cldr.numbers.DecimalFormatStyle;
 import com.squarespace.cldr.numbers.NumberFormatMode;
 import com.squarespace.cldr.numbers.NumberFormatter;
 
+
 public class NumberFormatterDemo2 {
 
   public static void main(String[] args) {
@@ -58,7 +59,7 @@ public class NumberFormatterDemo2 {
       NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
       for (BigDecimal n : numbers) {
         StringBuilder buf = new StringBuilder();
-        fmt.formatCurrency(n, "USD", buf, o);
+        fmt.formatCurrency(n, CLDR.Currency.USD, buf, o);
         System.out.println(buf.toString());
       }
       System.out.println();

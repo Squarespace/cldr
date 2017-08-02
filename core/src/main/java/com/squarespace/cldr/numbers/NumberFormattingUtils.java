@@ -52,7 +52,7 @@ public class NumberFormattingUtils {
         n = n.setScale(scale, mode);
       }
 
-      // Ensure we don't exceed the maximum number of fractions allowed.
+      // Ensure we don't exceed the maximum number of fraction digits allowed.
       if (formatMode == NumberFormatMode.SIGNIFICANT_MAXFRAC && maxFracDigits < n.scale()) {
         n = n.setScale(maxFracDigits, mode);
       }
@@ -120,7 +120,9 @@ public class NumberFormattingUtils {
     }
 
     if (grouping) {
-      shouldGroup = intDigits >= (params.minimumGroupingDigits + primaryGroupingSize);
+      if (primaryGroupingSize > 0) {
+        shouldGroup = intDigits >= (params.minimumGroupingDigits + primaryGroupingSize);
+      }
     }
 
     // Select the decimal and grouping characters.

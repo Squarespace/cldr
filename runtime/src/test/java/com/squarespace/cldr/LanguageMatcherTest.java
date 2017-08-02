@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
 public class LanguageMatcherTest {
 
   @Test
-  public void testBasics() {
+  public void testLanguageMatcher() {
     assertMatch("en-US", "en");
     assertMatch("en_US", "en");
     assertMatch("en-Zzzz-US", "en");
@@ -25,7 +25,11 @@ public class LanguageMatcherTest {
     assertMatch("sr_Latn_BA", "sr-Latn-BA");
     assertMatch("sr-Latn-RS", "sr-Latn-RS");
     assertMatch("sr-Cyrl-XY", "sr-XY");
-    
+
+    assertMatch("be-BY", "be");
+    assertMatch("be-Cyrl-BY", "be");
+    assertMatch("und-BY", "be");
+
     assertMatch("zh-TW", "zh-TW");
     assertMatch("zh-CN", "zh");
   }

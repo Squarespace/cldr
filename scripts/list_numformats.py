@@ -4,7 +4,7 @@ from collections import defaultdict
 
 join = os.path.join
 PWD = os.path.realpath(os.path.dirname(__file__))
-DATA = join(PWD, '..', 'runtime', 'src', 'main', 'resources', 'data')
+DATA = join(PWD, '..', 'compiler', 'src', 'main', 'resources', 'data')
 
 #FMTS = ('numbers', 'decimalFormats-numberSystem-latn', 'standard')
 DEC_STD = ('numbers', 'decimalFormats-numberSystem-latn', 'standard')

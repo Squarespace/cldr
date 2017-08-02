@@ -1,6 +1,5 @@
 package com.squarespace.cldr.numbers;
 
-
 /**
  * Options to select and customize decimal / percent formats. This lets you override
  * the defaults for a given format. For example, to force display of leading zeroes
@@ -9,7 +8,6 @@ package com.squarespace.cldr.numbers;
 public class DecimalFormatOptions extends NumberFormatOptions<DecimalFormatOptions> {
 
   protected static final DecimalFormatStyle DEFAULT_STYLE = DecimalFormatStyle.DECIMAL;
-
   protected DecimalFormatStyle style;
 
   public DecimalFormatOptions() {

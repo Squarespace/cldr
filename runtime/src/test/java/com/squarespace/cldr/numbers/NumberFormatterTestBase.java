@@ -8,9 +8,13 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 
 import com.squarespace.cldr.CLDR;
+import com.squarespace.cldr.units.Unit;
+import com.squarespace.cldr.units.UnitFormat;
+import com.squarespace.cldr.units.UnitFormatOptions;
+import com.squarespace.cldr.units.UnitValue;
 
 
-public abstract class NumberFormatterBaseTest {
+public abstract class NumberFormatterTestBase {
   
   protected List<Pair> numbers(String ...numbers) {
     return Arrays.stream(numbers).map(s -> new Pair(s, "-" + s)).collect(Collectors.toList());
@@ -32,6 +36,14 @@ public abstract class NumberFormatterBaseTest {
     return new DecimalFormatOptions(style);
   }
 
+  protected UnitFormatOptions unit() {
+    return new UnitFormatOptions();
+  }
+  
+  protected UnitFormatOptions unit(UnitFormat format) {
+    return new UnitFormatOptions(format);
+  }
+  
   protected CurrencyFormatOptions currency() {
     return new CurrencyFormatOptions();
   }
@@ -39,14 +51,29 @@ public abstract class NumberFormatterBaseTest {
   protected CurrencyFormatOptions currency(CurrencyFormatStyle style) {
     return new CurrencyFormatOptions(style);
   }
+
+  protected void test(CLDR.Locale locale, UnitFormatOptions options, String n, Unit u, String expected) {
+    NumberFormatter fmt = CLDR.get().getNumberFormatter(locale);
+    StringBuilder buf = new StringBuilder();
+    UnitValue value = new UnitValue(new BigDecimal(n), u);
+    fmt.formatUnit(value, buf, options);
+    Assert.assertEquals(buf.toString(), expected);
+  }
+  
+  protected void test(CLDR.Locale locale, UnitFormatOptions options, List<UnitValue> values, String expected) {
+    NumberFormatter fmt = CLDR.get().getNumberFormatter(locale);
+    StringBuilder buf = new StringBuilder();
+    fmt.formatUnits(values, buf, options);
+    Assert.assertEquals(buf.toString(), expected);
+  }
   
   protected void test(CLDR.Locale locale, DecimalFormatOptions options, List<Pair> numbers, List<Pair> expecteds) {
     test(locale, null, options, numbers, expecteds);
   }
-  
+
   protected void test(
       CLDR.Locale locale, 
-      String currency, 
+      CLDR.Currency currency, 
       NumberFormatOptions<?> options, 
       List<Pair> numbers, 
       List<Pair> expecteds) {

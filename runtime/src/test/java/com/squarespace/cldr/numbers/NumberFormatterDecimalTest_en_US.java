@@ -12,23 +12,23 @@ import org.testng.annotations.Test;
 import com.squarespace.cldr.CLDR;
 
 
-public class NumberFormatterDecimalTest_en_US extends NumberFormatterBaseTest {
+public class NumberFormatterDecimalTest_en_US extends NumberFormatterTestBase {
 
   private final List<Pair> NUMBERS = numbers(
-      "0"
-      , "1"
-      , "1.00"
-      , "3.14159"
-      , "990"
-      , "1200"
-      , "12345"
-      , "99999"
-      , "999999"
-      , "1200000"
-      , "10000000001"
-      , "9223372036854775807"
+      "0",
+      "1",
+      "1.00",
+      "3.14159",
+      "990",
+      "1200",
+      "12345",
+      "99999",
+      "999999",
+      "1200000",
+      "10000000001",
+      "9223372036854775807"
   );
-
+  
   @Test
   public void testDecimalDefault() {
     DecimalFormatOptions options = decimal().setGrouping(true);

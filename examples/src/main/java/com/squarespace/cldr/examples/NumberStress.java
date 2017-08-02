@@ -65,7 +65,7 @@ public class NumberStress {
 
     CLDR cldr = CLDR.get();
     List<CLDR.Locale> locales = cldr.availableLocales();
-    List<String> currencies = cldr.availableCurrencies();
+    CLDR.Currency[] currencies = CLDR.Currency.values();
 
     List<BigDecimal> nums = new ArrayList<>();
     for (String num : numbers) {
@@ -85,7 +85,7 @@ public class NumberStress {
         }
         
         for (CurrencyFormatOptions c : copts) {
-          for (String code : currencies) {
+          for (CLDR.Currency code : currencies) {
             fmt.formatCurrency(n, code, buf, c);
             buf.append('\n');
           }
@@ -100,7 +100,7 @@ public class NumberStress {
     writer.close();
 
     int dtotal = locales.size() * numbers.length * dopts.length;
-    int ctotal = locales.size() * numbers.length * copts.length * currencies.size();
+    int ctotal = locales.size() * numbers.length * copts.length * currencies.length;
     System.out.println("combinations: " + (dtotal + ctotal));
 
   }

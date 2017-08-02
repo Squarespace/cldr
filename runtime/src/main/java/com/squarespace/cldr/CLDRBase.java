@@ -7,6 +7,8 @@ import java.util.Map;
 import com.squarespace.cldr.dates.CalendarFormatter;
 import com.squarespace.cldr.numbers.NumberFormatter;
 import com.squarespace.cldr.plurals.PluralRules;
+import com.squarespace.cldr.units.UnitConverter;
+import com.squarespace.cldr.units.UnitConverters;
 
 
 /**
@@ -28,9 +30,8 @@ abstract class CLDRBase {
     languageMatcher = new LanguageMatcher(likelySubtagsMap);
     bundleMatcher = new BundleMatcher(languageMatcher, availableLocales());
   }
-    
+
   public abstract List<CLDR.Locale> availableLocales();
-  public abstract List<String> availableCurrencies();
   
   /**
    * Map a language tag to the best available CLDR locale.
@@ -100,6 +101,10 @@ abstract class CLDRBase {
     return formatter == null ? numberFormatters.get(CLDR.Locale.en_US) : formatter;
   }
 
+  public UnitConverter getUnitConverter(CLDR.Locale locale) {
+    return UnitConverters.get(locale);
+  }
+  
   /**
    * Returns a class for evaluating plural rules for a given language.
    */

@@ -4,7 +4,6 @@ import static com.squarespace.cldr.codegen.Types.CLDR;
 import static com.squarespace.cldr.codegen.Types.CLDR_BASE;
 import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_IF;
 import static com.squarespace.cldr.codegen.Types.LIST_CLDR_LOCALE_IF;
-import static com.squarespace.cldr.codegen.Types.LIST_STRING;
 import static com.squarespace.cldr.codegen.Types.META_LOCALE;
 import static com.squarespace.cldr.codegen.Types.PACKAGE_CLDR;
 import static com.squarespace.cldr.codegen.Types.PLURAL_RULES;
@@ -179,20 +178,6 @@ public class CodeGenerator {
    * See: http://cldr.unicode.org/translation/default-content
    */
   private static void createLocales(TypeSpec.Builder type, List<LocaleID> defaultContent, Set<LocaleID> available) {
-//    TypeSpec.Builder localeBase = TypeSpec.classBuilder("_Locale")
-//        .addModifiers(PROTECTED, STATIC)
-//        .superclass(META_LOCALE)
-//        .addSuperinterface(LOCALE)
-//        .addMethod(MethodSpec.constructorBuilder()
-//            .addModifiers(PROTECTED)
-//            .addParameter(String.class, "language")
-//            .addParameter(String.class, "script")
-//            .addParameter(String.class, "territory")
-//            .addParameter(String.class, "variant")
-//            .addStatement("super(language, script, territory, variant)").build());
-//
-//    type.addType(localeBase.build());
-    
     TypeSpec.Builder localeInterface = TypeSpec.interfaceBuilder("Locale")
         .addModifiers(PUBLIC, STATIC)
         .addMethod(MethodSpec.methodBuilder("language")
@@ -326,7 +311,7 @@ public class CodeGenerator {
    * Create top-level container to hold currency constants.
    */
   private static void createCurrencies(TypeSpec.Builder type, List<String> currencies) {
-    TypeSpec.Builder currencyType = TypeSpec.interfaceBuilder("Currency")
+    TypeSpec.Builder currencyType = TypeSpec.enumBuilder("Currency")
         .addModifiers(PUBLIC, STATIC);
 
     List<String> codes = new ArrayList<>();
@@ -338,7 +323,7 @@ public class CodeGenerator {
       if (i > 0) {
         buf.append(",\n");
       }
-      addCurrencyField(currencyType, codes.get(i));
+      currencyType.addEnumConstant(codes.get(i));
       buf.append("  Currency.$L");
     }
     buf.append("))");
@@ -350,24 +335,6 @@ public class CodeGenerator {
     arguments.add(Collections.class);
     arguments.add(Arrays.class);
     arguments.addAll(codes);
-    FieldSpec.Builder field = FieldSpec.builder(LIST_STRING, "AVAILABLE_CURRENCIES", PRIVATE, STATIC, FINAL);
-    field.initializer(buf.toString(), arguments.toArray());
-    type.addField(field.build());
-    
-    MethodSpec.Builder method = MethodSpec.methodBuilder("availableCurrencies")
-        .addModifiers(PUBLIC, FINAL)
-        .returns(LIST_STRING)
-        .addStatement("return AVAILABLE_CURRENCIES");
-    type.addMethod(method.build());
-  }
-  
-  /**
-   * Add a currency field.
-   */
-  private static void addCurrencyField(TypeSpec.Builder type, String currencyCode) {
-    FieldSpec.Builder field = FieldSpec.builder(String.class, currencyCode, PUBLIC, STATIC, FINAL)
-        .initializer("$S", currencyCode);
-    type.addField(field.build());
   }
   
 }

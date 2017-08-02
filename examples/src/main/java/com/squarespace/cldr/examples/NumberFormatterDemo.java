@@ -88,12 +88,12 @@ public class NumberFormatterDemo {
           .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC),
       };
     
-    String[] currencies = new String[] {
-      "USD",
-      "GBP",
-      "EUR",
-      "JPY",
-      "RUB"
+    CLDR.Currency[] currencies = new CLDR.Currency[] {
+        CLDR.Currency.USD,
+        CLDR.Currency.GBP,
+        CLDR.Currency.EUR,
+        CLDR.Currency.JPY,
+        CLDR.Currency.RUB
     };
     
     for (CLDR.Locale locale : locales) {
@@ -121,8 +121,10 @@ public class NumberFormatterDemo {
   /**
    * Format numbers in this locale for several currencies.
    */
-  private static void money(CLDR.Locale locale, String[] currencies, String[] numbers, CurrencyFormatOptions opts) {
-    for (String currency : currencies) {
+  private static void money(
+      CLDR.Locale locale, CLDR.Currency[] currencies, String[] numbers, CurrencyFormatOptions opts) {
+    
+    for (CLDR.Currency currency : currencies) {
       System.out.println("Currency " + currency);
       for (String num : numbers) {
         BigDecimal n = new BigDecimal(num);

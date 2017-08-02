@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,8 +42,12 @@ import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneEntry;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneInfo;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneInfo;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneName;
+import com.squarespace.cldr.codegen.reader.UnitData.UnitPattern;
+import com.squarespace.cldr.codegen.reader.UnitData.UnitPatterns;
 import com.squarespace.cldr.numbers.NumberPattern;
 import com.squarespace.cldr.numbers.NumberPatternParser;
+import com.squarespace.cldr.plurals.PluralCategory;
+import com.squarespace.cldr.units.Unit;
 import com.squarespace.compiler.common.Maybe;
 import com.squarespace.compiler.parse.Node;
 import com.squarespace.compiler.parse.Pair;
@@ -67,6 +72,7 @@ public class DataReader {
       "ordinals.json",
       "plurals.json",
       "timeZoneNames.json",
+      "units.json",
       "weekData.json",
       
       // Temporary fix for language matching
@@ -90,6 +96,7 @@ public class DataReader {
       "data/cldr-core/",
       "data/cldr-dates-modern/main/",
       "data/cldr-numbers-modern/main/",
+      "data/cldr-units-modern/main/",
       
       // Special cases where we need to correct all or most of a JSON file.
       "fixes"
@@ -122,14 +129,16 @@ public class DataReader {
   private final Map<LocaleID, TimeZoneData> timezones = new HashMap<>();
   private final Map<String, MetaZone> metazones = new HashMap<>();
   private final Map<String, String> timezoneAliases = new LinkedHashMap<>();
-  private final Map<LocaleID, NumberData> numbers = new HashMap<>();
+  private final Map<LocaleID, NumberData> numbers = new LinkedHashMap<>();
   private final Map<String, CurrencyData> currencies = new LinkedHashMap<>();
   private final Map<String, PluralData> ordinals = new HashMap<>();
   private final Map<String, PluralData> cardinals = new HashMap<>();
+  private final Map<LocaleID, UnitData> units = new HashMap<>();
   private final Map<String, String> languageAliases = new LinkedHashMap<>();
   private final Map<String, String> likelySubtags = new LinkedHashMap<>();
+
   private final NumberPatternParser numberPatternParser = new NumberPatternParser();
-  
+
   private final DateTimeFormatter metazoneFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
       .withZone(ZoneId.of("UTC"));
   
@@ -234,6 +243,13 @@ public class DataReader {
   }
 
   /**
+   * Unit formatting data.
+   */
+  public Map<LocaleID, UnitData> units() {
+    return units;
+  }
+  
+  /**
    * Initialize the global DataReader instance.
    */
   private void init() throws IOException {
@@ -336,6 +352,15 @@ public class DataReader {
           LocaleID id = parseIdentity(code, root);
           TimeZoneData data = parseTimeZoneData(code, root);
           timezones.put(id, data);
+          break;
+        }
+        
+        case "units.json":
+        {
+          String code = localeCode(root);
+          LocaleID id = parseIdentity(code, root);
+          UnitData data = parseUnitData(code, root);
+          units.put(id, data);
           break;
         }
         
@@ -1090,6 +1115,71 @@ public class DataReader {
   
   private ZonedDateTime parseMetaZoneTimestamp(String rep) {
     return ZonedDateTime.parse(rep, metazoneFmt);
+  }
+  
+  /**
+   * Parse unit formatting patterns.
+   */
+  private UnitData parseUnitData(String code, JsonObject root) {
+    JsonObject node = resolve(root, "main", code, "units");
+    UnitData data = new UnitData();
+    data.long_ = parseUnitPatterns(node, "long");
+    data.narrow = parseUnitPatterns(node, "narrow");
+    data.short_ = parseUnitPatterns(node, "short");
+    return data;
+  }
+  
+  /**
+   * Parse unit patterns of a given width.
+   */
+  private UnitPatterns parseUnitPatterns(JsonObject node, String width) {
+    node = resolve(node, width);
+    UnitPatterns result = new UnitPatterns();
+
+    result.compoundUnitPattern = string(resolve(node, "per"), "compoundUnitPattern");
+    result.coordinatePatterns = new HashMap<>();
+    JsonObject parent = resolve(node, "coordinateUnit");
+    for (String direction : objectKeys(parent)) {
+      result.coordinatePatterns.put(direction, parent.get(direction).getAsString());
+    }
+    
+    node.remove("per");
+    node.remove("coordinateUnit");
+    
+    result.unitPatterns = new EnumMap<Unit, UnitData.UnitPattern>(Unit.class);
+    for (String unitKey : objectKeys(node)) {
+      JsonObject obj = node.get(unitKey).getAsJsonObject();
+      
+      // Special case as "generic" is ambiguous
+      Unit unit = null;
+      if (unitKey.equalsIgnoreCase("temperature-generic")) {
+        unit = Unit.TEMPERATURE_GENERIC;
+      } else {
+        int index = unitKey.indexOf('-');
+        String identifier = unitKey.substring(index + 1);
+        unit = Unit.fromIdentifier(identifier);
+      }
+      if (unit == null) {
+        throw new RuntimeException("unsupported unit found: " + unitKey);
+      }
+      
+      UnitPattern pattern = new UnitPattern();
+      pattern.displayName = string(obj, "displayName");
+      pattern.perUnitPattern = string(obj, "perUnitPattern", null);
+      pattern.patterns = new HashMap<>();
+      for (String patternKey : objectKeys(obj)) {
+        if (!patternKey.startsWith("unitPattern-count-")) {
+          continue;
+        }
+        String value = string(obj, patternKey);
+        PluralCategory category = PluralCategory.fromString(patternKey.split("-")[2]);
+        pattern.patterns.put(category, value);
+      }
+      
+      result.unitPatterns.put(unit, pattern);
+    }
+    
+    return result;
   }
   
   /**

@@ -18,8 +18,8 @@ import org.openjdk.jmh.runner.RunnerException;
 import com.squarespace.cldr.numbers.CurrencyFormatOptions;
 import com.squarespace.cldr.numbers.CurrencyFormatStyle;
 import com.squarespace.cldr.numbers.DecimalFormatOptions;
-import com.squarespace.cldr.numbers.NumberFormatMode;
 import com.squarespace.cldr.numbers.DecimalFormatStyle;
+import com.squarespace.cldr.numbers.NumberFormatMode;
 import com.squarespace.cldr.numbers.NumberFormatter;
 
 
@@ -71,9 +71,9 @@ public class NumberFormatBenchmark {
       en_US.formatDecimal(n, BUF, opts);
     }
     
-    public void formatCurrency(BigDecimal n, CurrencyFormatOptions opts, String currencyCode) {
+    public void formatCurrency(BigDecimal n, CurrencyFormatOptions opts, CLDR.Currency code) {
       BUF.setLength(0);
-      en_US.formatCurrency(n, currencyCode, BUF, opts);
+      en_US.formatCurrency(n, code, BUF, opts);
     }
   }
   

@@ -43,40 +43,27 @@ class BundleMatcher {
   /**
    * Given a MetaLocale object (internal to CLDR), return the best available
    * CLDR bundle identifier.
-   * 
-   * TODO: use language matching instead of truncation
    */
   public CLDR.Locale match(MetaLocale locale) {
     MetaLocale maxBundleId = languageMatcher.addLikelySubtags(locale);
-    MetaLocale minBundleId = languageMatcher.removeLikelySubtags(maxBundleId);
     
-    MetaLocale key = minBundleId.copy();
+    MetaLocale key = maxBundleId.copy();
     for (int flags : LanguageMatcher.MATCH_ORDER) {
-      LanguageMatcher.set(minBundleId, key, flags);
+      LanguageMatcher.set(maxBundleId, key, flags);
       MetaLocale result = availableBundlesMap.get(key);
       if (result != null && result.hasLanguage()) {
         return result;
       }
     }
-    return availableBundlesMap.get((MetaLocale)CLDR.Locale.en);
+
+    MetaLocale minBundleId = languageMatcher.removeLikelySubtags(maxBundleId);
+    MetaLocale result = availableBundlesMap.get(minBundleId);
+    return result != null ? result : availableBundlesMap.get((MetaLocale)CLDR.Locale.en);
   }
   
-  /**
-   * Construct a mapping from a bundle's minimum bundle identifier to the available
-   * bundle identifier.
-   */
   private void buildMap(List<CLDR.Locale> availableLocales) {
     for (CLDR.Locale locale : availableLocales) {
-      MetaLocale meta = (MetaLocale)locale;
-      MetaLocale maxBundleId = languageMatcher.addLikelySubtags(meta);
-      MetaLocale minBundleId = languageMatcher.removeLikelySubtags(maxBundleId);
-      
-      MetaLocale match = availableBundlesMap.get(minBundleId);
-      if (match != null && match.count() < minBundleId.count()) {
-        continue;
-      }
-      
-      availableBundlesMap.put(minBundleId, meta);
+      availableBundlesMap.put((MetaLocale)locale, (MetaLocale)locale);
     }
   }
 

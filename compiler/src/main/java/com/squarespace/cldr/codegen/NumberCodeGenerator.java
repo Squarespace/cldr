@@ -1,6 +1,7 @@
 package com.squarespace.cldr.codegen;
 
 import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_IF;
+import static com.squarespace.cldr.codegen.Types.MAP_UNIT_LIST_UNITPATTERN;
 import static com.squarespace.cldr.codegen.Types.NUMBER_FORMATTER_BASE;
 import static com.squarespace.cldr.codegen.Types.PACKAGE_CLDR_NUMBERS;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -12,11 +13,13 @@ import static javax.lang.model.element.Modifier.STATIC;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,20 +27,26 @@ import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.squarespace.cldr.codegen.reader.CurrencyData;
 import com.squarespace.cldr.codegen.reader.DataReader;
 import com.squarespace.cldr.codegen.reader.NumberData;
+import com.squarespace.cldr.codegen.reader.UnitData;
+import com.squarespace.cldr.codegen.reader.UnitData.UnitPattern;
+import com.squarespace.cldr.codegen.reader.UnitData.UnitPatterns;
 import com.squarespace.cldr.numbers.DigitBuffer;
 import com.squarespace.cldr.numbers.NumberFormatterParams;
 import com.squarespace.cldr.numbers.NumberPattern;
-import com.squarespace.cldr.numbers.NumberPattern.Format;
 import com.squarespace.cldr.numbers.NumberPatternParser;
 import com.squarespace.cldr.parse.FieldPattern.Field;
 import com.squarespace.cldr.parse.FieldPattern.Node;
 import com.squarespace.cldr.parse.FieldPattern.Text;
 import com.squarespace.cldr.parse.WrapperPatternParser;
 import com.squarespace.cldr.plurals.PluralCategory;
+import com.squarespace.cldr.units.Unit;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -51,18 +60,26 @@ public class NumberCodeGenerator {
   private static final WrapperPatternParser WRAPPER_PARSER = new WrapperPatternParser();
   private static final NumberPatternParser NUMBER_PARSER = new NumberPatternParser();
 
+  public static void main(String[] args) throws IOException {
+    Path root = Paths.get("/Users/phensley/dev/squarespace-cldr");
+    new NumberCodeGenerator().generate(root.resolve("runtime/src/generated/java"), DataReader.get());
+  }
   /**
    * Generate all number formatting classes.
    */
   public Map<LocaleID, ClassName> generate(Path outputDir, DataReader reader) throws IOException {
     Map<LocaleID, ClassName> numberClasses = new LinkedHashMap<>();
     
+    Map<LocaleID, UnitData> unitMap = reader.units();
+    
     for (Map.Entry<LocaleID, NumberData> entry : reader.numbers().entrySet()) {
       NumberData data = entry.getValue();
       LocaleID localeId = entry.getKey();
-      
+
       String className = "_NumberFormatter_" + localeId.safe;
-      TypeSpec type = create(data, className);
+      UnitData unitData = unitMap.get(localeId);
+      
+      TypeSpec type = create(data, unitData, className);
       CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_NUMBERS, className, type);
 
       ClassName cls = ClassName.get(PACKAGE_CLDR_NUMBERS, className);
@@ -90,7 +107,7 @@ public class NumberCodeGenerator {
   /**
    * Creates a number formatter class.
    */
-  private TypeSpec create(NumberData data, String className) {
+  private TypeSpec create(NumberData data, UnitData unitData, String className) {
     LocaleID id = data.id();
 
     // TODO: add descriptive javadoc to type
@@ -121,9 +138,20 @@ public class NumberCodeGenerator {
     args.addAll(getPatterns(data.currencyFormatStandard));
     
     fmt += "// currency accounting\n";
-    fmt += "patterns($S, $S)\n";
+    fmt += "patterns($S, $S),\n";
     args.addAll(getPatterns(data.currencyFormatAccounting));
 
+    fmt += "// units standard\n";
+    fmt += "patterns($S, $S)\n";
+    List<NumberPattern> unitPatterns = data.decimalFormatStandard.stream()
+        .map(p -> {
+          p = NUMBER_PARSER.parse(p.render());
+          p.format().setMaximumFractionDigits(1);
+          p.format().setMinimumFractionDigits(0);
+          return p;
+        }).collect(Collectors.toList());
+    args.addAll(getPatterns(unitPatterns));
+    
     fmt += ")";
 
     // Build the constructor.
@@ -135,22 +163,13 @@ public class NumberCodeGenerator {
     // Create a private instance of the NumberFormatterParams type
     addParams(type, id, data);
 
-    // Create fields for the basic formats.
-    type.addField(buildPatternField("DECIMAL_STANDARD", data.decimalFormatStandard));
-    type.addField(buildPatternField("PERCENT_STANDARD", data.percentFormatStandard));
-    type.addField(buildPatternField("CURRENCY_STANDARD", data.currencyFormatStandard));
-    type.addField(buildPatternField("CURRENCY_ACCOUNTING", data.currencyFormatAccounting));
-
-    // Create default patterns for compact forms.
-    List<NumberPattern> decimalCompact = makeCompactPatterns(data.decimalFormatStandard);
-    List<NumberPattern> currencyCompact = makeCompactPatterns(data.currencyFormatStandard);
-    type.addField(buildPatternField("DECIMAL_STANDARD_COMPACT", decimalCompact));
-    type.addField(buildPatternField("CURRENCY_STANDARD_COMPACT", currencyCompact));
+    addCompactPattern(type, "DECIMAL_SHORT", data.decimalFormatShort, false, data);
+    addCompactPattern(type, "DECIMAL_LONG", data.decimalFormatLong, false, data);
+    addCompactPattern(type, "CURRENCY_SHORT", data.currencyFormatShort, true, data);
     
-    // Create methods for pluralized patterns, which require some logic to choose.
-    addPluralPatterns(type, "DECIMAL_SHORT", data.decimalFormatShort, false, data);
-    addPluralPatterns(type, "DECIMAL_LONG", data.decimalFormatLong, false, data);
-    addPluralPatterns(type, "CURRENCY_SHORT", data.currencyFormatShort, true, data);
+    addUnitPattern(type, "UNITS_LONG", unitData.long_);
+    addUnitPattern(type, "UNITS_NARROW", unitData.narrow);
+    addUnitPattern(type, "UNITS_SHORT", unitData.short_);
     
     addCurrencyInfo(type, data);
     addUnitWrappers(type, data);
@@ -170,13 +189,13 @@ public class NumberCodeGenerator {
     
     MethodSpec.Builder code = MethodSpec.methodBuilder("getCurrencyDigits")
         .addModifiers(PUBLIC, STATIC)
-        .addParameter(String.class, "code")
+        .addParameter(Types.CLDR_CURRENCY_ENUM, "code")
         .returns(int.class);
     
     code.beginControlFlow("switch (code)");
     for (Map.Entry<String, CurrencyData> entry : currencies.entrySet()) {
       CurrencyData data = entry.getValue();
-      code.addStatement("case $S: return $L", entry.getKey(), data.digits);
+      code.addStatement("case $L: return $L", entry.getKey(), data.digits);
     }
     code.addStatement("default: return $L", defaultData.digits);
     code.endControlFlow();
@@ -190,7 +209,7 @@ public class NumberCodeGenerator {
    */
   private List<String> getPatterns(List<NumberPattern> patterns) {
     return patterns.stream()
-        .map(p -> p.pattern())
+        .map(p -> p.render())
         .collect(Collectors.toList());
   }
   
@@ -220,218 +239,184 @@ public class NumberCodeGenerator {
     parent.addType(params.build());
   }
 
-  /**
-   * Generates a field containing 2 number patterns [positive, negative].
-   */
-  private FieldSpec buildPatternField(String name, List<NumberPattern> patterns) {
-    return FieldSpec.builder(NumberPattern[].class, name, PUBLIC, STATIC, FINAL)
-        .initializer("patterns($S, $S)", patterns.get(0).pattern(), patterns.get(1).pattern())
-        .build();
-  }
-  
-  /**
-   * Group plural patterns by the divisor.
-   */
-  private void addPluralPatterns(
-      TypeSpec.Builder type, String name, Map<String, List<NumberPattern>> patterns, boolean currency,
-      NumberData data) {
+  private void addCompactPattern(
+    TypeSpec.Builder type, String name, Map<String, List<NumberPattern>> patternMap, boolean currency,
+    NumberData data) {
+
+    List<NumberPattern> stdPattern = currency ? data.currencyFormatStandard : data.decimalFormatStandard;
+    String[] standard = new String[] {
+        stdPattern.get(0).render(),
+        stdPattern.get(1).render()
+    };
     
-    Map<String, PluralPattern> patternMap = new LinkedHashMap<>();
-    for (Map.Entry<String, List<NumberPattern>> entry : patterns.entrySet()) {
+    // Group patterns by plural category. This associates a list with each category.
+    Map<PluralCategory, List<String[]>> grouped = new LinkedHashMap<>();
+    List<Integer> divisors = new ArrayList<>(Arrays.asList(0, 0, 0));
+    List<String> magnitudes = new ArrayList<>(Arrays.asList("1", "10", "100"));
+    
+    // Accumulate the patterns..
+    for (Map.Entry<String, List<NumberPattern>> entry : patternMap.entrySet()) {
       String key = entry.getKey();
       String[] parts = key.split("-");
-
-      PluralPattern pattern = patternMap.get(parts[0]);
-      if (pattern == null) {
-        pattern = new PluralPattern(new BigDecimal(parts[0]));
-        patternMap.put(parts[0], pattern);
-      }
-
+      
+      List<NumberPattern> patterns = entry.getValue();
       PluralCategory category = PluralCategory.fromString(parts[2]);
-      pattern.add(category, entry.getValue());
-    }
-    pluralPatternField(type, name, patternMap, currency, data);
-  }
-  
-  /**
-   * Create the fields used to format compact plural patterns.
-   */
-  private void pluralPatternField(
-      TypeSpec.Builder type, String name, Map<String, PluralPattern> patternMap, boolean currency,
-      NumberData data) {
-
-    List<FieldSpec> patternFields = new ArrayList<>();
-    List<FieldSpec> divisorFields = new ArrayList<>();
-
-    for (Map.Entry<String, PluralPattern> entry : patternMap.entrySet()) {
-      String magnitude = entry.getKey();
-      String shortMagnitude = MAGNITUDE_MAP.get(magnitude);
-      PluralPattern pattern = entry.getValue();
-
-      // Compute the divisor to scale down the magnitude.
-      int minIntDigits = pattern.format.minimumIntegerDigits();
-      int divisor = (int) Math.pow(10, (minIntDigits - 1));
-      BigDecimal n = new BigDecimal(magnitude);
-      n = n.divide(new BigDecimal(divisor));
-
-      // Create the pattern fields for each magnitude and plural category.
+      
+      List<String[]> group = grouped.get(category);
+      if (group == null) {
+        group = new ArrayList<>(Arrays.asList(standard, standard, standard));
+        grouped.put(category, group);
+      }
+      
+      // Append the (positive, negative) pattern pair.
+      String positive = patterns.get(0).render();
+      String negative = patterns.get(1).render();
       boolean defaulted = false;
-      for (Map.Entry<PluralCategory, List<NumberPattern>> plural : pattern.map.entrySet()) {
-        PluralCategory category = plural.getKey();
-        String fieldName = String.format("%s_%s_%s", name, shortMagnitude, category);
-        List<NumberPattern> patterns = plural.getValue();
-
-        // For any pattern that is explicitly "0" we substitute the standard format, but
-        // modified to be compact by default.
-        String positive = patterns.get(0).pattern();
-        if (positive.equals("0")) {
-          List<NumberPattern> standard = currency ? data.currencyFormatStandard : data.decimalFormatStandard;
-          patterns = makeCompactPatterns(standard);
-          defaulted = true;
+      if (positive.equals("0")) {
+        group.add(standard);
+        defaulted = true;
+      } else {
+        group.add(new String[] { positive, negative });
+      }
+      
+      // Compute the divisor to scale down the number being formatted.
+      if (category == PluralCategory.OTHER) {
+        String shortName = MAGNITUDE_MAP.get(parts[0]);
+        magnitudes.add(shortName);
+        if (defaulted) {
+          divisors.add(0);
+        } else {
+          int minIntDigits = patterns.get(0).format().minimumIntegerDigits();
+          int divisor = (int) Math.pow(10, (minIntDigits - 1));
+          BigDecimal n = new BigDecimal(parts[0]);
+          n = n.divide(new BigDecimal(divisor));     
+          divisors.add(n.precision() - 1);
         }
-
-        FieldSpec field = FieldSpec.builder(NumberPattern[].class, fieldName, PRIVATE, FINAL)
-            .initializer("patterns($S, $S)", patterns.get(0).pattern(), patterns.get(1).pattern())
-            .build();
-        patternFields.add(field);
       }
+    }
 
-      // Add the field we'll use to scale the number by a power of ten for compact forms.
-      String fieldName = String.format("%s_%s_SHIFT", name, shortMagnitude);
-      int scale = n.precision() - 1;
-      if (defaulted) {
-        scale = 1;
-      }
-      FieldSpec field = FieldSpec.builder(int.class, fieldName, PRIVATE, FINAL)
-          .initializer("$L", scale)
-          .build();
-      divisorFields.add(field);
-    }
-    
-    // Add the fields to the parent type.
-    for (FieldSpec field : patternFields) {
-      type.addField(field);
-    }
-    for (FieldSpec field : divisorFields) {
-      type.addField(field);
-    }
-    
-    pluralDivisorMethod(type, name, patternMap.keySet());
-    pluralPatternMethod(type, name, patternMap, currency);
-  }
-  
-  /**
-   * Converts a standard decimal or currency pattern into one usable for compact forms
-   * for numbers < 1000. We parse the pattern, modify it, then render it.
-   */
-  private List<NumberPattern> makeCompactPatterns(List<NumberPattern> standard) {
-    NumberPattern pos = NUMBER_PARSER.parse(standard.get(0).pattern());
-    NumberPattern neg = NUMBER_PARSER.parse(standard.get(1).pattern());
-    
-    pos.format().setMaximumFractionDigits(0);
-    pos.format().setMinimumFractionDigits(0);
- 
-    neg.format().setMaximumFractionDigits(0);
-    neg.format().setMinimumFractionDigits(0);
-    
-    NumberPattern positive = NUMBER_PARSER.parse(pos.render());
-    NumberPattern negative = NUMBER_PARSER.parse(neg.render());
+    // Add a divisors array.
+    String fieldName = String.format("%s_DIVISORS", name);
+    FieldSpec.Builder field = FieldSpec.builder(int[].class, fieldName, STATIC, FINAL, PROTECTED);
+    CodeBlock.Builder code = CodeBlock.builder();
+    code.add("new int[] { $L }", StringUtils.join(divisors, ","));
+    field.initializer(code.build());
+    type.addField(field.build());
 
-    return Arrays.asList(positive, negative);
-  }
-  
-  /**
-   * Creates the method that returns the correct divisor for a given pluralized pattern.
-   */
-  private void pluralDivisorMethod(TypeSpec.Builder type, String name, Set<String> magnitudes) {
-    MethodSpec.Builder method = MethodSpec.methodBuilder("getPowerOfTen_" + name)
+    // Add method to access divisors array.
+    MethodSpec.Builder method = MethodSpec.methodBuilder("getDivisor_" + name)
         .addModifiers(PROTECTED)
         .addParameter(int.class, "digits")
         .returns(int.class);
-
-    String magnitude = null;
-    int maxDigits = 0;
-    for (String key : magnitudes) {
-      maxDigits = Math.max(maxDigits, key.length());
-      magnitude = key;
-    }
-    
-    method.beginControlFlow("if (digits < 4)");
-    method.addStatement("return 0");
-    method.endControlFlow();
-
-    method.beginControlFlow("switch (digits)");
-    for (String key : magnitudes) {
-      String shortMagnitude = MAGNITUDE_MAP.get(key);
-      String fieldName = String.format("%s_%s_SHIFT", name, shortMagnitude);
-      int digits = key.length();
-      if (digits < maxDigits) {
-        method.addStatement("case $L: return $L", digits, fieldName);
-      }
-    }
-    
-    String shortMagnitude = MAGNITUDE_MAP.get(magnitude);
-    String fieldName = String.format("%s_%s_SHIFT", name, shortMagnitude);
-    method.addStatement("case $L:\ndefault: return $L", maxDigits, fieldName);
-    method.endControlFlow();
-
+    method.addStatement("int index = $T.min(14, $T.max(0, digits - 1))", Math.class, Math.class);
+    method.addStatement("return $L_DIVISORS[index]", name);
     type.addMethod(method.build());
-  }
-  
-  /**
-   * Creates the method that returns the correct pluralized pattern.
-   */
-  private void pluralPatternMethod(
-      TypeSpec.Builder type, String name, Map<String, PluralPattern> patternMap, boolean currency) {
     
-    MethodSpec.Builder method = MethodSpec.methodBuilder("getPattern_" + name)
+    // Add a field for each non-empty set of patterns.
+    for (Map.Entry<PluralCategory, List<String[]>> entry : grouped.entrySet()) {
+      PluralCategory category = entry.getKey();
+      fieldName = String.format("%s_%s", name, category);
+      field = FieldSpec.builder(NumberPattern[][].class, fieldName, STATIC, FINAL, PROTECTED);
+
+      code = CodeBlock.builder();
+      code.beginControlFlow("new $T", NumberPattern[][].class);
+      
+      List<String[]> patterns = entry.getValue();
+      int size = patterns.size();
+      for (int i = 0; i < size; i++) {
+        if (i > 0) {
+          code.add(",\n");
+        }
+        String[] pair = patterns.get(i);
+        String comment = String.format("%4s", magnitudes.get(i));
+        code.add("/* $L */  patterns($S, $S)", comment, pair[0], pair[1]);
+      }
+      code.endControlFlow();
+      field.initializer(code.build());
+      
+      type.addField(field.build());
+    }
+    
+    // Create a method to retrieve the correct pattern based on the number
+    // of digits and the plural category.
+    method = MethodSpec.methodBuilder("getPattern_" + name)
         .addModifiers(PROTECTED)
         .addParameter(int.class, "digits")
         .addParameter(PluralCategory.class, "category")
         .returns(NumberPattern[].class);
-    
-    method.beginControlFlow("if (digits < 4 || category == null)");
-    method.addStatement("return $L", currency ? "CURRENCY_STANDARD_COMPACT" : "DECIMAL_STANDARD_COMPACT");
+
+    method.beginControlFlow("if (category == null)");
+    method.addStatement("category = $T.OTHER", PluralCategory.class);
     method.endControlFlow();
-
-    int maxDigits = 0;
-    for (String key : patternMap.keySet()) {
-      maxDigits = Math.max(maxDigits, key.length());
-    }
     
-    method.beginControlFlow("switch (digits)");
-    for (Map.Entry<String, PluralPattern> entry : patternMap.entrySet()) {
-      String magnitude = entry.getKey();
-      String shortMagnitude = MAGNITUDE_MAP.get(magnitude);
-      PluralPattern pattern = entry.getValue();
-
-      int digits = magnitude.length();
-      if (digits < maxDigits) {
-        method.beginControlFlow("case $L:", digits);
+    method.addStatement("int index = $T.min(14, $T.max(0, digits - 1))", Math.class, Math.class);
+    method.beginControlFlow("switch (category)");
+    
+    for (PluralCategory category : grouped.keySet()) {
+      fieldName = String.format("%s_%s", name, category);
+      if (category == PluralCategory.OTHER) {
+        method.addStatement("case $L:\ndefault: return $L[index]", category, fieldName);
       } else {
-        method.beginControlFlow("case $L: default:", digits);
+        method.addStatement("case $L: return $L[index]", category, fieldName);
       }
+    }
 
-      method.beginControlFlow("switch (category)");
+    method.endControlFlow();
+    type.addMethod(method.build());
+  }
+
+  private void addUnitPattern(TypeSpec.Builder type, String name, UnitPatterns unitPatterns) {
+    Set<PluralCategory> categories = new LinkedHashSet<>();
+    for (PluralCategory category : PluralCategory.values()) {
+      boolean found = false;
       
-      // Create the pattern fields for each magnitude and plural category.
-      for (Map.Entry<PluralCategory, List<NumberPattern>> plural : pattern.map.entrySet()) {
-        PluralCategory category = plural.getKey();
-        String fieldName = String.format("%s_%s_%s", name, shortMagnitude, category);
-        if (category != PluralCategory.OTHER) {
-          method.addStatement("case $L: return $L", category, fieldName);
+      // Add fields holding the units for this plural category.
+      String fieldName = String.format("%s_%s", name, category.name());
+      FieldSpec.Builder field = FieldSpec.builder(MAP_UNIT_LIST_UNITPATTERN, fieldName, STATIC, FINAL, PROTECTED);
+      CodeBlock.Builder code = CodeBlock.builder();
+      code.add("new $T<$T, $T>($T.class) {{\n", Types.ENUM_MAP, Types.UNIT, Types.LIST_UNITPATTERN, Types.UNIT);
+      for (Map.Entry<Unit, UnitPattern> entry : unitPatterns.unitPatterns.entrySet()) {
+        String pattern = entry.getValue().patterns.get(category);
+        if (pattern == null) {
+          break;
         }
+        
+        found = true;
+        categories.add(category);
+        Unit unit = entry.getKey();
+        code.addStatement("  put($T.$L, unitPattern($S))", Types.UNIT, unit, pattern);
       }
-
-      String fieldName = String.format("%s_%s_OTHER", name, shortMagnitude);
-      method.addStatement("case $L:\ndefault: return $L", PluralCategory.OTHER, fieldName);
-
-      method.endControlFlow();
-      method.endControlFlow();
+      
+      if (!found) {
+        continue;
+      }
+      
+      code.add("}}");
+      field.initializer(code.build());
+      type.addField(field.build());
+    }
+    
+    // Add unit format accessor methods
+    MethodSpec.Builder method = MethodSpec.methodBuilder("getPattern_" + name)
+        .addModifiers(PROTECTED)
+        .addParameter(Types.UNIT, "unit")
+        .addParameter(PluralCategory.class, "category")
+        .returns(Types.LIST_UNITPATTERN);
+    
+    method.beginControlFlow("if (category == null)");
+    method.addStatement("category = $T.OTHER", PluralCategory.class);
+    method.endControlFlow();
+    
+    method.beginControlFlow("switch (category)");
+    for (PluralCategory category : categories) {
+      if (category == PluralCategory.OTHER) {
+        method.addStatement("case $L: default: return $L_$L.get(unit)", category, name, category);
+      } else {
+        method.addStatement("case $L: return $L_$L.get(unit)", category, name, category);
+      }
     }
     
     method.endControlFlow();
-
     type.addMethod(method.build());
   }
   
@@ -445,7 +430,7 @@ public class NumberCodeGenerator {
 
     MethodSpec.Builder method = MethodSpec.methodBuilder("getCurrencyPluralName")
         .addModifiers(PROTECTED)
-        .addParameter(String.class, "code")
+        .addParameter(Types.CLDR_CURRENCY_ENUM, "code")
         .addParameter(PluralCategory.class, "category")
         .returns(String.class);
 
@@ -457,7 +442,7 @@ public class NumberCodeGenerator {
         continue;
       }
       
-      method.beginControlFlow("case $S:", code);
+      method.beginControlFlow("case $L:", code);
       method.beginControlFlow("switch (category)");
       for (Map.Entry<String, String> entry : mapping.entrySet()) {
         String[] parts = entry.getKey().split("-");
@@ -479,7 +464,7 @@ public class NumberCodeGenerator {
     
     method = MethodSpec.methodBuilder("getCurrencyDigits")
         .addModifiers(PUBLIC)
-        .addParameter(String.class, "code")
+        .addParameter(Types.CLDR_CURRENCY_ENUM, "code")
         .returns(int.class);
     method.addStatement("return _CurrencyUtil.getCurrencyDigits(code)");
     type.addMethod(method.build());
@@ -491,14 +476,23 @@ public class NumberCodeGenerator {
   private void addCurrencyInfoMethod(TypeSpec.Builder type, String name, Map<String, String> mapping) {
     MethodSpec.Builder method = MethodSpec.methodBuilder(name)
         .addModifiers(PUBLIC)
-        .addParameter(String.class, "code")
+        .addParameter(Types.CLDR_CURRENCY_ENUM, "code")
         .returns(String.class);
 
+    method.beginControlFlow("if (code == null)");
+    method.addStatement("return $S", "");
+    method.endControlFlow();
+    
     method.beginControlFlow("switch (code)");
     for (Map.Entry<String, String> entry : mapping.entrySet()) {
-      method.addStatement("case $S: return $S", entry.getKey(), entry.getValue());
+      String key = entry.getKey();
+      String val = entry.getValue();
+      if (!key.equals(val)) {
+        method.addStatement("case $L: return $S", key, val);
+      }
     }
-    method.addStatement("default: return $S", "");
+    
+    method.addStatement("default: return code.name()");
     method.endControlFlow();
     type.addMethod(method.build());
   }
@@ -515,17 +509,11 @@ public class NumberCodeGenerator {
         .addParameter(String.class, "unit")
         .addParameter(StringBuilder.class, "dest");
     
-    method.beginControlFlow("switch (category)");
-    for (Map.Entry<String, String> entry : data.currencyUnitPattern.entrySet()) {
-      String[] parts = entry.getKey().split("-");
-      PluralCategory category = PluralCategory.fromString(parts[2]);
-      String pattern = entry.getValue();
-      List<Node> nodes = WRAPPER_PARSER.parseWrapper(pattern);
-      if (category != PluralCategory.OTHER) {
-        method.beginControlFlow("case $L:", category);
-      } else {
-        method.beginControlFlow("case $L:\ndefault:", category);
-      }
+    
+    List<String> patterns = new ArrayList<>(new HashSet<>(data.currencyUnitPattern.values()));
+    if (patterns.size() == 1) {
+      // Short cut if all patterns are the same.
+      List<Node> nodes = WRAPPER_PARSER.parseWrapper(patterns.get(0));
       for (Node node : nodes) {
         if (node instanceof Field) {
           Field field = (Field)node;
@@ -538,10 +526,35 @@ public class NumberCodeGenerator {
           method.addStatement("dest.append($S)", ((Text)node).text());
         }
       }
-      method.addStatement("break");
+    } else {
+      method.beginControlFlow("switch (category)");
+      for (Map.Entry<String, String> entry : data.currencyUnitPattern.entrySet()) {
+        String[] parts = entry.getKey().split("-");
+        PluralCategory category = PluralCategory.fromString(parts[2]);
+        String pattern = entry.getValue();
+        List<Node> nodes = WRAPPER_PARSER.parseWrapper(pattern);
+        if (category != PluralCategory.OTHER) {
+          method.beginControlFlow("case $L:", category);
+        } else {
+          method.beginControlFlow("case $L:\ndefault:", category);
+        }
+        for (Node node : nodes) {
+          if (node instanceof Field) {
+            Field field = (Field)node;
+            if (field.ch() == '0') {
+              method.addStatement("dbuf.appendTo(dest)");
+            } else {
+              method.addStatement("dest.append(unit)");
+            }
+          } else if (node instanceof Text) {
+            method.addStatement("dest.append($S)", ((Text)node).text());
+          }
+        }
+        method.addStatement("break");
+        method.endControlFlow();
+      }
       method.endControlFlow();
     }
-    method.endControlFlow();
     
     type.addMethod(method.build());
   }
@@ -562,40 +575,6 @@ public class NumberCodeGenerator {
     MAGNITUDE_MAP.put("1000000000000", "1T");
     MAGNITUDE_MAP.put("10000000000000", "10T");
     MAGNITUDE_MAP.put("100000000000000", "100T");
-  }
-
-  /**
-   * Temporary class to group plural patterns by magnitude and category.
-   */
-  static class PluralPattern {
-    
-    private BigDecimal factor;
-
-    private Map<PluralCategory, List<NumberPattern>> map = new LinkedHashMap<>();
-
-    // Base format common to all plural forms for this pattern.
-    private Format format;
-    
-    public PluralPattern(BigDecimal factor) {
-      this.factor = factor;
-    }
-    
-    public BigDecimal factor() {
-      return factor;
-    }
-    
-    public void add(PluralCategory category, List<NumberPattern> patterns) {
-      for (NumberPattern p : patterns) {
-        if (format == null) {
-          format = p.format();
-        } else if (!p.format().equals(format)) {
-          throw new RuntimeException("Fatal error: found plural number patterns that differ in base format:\n"
-              + format + "\n" + p.format());
-        }
-      }
-      map.put(category, patterns);
-    }
-    
   }
 
 }

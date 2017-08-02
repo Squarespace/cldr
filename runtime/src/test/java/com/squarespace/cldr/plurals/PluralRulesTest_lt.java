@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import com.squarespace.cldr.CLDR;
 
 
-public class PluralCategoryTest_lt extends PluralBaseTest {
+public class PluralRulesTest_lt extends PluralBaseTest {
 
   @Test
   public void testCardinal() {

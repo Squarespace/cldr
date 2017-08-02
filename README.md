@@ -1,8 +1,7 @@
 
 squarespace-cldr - Java CLDR code generation.
 
-WARNING: This code is a work in progress, and the API will likely change
-significantly in the near future.
+WARNING: This code is a work in progress and the API may change.
 
 See: http://cldr.unicode.org/
 
@@ -10,6 +9,60 @@ See: http://cldr.unicode.org/
 [![Coverage Status](https://coveralls.io/repos/github/Squarespace/cldr/badge.svg)](https://coveralls.io/github/Squarespace/cldr)
 
 License: [Apache 2.0](LICENSE)
+
+### Resolving Locales
+
+```java
+CLDR.Locale locale = CLDR.get().get("zh-Hant-CN");
+System.out.println(locale);
+```
+
+> "zh"
+
+```java
+locale = CLDR.get().get("zh-Hant-HK");
+System.out.println(locale);
+System.out.printf("%s / %s / %s\n", locale.language(), locale.script(), locale.territory());
+```
+
+> "zh-Hant-HK"
+
+> "zh / Hant / HK"
+
+```java
+locale = CLDR.get().get("sr-RU");
+System.out.println(locale);
+```
+
+> "sr"
+
+```java
+locale = CLDR.get().get(java.util.Locale.CANADA_FRENCH);
+System.out.println(locale);
+```
+
+> "fr-CA"
+
+```java
+locale = CLDR.get().get("en_XY");
+System.out.println(locale);
+```
+
+> "en"
+
+```java
+locale = CLDR.get().get("und-Zzzz-ZZ");
+System.out.println(locale);
+```
+
+> "en-US"
+
+```java
+locale = CLDR.get().get(java.util.Locale.JAPANESE);
+System.out.println(locale);
+```
+
+> "ja-JP"
 
 ### Accessing Formatters
 
@@ -216,6 +269,220 @@ f.formatDecimal(n, buffer, options);
 
 > "50%"
 
+#### Compact forms
+
+```java
+n = new BigDecimal("999.95");
+
+options = new DecimalFormatOptions(DecimalFormatStyle.LONG);
+f.formatDecimal(n, buffer, options);
+```
+
+> "1 thousand"
+
+```java
+CLDR.get().getNumberFormatter(CLDR.Locale.fr).formatDecimal(n, buffer, options);
+```
+
+> "1 millier"
+
+Pattern is chosen using plural category of the visible number.
+
+```java
+for (String num : new String[] { "1000", "1200", "2000", "5000" }) {
+    n = new BigDecimal(num);
+    CLDR.get().getNumberFormatter(CLDR.Locale.pl).formatDecimal(n, buffer, options);
+}
+```
+
+> "1 tysiąc"
+
+> "1,2 tysiąca"
+
+> "2 tysiące"
+
+> "5 tysięcy"
+
+### Unit formatting
+
+```java
+StringBuilder buffer = new StringBuilder();
+UnitFormatOptions options = new UnitFormatOptions();
+NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+
+UnitConverter converter = CLDR.get().getUnitConverter(CLDR.Locale.en_CA);
+System.out.println(converter.measurementSystem());
+```
+
+> METRIC
+
+```java
+converter = CLDR.get().getUnitConverter(CLDR.Locale.en_GB);
+System.out.println(converter.measurementSystem());
+```
+
+> UK
+
+
+```java
+converter = CLDR.get().getUnitConverter(CLDR.Locale.en_US);
+System.out.println(converter.measurementSystem());
+```
+
+> US
+
+```java
+UnitValue value = new UnitValue(("1234567", Unit.FOOT);
+UnitValue converted = converter.convert(value, Unit.KILOMETER);
+f.formatUnit(converted, buffer, options);
+System.out.println(converted);
+System.out.println(buffer)
+```
+
+> UnitValue(376.2960216, KILOMETER)
+
+> "376.3km"
+
+```java
+value = new UnitValue("125.785", Unit.MEGABYTE);
+f.formatUnit(value, buffer, options);
+```
+
+> "125.8MB"
+
+```java
+converted = converter.convert(value, Unit.GIGABYTE);
+f.formatUnit(converted, buffer, options);
+System.out.println(converted);
+System.out.println(buffer);
+```
+
+> UnitValue(0.1228369140625, GIGABYTE)
+
+> "0.1GB"
+
+```java
+options.setGrouping(true);
+value = new UnitValue("112233445566778899", Unit.BYTE);
+converted = converter.bytes(value);
+f.formatUnit(converted, buffer, options);
+```
+
+> "102,075.7TB"
+
+```java
+options = new UnitFormatOptions(UnitFormat.LONG).setGrouping(true);
+f = CLDR.get().getNumberFormatter(CLDR.Locale.fr);
+f.formatUnit(converted, buffer, options);
+```
+
+> "102075,7 téraoctets"
+
+
+#### Unit sequence formatting
+
+```java
+StringBuilder buffer = new StringBuilder();
+UnitFormatOptions longOptions = new UnitFormatOptions(UnitFormat.LONG);
+UnitFormatOptions narrowOptions = new UnitFormatOptions(UnitFormat.NARROW);
+
+UnitConverter converter = CLDR.get().getUnitConverter(CLDR.Locale.en_US);
+UnitValue degrees = new UnitValue("13.536613", Unit.DEGREE);
+List<UnitValue> angle = converter.sequence(degrees, UnitConstants.ANGLE_FACTORS);
+System.out.println(angle);
+```
+
+> [UnitValue(13, DEGREE), UnitValue(32, ARC_MINUTE), UnitValue(11.8068, ARC_SECOND)]
+
+```java
+NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+fmt.formatUnits(angle, buffer, longOptions);
+```
+
+> "13 degrees 32 arcminutes 11.8 arcseconds"
+
+```java
+buffer.setLength(0);
+fmt.formatUnits(angle, buffer, narrowOptions);
+```
+
+> "13° 32′ 11.8″"
+
+```java
+buffer.setLength(0);
+UnitValue days = new UnitValue("753", Unit.DAY);
+List<UnitValue> duration = converter.sequence(days, UnitConstants.DURATION_FACTORS);
+fmt.formatUnits(duration, buffer, longOptions);
+```
+
+> "2 years 22 days 12 hours 21 minutes 36 seconds"
+
+```java
+fmt.formatUnits(duration, buffer, narrowOptions);
+```
+
+> "2y 22d 12h 21m 36s"
+
+```java
+fmt = CLDR.get().getNumberFormatter(CLDR.Locale.ko);
+fmt.formatUnits(duration, buffer, narrowOptions);
+```
+
+> "2년 22일 12시간 21분 36초"
+
+#### Formatting with custom unit factor sets
+
+```java
+fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+days = new UnitValue("753.35", Unit.DAY);
+UnitFactorSet durationFactors = new UnitFactorSet(UnitFactors.DURATION, Unit.WEEK, Unit.HOUR);
+duration = converter.sequence(days, durationFactors);
+System.out.println(duration);
+```
+
+> [UnitValue(107, WEEK), UnitValue(104.4, HOUR)]
+
+```java
+fmt.formatUnits(duration, buffer, longOptions);
+```
+> "107 weeks 104.4 hours"
+
+```java
+UnitValue inches = new UnitValue("1234567", Unit.INCH);
+UnitFactorSet lengthFactors = new UnitFactorSet(UnitFactors.LENGTH, Unit.MILE, Unit.FOOT);
+List<UnitValue> length = converter.sequence(inches, lengthFactors);
+System.out.println(length);
+```
+
+> [UnitValue(19, MILE), UnitValue(2560.583333333333, FOOT)]
+
+```java
+fmt.formatUnits(length, buffer, narrowOptions);
+```
+
+> "19mi 2560.6′"
+
+#### Switching on Metric vs English
+
+```java
+for (CLDR.Locale locale : new CLDR.Locale[] { CLDR.Locale.en_CA, CLDR.Locale.en_US }) {
+    converter = CLDR.get().getUnitConverter(locale);
+    if (converter.measurementSystem().usesMetric(UnitCategory.LENGTH)) {
+        lengthFactors = UnitFactorSets.LENGTH;
+    } else {
+        lengthFactors = UnitFactorSets.LENGTH_ENGLISH;
+    }
+    length = converter.sequence(inches, lengthFactors);
+
+    buffer.append(locale).append("  ");
+    fmt.formatUnits(length, buffer, longOptions);
+    buffer.append('\n');
+}
+```
+> "en-CA  31 kilometers 358 meters 0.2 centimeters"
+
+> "en-US  19 miles 853 yards 1 foot 7 inches"
+
 
 ### Currency formatting
 
@@ -278,3 +545,9 @@ f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 ```
 
 > "$1M"
+
+```java
+f.formatCurrency(n, CLDR.Currency.EUR, buffer, options);
+```
+
+> "€1M"

@@ -50,7 +50,7 @@ public class NumberFormatterStress {
     CLDR cldr = CLDR.get();
 
     CLDR.Locale locale = CLDR.Locale.en_US;
-    String currency = CLDR.Currency.USD;
+    CLDR.Currency currency = CLDR.Currency.USD;
 
     List<BigDecimal> nums = new ArrayList<>();
     for (String num : numbers) {

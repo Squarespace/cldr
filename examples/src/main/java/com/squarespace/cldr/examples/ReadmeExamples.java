@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.dates.CalendarFormat;
@@ -20,15 +21,61 @@ import com.squarespace.cldr.numbers.DecimalFormatStyle;
 import com.squarespace.cldr.numbers.NumberFormatMode;
 import com.squarespace.cldr.numbers.NumberFormatter;
 import com.squarespace.cldr.numbers.NumberRoundMode;
+import com.squarespace.cldr.units.Unit;
+import com.squarespace.cldr.units.UnitCategory;
+import com.squarespace.cldr.units.UnitConverter;
+import com.squarespace.cldr.units.UnitFactorSet;
+import com.squarespace.cldr.units.UnitFactorSets;
+import com.squarespace.cldr.units.UnitFactors;
+import com.squarespace.cldr.units.UnitFormat;
+import com.squarespace.cldr.units.UnitFormatOptions;
+import com.squarespace.cldr.units.UnitValue;
+
 
 public class ReadmeExamples {
 
   public static void main(String[] args) {
+    locales();
     access();
     datetime();
     datetimeIntervals();
     numbers();
+    numbersCompact();
     currencies();
+    units();
+    unitSequences();
+  }
+  
+  private static void locales() {
+    CLDR.Locale locale = CLDR.get().get("zh-Hant-CN");
+    System.out.println(locale);
+    // zh
+
+    locale = CLDR.get().get("zh-Hant-HK");
+    System.out.println(locale);
+    System.out.printf("%s / %s / %s\n", locale.language(), locale.script(), locale.territory());
+    // zh-Hant-HK
+    // zh / Hant / HK
+    
+    locale = CLDR.get().get("sr-RU");
+    System.out.println(locale);
+    // sr
+    
+    locale = CLDR.get().get(java.util.Locale.CANADA_FRENCH);
+    System.out.println(locale);
+    // fr-CA
+    
+    locale = CLDR.get().get("en_XY");
+    System.out.println(locale);
+    // en
+    
+    locale = CLDR.get().get("und-Zzzz-ZZ");
+    System.out.println(locale);
+    // en-US
+    
+    locale = CLDR.get().get(java.util.Locale.JAPANESE);
+    System.out.println(locale);
+    // ja-JP
   }
   
   private static void access() {
@@ -79,7 +126,7 @@ public class ReadmeExamples {
     f.formatDecimal(n, buffer, options);
     System.out.println(buffer);
     // 10,000.00
-    
+
     n = new BigDecimal("0.5");
     
     buffer.setLength(0);
@@ -88,7 +135,177 @@ public class ReadmeExamples {
     System.out.println(buffer);
     // 50%
   }
+
+  private static void numbersCompact() {
+    StringBuilder buffer = new StringBuilder();
+    BigDecimal n = new BigDecimal("999.95");
+    
+    DecimalFormatOptions options = new DecimalFormatOptions(DecimalFormatStyle.LONG);
+    NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+    f.formatDecimal(n, buffer, options);
+    System.out.println(buffer);
+    // 1 thousand
+
+    buffer.setLength(0);
+    CLDR.get().getNumberFormatter(CLDR.Locale.fr).formatDecimal(n, buffer, options);
+    System.out.println(buffer);
+    // 1 millier
+
+    for (String num : new String[] { "1000", "1200", "2000", "5000" }) {
+      n = new BigDecimal(num);
+
+      buffer.setLength(0);
+      CLDR.get().getNumberFormatter(CLDR.Locale.pl).formatDecimal(n, buffer, options);
+      System.out.println(buffer);
+    }
+    // 1 tysiąc
+    // 1,2 tysiąca
+    // 2 tysiące
+    // 5 tysięcy
+  }
   
+  private static void units() {
+    NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+
+    StringBuilder buffer = new StringBuilder();
+
+    UnitFormatOptions options = new UnitFormatOptions();
+
+    UnitConverter converter = CLDR.get().getUnitConverter(CLDR.Locale.en_CA);
+    System.out.println(converter.measurementSystem());
+    // METRIC
+    
+    converter = CLDR.get().getUnitConverter(CLDR.Locale.en_GB);
+    System.out.println(converter.measurementSystem());
+    // UK
+
+    converter = CLDR.get().getUnitConverter(CLDR.Locale.en_US);
+    System.out.println(converter.measurementSystem());
+    // US
+    
+    UnitValue value = new UnitValue("1234567", Unit.FOOT);
+    UnitValue converted = converter.convert(value, Unit.KILOMETER);
+    System.out.println(converted);
+    // UnitValue(376.2960216, KILOMETER)
+    
+    f.formatUnit(converted, buffer, options);
+    System.out.println(buffer);
+    // 376.3 km
+    
+    value = new UnitValue("125.785", Unit.MEGABYTE);
+
+    buffer.setLength(0);
+    f.formatUnit(value, buffer, options);
+    System.out.println(buffer);
+    // 125.8MB
+    
+    converted = converter.convert(value, Unit.GIGABYTE);
+    System.out.println(converted);
+    // UnitValue(0.1228369140625, GIGABYTE)
+    
+    buffer.setLength(0);
+    f.formatUnit(converted, buffer, options);
+    System.out.println(buffer);
+    // 0.1GB
+
+    buffer.setLength(0);
+    options.setGrouping(true);
+    value = new UnitValue("112233445566778899", Unit.BYTE);
+    converted = converter.convert(value, UnitFactorSets.DIGITAL_BYTES);
+    f.formatUnit(converted, buffer, options);
+    System.out.println(buffer);
+    // 102,075.7TB
+
+    options = new UnitFormatOptions(UnitFormat.LONG).setGrouping(true);
+    buffer.setLength(0);
+    f = CLDR.get().getNumberFormatter(CLDR.Locale.fr);
+    f.formatUnit(converted, buffer, options);
+    System.out.println(buffer);
+    // 102 075,7 téraoctets
+  }
+  
+  private static void unitSequences() {
+    StringBuilder buffer = new StringBuilder();
+
+    UnitFormatOptions longOptions = new UnitFormatOptions(UnitFormat.LONG);
+    UnitFormatOptions narrowOptions = new UnitFormatOptions(UnitFormat.NARROW);
+    
+    UnitConverter converter = CLDR.get().getUnitConverter(CLDR.Locale.en_US);
+    UnitValue degrees = new UnitValue("13.536613", Unit.DEGREE);
+    List<UnitValue> angle = converter.sequence(degrees, UnitFactorSets.ANGLE);
+    System.out.println(angle);
+    // [UnitValue(13, DEGREE), UnitValue(32, ARC_MINUTE), UnitValue(11.8068, ARC_SECOND)]
+    
+    NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+    fmt.formatUnits(angle, buffer, longOptions);
+    System.out.println(buffer);
+    // 13 degrees 32 arcminutes 11.8 arcseconds
+
+    buffer.setLength(0);
+    fmt.formatUnits(angle, buffer, narrowOptions);
+    System.out.println(buffer);
+    // 13° 32′ 11.8″
+    
+    buffer.setLength(0);
+    UnitValue days = new UnitValue("753", Unit.DAY);
+    List<UnitValue> duration = converter.sequence(days, UnitFactorSets.DURATION);
+    fmt.formatUnits(duration, buffer, longOptions);
+    System.out.println(buffer);
+    // 2 years 22 days 12 hours 21 minutes 36 seconds
+    
+    buffer.setLength(0);
+    fmt.formatUnits(duration, buffer, narrowOptions);
+    System.out.println(buffer);
+    // 2y 22d 12h 21m 36s
+
+    buffer.setLength(0);
+    fmt = CLDR.get().getNumberFormatter(CLDR.Locale.ko);
+    fmt.formatUnits(duration, buffer, narrowOptions);
+    System.out.println(buffer);
+    // 2년 22일 12시간 21분 36초
+    
+    buffer.setLength(0);
+    fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+    days = new UnitValue("753.35", Unit.DAY);
+    UnitFactorSet durationFactors = new UnitFactorSet(UnitFactors.DURATION, Unit.WEEK, Unit.HOUR);
+    duration = converter.sequence(days, durationFactors);
+    System.out.println(duration);
+    // [UnitValue(107, WEEK), UnitValue(104.4, HOUR)]
+    
+    fmt.formatUnits(duration, buffer, longOptions);
+    System.out.println(buffer);
+    // 107 weeks 104.4 hours 
+    
+    buffer.setLength(0);
+    UnitValue inches = new UnitValue("1234567", Unit.INCH);
+    UnitFactorSet lengthFactors = new UnitFactorSet(UnitFactors.LENGTH, Unit.MILE, Unit.FOOT);
+    List<UnitValue> length = converter.sequence(inches, lengthFactors);
+    System.out.println(length);
+    // [UnitValue(19, MILE), UnitValue(2560.583333333333, FOOT)]
+    
+    fmt.formatUnits(length, buffer, narrowOptions);
+    System.out.println(buffer);
+    // 19mi 2560.6′
+
+    buffer.setLength(0);
+    for (CLDR.Locale locale : new CLDR.Locale[] { CLDR.Locale.en_CA, CLDR.Locale.en_US }) {
+      converter = CLDR.get().getUnitConverter(locale);
+      if (converter.measurementSystem().usesMetric(UnitCategory.LENGTH)) {
+        lengthFactors = UnitFactorSets.LENGTH;
+      } else {
+        lengthFactors = UnitFactorSets.LENGTH_ENGLISH;
+      }
+      length = converter.sequence(inches, lengthFactors);
+      
+      buffer.append(locale).append(' ');
+      fmt.formatUnits(length, buffer, longOptions);
+      buffer.append('\n');
+    }
+    System.out.println(buffer);
+    // en-CA  31 kilometers 358 meters 0.2 centimeters
+    // en-US  19 miles 853 yards 1 foot 7 inches
+  }
+
   private static void currencies() {
     NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
     
@@ -151,7 +368,11 @@ public class ReadmeExamples {
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
     System.out.println(buffer);
     // $1M
-    
+
+    buffer.setLength(0);
+    f.formatCurrency(n, CLDR.Currency.EUR, buffer, options);
+    System.out.println(buffer);
+    // €1M
   }
   
   private static void datetimeIntervals() {
@@ -201,24 +422,6 @@ public class ReadmeExamples {
     DateTimeField field = CalendarUtils.fieldOfGreatestDifference(start, end);
     System.out.println(field);
     // MONTH
-
-    // TODO: future. need to enable wrapping date with time range by exposing
-    // the localized wrapper function.
-//    switch (CalendarUtils.fieldOfGreatestDifference(start, end)) {
-//      case YEAR:
-//      case MONTH:
-//      case DAY:
-//        f.format(start, end, DateTimeIntervalSkeleton.yMMMd, buffer);
-//        break;
-//        
-//      default:
-//        CalendarFormatOptions options = new CalendarFormatOptions();
-//        options.setDateSkeleton(CalendarSkeleton.yMMMd);
-//        f.format(start, options, buffer);
-//        buffer.append('\u00a0');
-//        f.format(start, end, DateTimeIntervalSkeleton.hmv, buffer);  
-//        break;
-//    }
   }
   
   private static void datetime() {

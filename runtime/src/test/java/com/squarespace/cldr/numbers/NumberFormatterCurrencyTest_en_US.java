@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.squarespace.cldr.CLDR;
 
 
-public class NumberFormatterCurrencyTest_en_US extends NumberFormatterBaseTest {
+public class NumberFormatterCurrencyTest_en_US extends NumberFormatterTestBase {
 
   private final List<Pair> NUMBERS = numbers(
       "0"
@@ -103,27 +103,6 @@ public class NumberFormatterCurrencyTest_en_US extends NumberFormatterBaseTest {
         pair("$0", "$0"),
         pair("$1", "-$1"),
         pair("$1", "-$1"),
-        pair("$4", "-$4"),
-        pair("$1K", "-$1K"),
-        pair("$12K", "-$12K"),
-        pair("$100K", "-$100K"),
-        pair("$1M", "-$1M"),
-        pair("$1M", "-$1M"),
-        pair("$10B", "-$10B")
-    ));
-  }
-
-  @Test
-  public void testShortSignificant() {
-    CurrencyFormatOptions options = currency(SHORT)
-        .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC)
-        .setMaximumFractionDigits(1)
-        .setGrouping(true);
-       
-    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
-        pair("$0", "$0"),
-        pair("$1", "-$1"),
-        pair("$1", "-$1"),
         pair("$3.6", "-$3.6"),
         pair("$1.2K", "-$1.2K"),
         pair("$12.3K", "-$12.3K"),
@@ -132,8 +111,31 @@ public class NumberFormatterCurrencyTest_en_US extends NumberFormatterBaseTest {
         pair("$1.2M", "-$1.2M"),
         pair("$10B", "-$10B")
     ));
-    
-    options.setMaximumFractionDigits(2).setMaximumSignificantDigits(5);
+
+  }
+
+  @Test
+  public void testShortSignificant() {
+    CurrencyFormatOptions options = currency(SHORT)
+        .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC)
+        .setMaximumFractionDigits(0)
+        .setGrouping(true);
+       
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+        pair("$0", "$0"),
+        pair("$1", "-$1"),
+        pair("$1", "-$1"),
+        pair("$4", "-$4"),
+        pair("$1K", "-$1K"),
+        pair("$12K", "-$12K"),
+        pair("$100K", "-$100K"),
+        pair("$1M", "-$1M"),
+        pair("$1M", "-$1M"),
+        pair("$10B", "-$10B")
+    ));
+
+    int currencyDigits = _CurrencyUtil.getCurrencyDigits(CLDR.Currency.USD);
+    options.setMaximumFractionDigits(currencyDigits).setMaximumSignificantDigits(50);
 
     test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("$0", "$0"),

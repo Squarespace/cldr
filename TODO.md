@@ -6,6 +6,12 @@
 
 ### Update unit test and benchmarks with timezone support
 
+### Intern strings and duplicate constants to reduce jar size
+
+Many of the strings are duplicated across many locales and can be defined in
+one place as constants and referenced.
+
+
 
 ### Improve the catch-22 pluralized number patterns.
 
@@ -59,12 +65,6 @@ http://www.unicode.org/reports/tr35/tr35-35/tr35-general.html#Unit_Sequences
 Joining lists together with commas, AND and OR.
 
 http://www.unicode.org/reports/tr35/tr35-general.html#ListPatterns
-
-
-### Intern strings and duplicate constants to reduce jar size
-
-Many of the strings are duplicated across many locales and can be defined in
-one place as constants and referenced.
 
 
 ### Support at-least and ranges for decimals, currencies and units.
@@ -122,7 +122,7 @@ currency, the narrow symbol may be more appropriate (e.g. '$').  On a global
 currency selector we want to use the localized symbols exclusively (e.g. 'AU$',
 'US$')
 
-For the currency calls we could add an enum option SymbolWidth with DEFAULT 
+For the currency calls we could add an enum option SymbolWidth with DEFAULT
 (global) NARROW (context-dependent).
 
 See:
@@ -160,7 +160,7 @@ a min/max significant digit value of 2 or 3. Both can be overridden by the
 user options.
 
 Need to update the code generator to generate this modified default pattern.
-Added rendering of patterns so we can generate a modified format off a 
+Added rendering of patterns so we can generate a modified format off a
 pattern, e.g. changing maxFrac to 0 for compact forms.
 
 
@@ -183,11 +183,11 @@ Procedure:
  f. 7 digits chooses pattern "0M"
  g. redivide and format.
 
-### Rounding issues for pluralized formatting. 
+### Rounding issues for pluralized formatting.
 
 We select pluralized patterns using the plural of the original number value.
 However, fractional digits affect the pluralized form, so we may choose
-a plural pattern when the result should be singular. 
+a plural pattern when the result should be singular.
 
 When truncating fractions above, pluralization can change. Need to handle:
 
