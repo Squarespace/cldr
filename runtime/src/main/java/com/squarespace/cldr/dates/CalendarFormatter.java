@@ -25,4 +25,9 @@ public interface CalendarFormatter {
    */
   void formatField(ZonedDateTime datetime, char field, int width, StringBuilder buffer);
   
+  /**
+   * Format a single field based on the first character in the pattern.
+   */
+  void formatField(ZonedDateTime datetime, String pattern, StringBuilder buffer);
+  
 }

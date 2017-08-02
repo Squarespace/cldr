@@ -162,7 +162,7 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
    * Formats a single field, based on the first character in the pattern string,
    * with repeated characters indicating the field width.
    */
-  public void formatField(String pattern, ZonedDateTime datetime, StringBuilder buffer) {
+  public void formatField(ZonedDateTime datetime, String pattern, StringBuilder buffer) {
     int length = pattern.length();
     if (length == 0) {
       return;
