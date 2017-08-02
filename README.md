@@ -73,6 +73,20 @@ License: [Apache 2.0](LICENSE)
 
 > "Monday, November 1, 2010 at 12:55:00 AM Pacific Daylight Time"
 
+
+#### Formatting individual date and time fields
+
+```java
+    f.formatField(datetime, "EEEE", buffer);
+```
+> "Monday"
+
+```java
+    f.formatField(datetime, "LLLL", buffer);
+```
+> "November"
+
+
 ### Decimal number formatting
 
 ```java

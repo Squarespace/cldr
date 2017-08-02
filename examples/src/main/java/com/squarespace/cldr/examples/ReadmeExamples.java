@@ -192,5 +192,18 @@ public class ReadmeExamples {
 
     System.out.println(buffer);
     // Monday, November 1, 2010 at 12:55:00 AM Pacific Daylight Time
+    
+    
+    // Individual date and time fields
+    buffer.setLength(0);
+    f.formatField(datetime, "EEEE", buffer);
+    System.out.println(buffer);
+    // Monday
+    
+    buffer.setLength(0);
+    f.formatField(datetime, "LLLL", buffer);
+    System.out.println(buffer);
+    // November
+    
   }
 }

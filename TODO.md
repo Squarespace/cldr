@@ -1,6 +1,8 @@
 
 # TODO
 
+
+
 ### High test coverage for main formatter code pathways.
 
 ### Units
@@ -20,6 +22,8 @@ one place as constants and referenced.
 ----------------------------------------------------------
 
 # FIXED
+
+### Add examples of formatting individual fields to README
 
 ### Higher-level options-based api for datetime formatting.
 
