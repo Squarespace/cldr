@@ -25,32 +25,36 @@ License: [Apache 2.0](LICENSE)
     f.format(datetime, options, buffer);
     System.out.println(buffer);
 ```
-    "11/1/2010"
+
+> "11/1/2010"
 
 ```java
     options = new CalendarFormatOptions().setDateSkeleton(CalendarSkeleton.GyMMMd);
     f.format(datetime, options, buffer);
 ```
 
-    "Nov 1, 2010 AD"
+> "Nov 1, 2010 AD"
 
 ```java
     options = new CalendarFormatOptions().setDateFormat(CalendarFormat.MEDIUM);
     f.format(datetime, options, buffer);
 ```
-    "Nov 1, 2010"
+
+> "Nov 1, 2010"
 
 ```java
     options = new CalendarFormatOptions().setTimeFormat(CalendarFormat.MEDIUM);
     f.format(datetime, options, buffer);
 ```
-    "5:55:00 PM"
+
+> "5:55:00 PM"
 
 ```java
     options = new CalendarFormatOptions().setWrapperFormat(CalendarFormat.MEDIUM);
     f.format(datetime, options, buffer);
 ```
-    "Nov 1, 2010, 5:55:00 PM"
+
+> "Nov 1, 2010, 5:55:00 PM"
 
 ```java
     epoch = 1288598100000L;
@@ -58,14 +62,16 @@ License: [Apache 2.0](LICENSE)
     options = new CalendarFormatOptions().setWrapperFormat(CalendarFormat.FULL);
     f.format(datetime, options, buffer);
 ```
-    "Monday, November 1, 2010 at 3:55:00 AM Eastern Daylight Time"
+
+> "Monday, November 1, 2010 at 3:55:00 AM Eastern Daylight Time"
 
 ```java
     zoneId = ZoneId.of("America/Los_Angeles");
     datetime = datetime.withZoneSameInstant(zoneId);
     f.format(datetime, options, buffer);
 ```
-    "Monday, November 1, 2010 at 12:55:00 AM Pacific Daylight Time"
+
+> "Monday, November 1, 2010 at 12:55:00 AM Pacific Daylight Time"
 
 ### Decimal number formatting
 
@@ -77,19 +83,22 @@ License: [Apache 2.0](LICENSE)
     f.formatDecimal(n, buffer, options);
     System.out.println(buffer);
 ```
-    "3.142"
+
+> "3.142"
 
 ```java
     options = new DecimalFormatOptions().setMaximumFractionDigits(5);
     f.formatDecimal(n, buffer, options);
 ```
-    "3.14159"
+
+> "3.14159"
 
 ```java
     options = new DecimalFormatOptions().setRoundMode(NumberRoundMode.FLOOR);
     f.formatDecimal(n, buffer, options);
 ```
-    "3.141"
+
+> "3.141"
 
 ```java
     n = new BigDecimal("10000");
@@ -97,7 +106,8 @@ License: [Apache 2.0](LICENSE)
     options = new DecimalFormatOptions().setMinimumFractionDigits(2).setGrouping(true);
     f.formatDecimal(n, buffer, options);
 ```
-    "10,000.00"
+
+> "10,000.00"
 
 ```java
     n = new BigDecimal("0.5");
@@ -105,7 +115,8 @@ License: [Apache 2.0](LICENSE)
     options = new DecimalFormatOptions().setStyle(DecimalFormatStyle.PERCENT);
     f.formatDecimal(n, buffer, options);
 ```
-    "50%"
+
+> "50%"
 
 
 ### Currency formatting
@@ -119,34 +130,39 @@ License: [Apache 2.0](LICENSE)
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
     System.out.println(buffer);
 ```
-   "$1.00"
+
+> "$1.00"
 
 ```java
     n = new BigDecimal("-1");
     options = new CurrencyFormatOptions(CurrencyFormatStyle.ACCOUNTING);
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 ```
-    "($1.00)"
+
+> "($1.00)"
 
 ```java
     n = new BigDecimal("69900");
     options = new CurrencyFormatOptions(CurrencyFormatStyle.NAME);
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 ```
-    "69,900.00 US dollars"
+
+> "69,900.00 US dollars"
 
 ```java
     options = new CurrencyFormatOptions(CurrencyFormatStyle.CODE);
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 ```
-    "69,900.00 USD"
+
+> "69,900.00 USD"
 
 ```java
     n = new BigDecimal("1.491");
     options = new CurrencyFormatOptions().setRoundMode(NumberRoundMode.CEIL);
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 ```
-    "$1.50"
+
+> "$1.50"
 
 ```java
     options = new CurrencyFormatOptions(CurrencyFormatStyle.SHORT)
@@ -155,10 +171,12 @@ License: [Apache 2.0](LICENSE)
     n = new BigDecimal("1200");
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 ```
-    "$1.2K"
+
+> "$1.2K"
 
 ```java
     n = new BigDecimal("999999");
     f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 ```
-    "$1M"
+
+> "$1M"
