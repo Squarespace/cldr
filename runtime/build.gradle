@@ -15,8 +15,8 @@ plugins.withType(EclipsePlugin) {
   project.eclipse.classpath.plusConfigurations += [ configurations.jmh ]
 }
 
-tasks.withType(JavaCompile) {
-  compileTask -> compileTask.dependsOn ':cldr-compiler:generateCode'
+tasks.withType(JavaCompile) { task ->
+  task.dependsOn ':cldr-compiler:generateCode'
 }
 
 jmh {
@@ -25,17 +25,5 @@ jmh {
   includeTests = false
   zip64 = true
   //include = '.*NumberFormat.*'
-}
-
-jacocoTestReport {
-  afterEvaluate {
-    classDirectories = files(classDirectories.files.collect {
-      fileTree(dir: it, exclude: [
-        'com/squarespace/cldr/dates/_*',
-        'com/squarespace/cldr/numbers/_*',
-        'com/squarespace/cldr/plurals/_*'
-      ])
-    })
-  }
 }
 

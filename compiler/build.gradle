@@ -8,10 +8,35 @@ dependencies {
   compile "org.apache.commons:commons-text:${commonsTextVersion}"
 }
 
-task generateCode(type: JavaExec) {
-  main = 'com.squarespace.cldr.codegen.Generate'
-  classpath sourceSets.main.runtimeClasspath
-  workingDir project(':cldr-runtime').projectDir
-  args 'src/generated/java'
+task generateCode(type: GenerateCode, dependsOn: classes) {
+  // regenerate code if cldr json files or compiler classes change
+  inputFiles = fileTree(
+    dir: "${project.projectDir}/src/main/resources/data",
+    include: '**/*.json'
+  ).plus(fileTree(
+    dir: "${buildDir}/classes"
+  ))
+  outputDir = file("${rootProject.projectDir}/runtime/src/generated/java")
+}
+
+class GenerateCode extends DefaultTask {
+
+  @InputFiles
+  FileCollection inputFiles
+
+  @OutputDirectory
+  File outputDir
+
+  @TaskAction
+  def generate() {
+    project.javaexec {
+      // need to use javaexec since Generate class cannot be
+      // directly imported into a build script.
+      classpath = project.sourceSets.main.runtimeClasspath
+      main = 'com.squarespace.cldr.codegen.Generate'
+      args outputDir
+    }
+  }
+
 }
 

@@ -1,5 +1,6 @@
 package com.squarespace.cldr.codegen;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -19,7 +20,11 @@ public class Generate {
     if (!outputDir.isAbsolute()) {
       outputDir = Paths.get(".").toAbsolutePath().resolve(outputDir);
     }
-    CodeGenerator.generate(outputDir.normalize());
+    new Generate().generate(outputDir.toFile());
   }
 
+  public void generate(File outputDir) throws IOException {
+    CodeGenerator.generate(outputDir.toPath());
+  }
+  
 }

@@ -28,12 +28,26 @@ task rootCoverageReport(type: JacocoReport) {
 
   afterEvaluate {
     classDirectories = files(classDirectories.files.collect {
-      fileTree(dir: it, exclude: [
-        'com/squarespace/cldr/dates/_*',
-        'com/squarespace/cldr/numbers/_*',
-        'com/squarespace/cldr/plurals/_*'
-      ])
+      fileTree(
+        dir: it,
+        exclude: [
+          // too much generated code to test for coverage
+          'com/squarespace/cldr/dates/_*',
+          'com/squarespace/cldr/numbers/_*',
+          'com/squarespace/cldr/plurals/_*'
+        ]
+      )
     })
+
+    /*.plus(files(classDirectories.files.collect {
+      fileTree(
+        dir: it,
+        include: [
+          'com/squarespace/cldr/numbers/_NumberFormatter_en.class'
+        ]
+      )
+    }))*/
+
   }
 }
 
