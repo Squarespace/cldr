@@ -1,9 +1,40 @@
 
 # TODO
 
+### Improve the catch-22 pluralized number patterns.
 
+In order to properly compute the plural category for a number, so that
+we can select the appropriate pluralized pattern, we must first format it.  But
+to format it properly we need the pattern.
 
-### High test coverage for main formatter code pathways.
+This requires we do something like:
+
+ a. select a pattern based on the scale of the number
+ b. format the number and compute the operands.
+ c. if the number rounds up, add 1 digit and go to (a)
+ d. else if the plural category changes, select the pattern
+    again and format.
+ e. else proceed to the final format
+
+Example: formatting "1000.00" in EN would result in plural category OTHER
+but if the final formatted compact form will be "1K" the plural category
+of the formatted digit "1" would be ONE, which should cause us to reselect
+the pattern.
+
+This affects languages like Lithuanian and Polish which have distinct patterns
+for each plural category:
+
+	Lithuanian:
+	  "1000-count-one": "0 tūkstantis"
+	  "1000-count-few": "0 tūkstančiai"
+	  "1000-count-many": "0 tūkstančio"
+	  "1000-count-other": "0 tūkstančių"
+
+	Polish:
+	  "1000-count-one": "0 tysiąc"
+	  "1000-count-few": "0 tysiące"
+	  "1000-count-many": "0 tysięcy"
+	  "1000-count-other": "0 tysiąca"
 
 ### Units
 
@@ -22,6 +53,9 @@ one place as constants and referenced.
 ----------------------------------------------------------
 
 # FIXED
+
+
+### Documentation of examples, Javadoc hosting
 
 ### Add examples of formatting individual fields to README
 

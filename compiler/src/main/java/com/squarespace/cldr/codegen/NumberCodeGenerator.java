@@ -292,7 +292,7 @@ public class NumberCodeGenerator {
       }
 
       // Add the field we'll use to scale the number by a power of ten for compact forms.
-      String fieldName = String.format("%s_%s_POWER", name, shortMagnitude);
+      String fieldName = String.format("%s_%s_SHIFT", name, shortMagnitude);
       int scale = n.precision() - 1;
       if (defaulted) {
         scale = 1;
@@ -358,7 +358,7 @@ public class NumberCodeGenerator {
     method.beginControlFlow("switch (digits)");
     for (String key : magnitudes) {
       String shortMagnitude = MAGNITUDE_MAP.get(key);
-      String fieldName = String.format("%s_%s_POWER", name, shortMagnitude);
+      String fieldName = String.format("%s_%s_SHIFT", name, shortMagnitude);
       int digits = key.length();
       if (digits < maxDigits) {
         method.addStatement("case $L: return $L", digits, fieldName);
@@ -366,7 +366,7 @@ public class NumberCodeGenerator {
     }
     
     String shortMagnitude = MAGNITUDE_MAP.get(magnitude);
-    String fieldName = String.format("%s_%s_POWER", name, shortMagnitude);
+    String fieldName = String.format("%s_%s_SHIFT", name, shortMagnitude);
     method.addStatement("case $L:\ndefault: return $L", maxDigits, fieldName);
     method.endControlFlow();
 

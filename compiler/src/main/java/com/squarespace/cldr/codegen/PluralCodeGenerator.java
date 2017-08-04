@@ -9,6 +9,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -42,6 +43,11 @@ public class PluralCodeGenerator {
   private static final ClassName TYPE_PLURAL_CATEGORY = ClassName.get(PACKAGE_CLDR_PLURALS, "PluralCategory");
   private static final TypeName TYPE_CONDITION = ClassName.get("", "Condition");
 
+  public static void main(String[] args) throws Exception {
+    Path outputDir = Paths.get("/Users/phensley/dev/squarespace-cldr/runtime/src/generated/java");
+    new PluralCodeGenerator().generate(outputDir, DataReader.get());
+  }
+  
   /**
    * Generate a class for plural rule evaluation.
    *
@@ -245,8 +251,16 @@ public class PluralCodeGenerator {
       relop = iter.next().asAtom();
     }
 
+    String var = (String)operand.value();
     List<Node<PluralType>> rangeList = iter.next().asStruct().nodes();
 
+    boolean decimalsZero = false;
+    if (var.equals("n") && modop != null) {
+      // We're applying mod to the 'n' operand, we must also ensure that
+      // decimal value == 0.
+      decimalsZero = true;
+    }
+    
     // If this is the first expression, define the variable; otherwise reuse it.
     String fmt = "zz = o.$L()";
     if (first) {
@@ -259,20 +273,21 @@ public class PluralCodeGenerator {
     }
 
     // Emit the expression.
-    String var = (String)operand.value();
     if (modop != null) {
       code.addStatement(fmt, var, (int)modop.value());
     } else {
       code.addStatement(fmt, var);
     }
 
-    renderExpr(code, rangeList, relop.value().equals("="));
+    renderExpr(code, rangeList, relop.value().equals("="), decimalsZero);
   }
 
   /**
    * Render the expression body of a branch method.
    */
-  private static void renderExpr(CodeBlock.Builder code, List<Node<PluralType>> rangeList, boolean equal) {
+  private static void renderExpr(
+      CodeBlock.Builder code, List<Node<PluralType>> rangeList, boolean equal, boolean decimalsZero) {
+    
     int size = rangeList.size();
     String r = "";
 
@@ -285,12 +300,18 @@ public class PluralCodeGenerator {
     }
 
     // Wrap the expression in an IF.
-    String fmt = "if ";
+    String fmt = "if (";
+    if (decimalsZero) {
+      fmt += "o.nd() != 0 || ";
+    }
+
     if (equal) {
-      fmt += size == 1 ? "(!$L)" : "(!($L))";
+      fmt += size == 1 ? "!$L" : "!($L)";
     } else {
       fmt += "($L)";
     }
+
+    fmt += ")";
 
     // Wrap the IF as a block.
     code.beginControlFlow(fmt, r);
