@@ -131,7 +131,7 @@ f.format(start, end, DateTimeIntervalSkeleton.Hm, buffer);
 ```
 > "17:01 – 17:27"
 
-A helper method exists to find the field of greatest distance, which will help
+A helper method exists to find the field of greatest difference, which will help
 you choose whether to use a date or time skeleton:
 
 ```java
