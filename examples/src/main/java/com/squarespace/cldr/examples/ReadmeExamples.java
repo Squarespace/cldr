@@ -141,7 +141,7 @@ public class ReadmeExamples {
     long epoch = 1288648500000L;
     ZoneId zoneId = ZoneId.of("America/New_York");
     ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
-    ZonedDateTime end = start.withYear(2020).withMonth(9);
+    ZonedDateTime end = start.withYear(2020).withMonth(12);
 
     CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.EN_US);
     f.format(start, end, DateTimeIntervalSkeleton.y, buffer);
@@ -151,13 +151,13 @@ public class ReadmeExamples {
     buffer.setLength(0);
     f.format(start, end, DateTimeIntervalSkeleton.yMMM, buffer);
     System.out.println(buffer);
-    // Nov 2010 – Sep 2020
+    // Nov 2010 – Dec 2020
     
-    end = start.withMonth(9);
+    end = start.withMonth(12);
     buffer.setLength(0);
     f.format(start, end, DateTimeIntervalSkeleton.yMMM, buffer);
     System.out.println(buffer);
-    // Nov – Sep 2010
+    // Nov – Dec 2010
     
     end = start.withDayOfMonth(23);
     buffer.setLength(0);
