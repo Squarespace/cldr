@@ -61,11 +61,6 @@ Joining lists together with commas, AND and OR.
 http://www.unicode.org/reports/tr35/tr35-general.html#ListPatterns
 
 
-### Date time intervals
-
-http://www.unicode.org/reports/tr35/tr35-dates.html#intervalFormats
-
-
 ### Intern strings and duplicate constants to reduce jar size
 
 Many of the strings are duplicated across many locales and can be defined in
@@ -80,6 +75,10 @@ http://www.unicode.org/reports/tr35/tr35-numbers.html#Miscellaneous_Patterns
 ----------------------------------------------------------
 
 # FIXED
+
+### Date time intervals
+
+http://www.unicode.org/reports/tr35/tr35-dates.html#intervalFormats
 
 
 ### Documentation of examples, Javadoc hosting
