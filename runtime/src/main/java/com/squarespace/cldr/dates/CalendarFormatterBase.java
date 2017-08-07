@@ -78,6 +78,15 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   protected abstract void wrapTimeZoneRegion(StringBuilder b, String region);
   
   /**
+   * Format a date time interval using the given interval skeleton. Selects the best
+   * pattern to use for the given skeleton based on the field of greatest difference
+   * between the start and end date-time.
+   */
+  protected abstract void formatInterval(
+      ZonedDateTime start, ZonedDateTime end,
+      String skeleton, DateTimeField field, StringBuilder buffer);
+  
+  /**
    * Main entry point for date time formatting.
    */
   public void format(ZonedDateTime datetime, CalendarFormatOptions options, StringBuilder buffer) {
@@ -118,6 +127,58 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
       formatSkeleton(skeleton, datetime, buffer);
     }
   }
+
+  /**
+   * Format a date time interval, guessing at the best skeleton to use based on the field
+   * of greatest difference between the start and end date-time.  If the end date-time has
+   * a different time zone than the start, this is corrected for comparison.
+   * 
+   * Greatest difference is calculated by comparing fields in the following order:
+   * 
+   *    year, month, date, day-of-week, am-pm, hour, hour-of-day, minute, and second
+   */
+  public void format(ZonedDateTime start, ZonedDateTime end, StringBuilder buffer) {
+    DateTimeField field = CalendarFormattingUtils.greatestDifference(start, end);
+    DateTimeIntervalSkeleton skeleton = null;
+    switch (field) {
+      case YEAR:
+        skeleton = DateTimeIntervalSkeleton.y;
+        break;
+      case MONTH:
+        skeleton = DateTimeIntervalSkeleton.yM;
+        break;
+      case DAY:
+        skeleton = DateTimeIntervalSkeleton.yMd;
+        break;
+      case HOUR:
+        skeleton = DateTimeIntervalSkeleton.h;
+        break;
+      case MINUTE:
+        skeleton = DateTimeIntervalSkeleton.hm;
+        break;
+      default:
+        break;
+    }
+    formatInterval(start, end, skeleton.skeleton(), field, buffer);
+  }
+  
+  /**
+   * Format a date time interval, guessing at the best skeleton to use based on the field
+   * of greatest difference between the start and end date-time.  If the end date-time has
+   * a different time zone than the start, this is corrected for comparison.
+   * 
+   * Greatest difference is calculated by comparing fields in the following order:
+   * 
+   *    year, month, date, day-of-week, am-pm, hour, hour-of-day, minute, and second
+   */
+  @Override
+  public void format(
+      ZonedDateTime start, ZonedDateTime end, DateTimeIntervalSkeleton skeleton, StringBuilder buffer) {
+    
+    DateTimeField field = CalendarFormattingUtils.greatestDifference(start, end);
+    formatInterval(start, end, skeleton.skeleton(), field, buffer);
+  }
+  
   
   /**
    * Retrieves the exemplar city for a timezone, e.g. "America/Los_Angeles" -> "Los Angeles".

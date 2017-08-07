@@ -493,6 +493,28 @@ public class DataReader {
     data.dateTimeFormats = parseDateTimeFormats(node);
     data.dateTimeSkeletons = parseDateTimeSkeletons(node);
 
+    // date time intervals and fallback format
+    data.intervalFormats = new HashMap<>();
+    node = resolve(node, "dateTimeFormats", "intervalFormats");
+    for (String key : objectKeys(node)) {
+      if (key.equals("intervalFormatFallback")) {
+        data.intervalFallbackFormat = string(node, key);
+      } else {
+        Map<String, String> format = data.intervalFormats.get(key);
+        if (format == null) {
+          format = new HashMap<>();
+          data.intervalFormats.put(key, format);
+        }
+        
+        JsonObject fieldNode = node.getAsJsonObject(key);
+        for (String field : objectKeys(fieldNode)) {
+          if (!field.endsWith("-alt-variant")) {
+            format.put(field, string(fieldNode, field));
+          }
+        }
+      }
+    }
+    
     return data;
   }
 

@@ -2,6 +2,7 @@ package com.squarespace.cldr.codegen.reader;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.squarespace.cldr.codegen.LocaleID;
 
@@ -28,7 +29,10 @@ public class DateTimeData {
   public Format timeFormats;
   public Format dateTimeFormats;
   public List<Skeleton> dateTimeSkeletons;
-
+  
+  public Map<String, Map<String, String>> intervalFormats;
+  public String intervalFallbackFormat;
+  
   /**
    * Holds a datetime skeleton.
    */

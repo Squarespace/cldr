@@ -10,6 +10,9 @@ import com.squarespace.cldr.dates.CalendarFormat;
 import com.squarespace.cldr.dates.CalendarFormatOptions;
 import com.squarespace.cldr.dates.CalendarFormatter;
 import com.squarespace.cldr.dates.CalendarSkeleton;
+import com.squarespace.cldr.dates.CalendarUtils;
+import com.squarespace.cldr.dates.DateTimeField;
+import com.squarespace.cldr.dates.DateTimeIntervalSkeleton;
 import com.squarespace.cldr.numbers.CurrencyFormatOptions;
 import com.squarespace.cldr.numbers.CurrencyFormatStyle;
 import com.squarespace.cldr.numbers.DecimalFormatOptions;
@@ -22,6 +25,7 @@ public class ReadmeExamples {
 
   public static void main(String[] args) {
     datetime();
+    datetimeIntervals();
     numbers();
     currencies();
   }
@@ -131,6 +135,73 @@ public class ReadmeExamples {
     
   }
   
+  private static void datetimeIntervals() {
+    StringBuilder buffer = new StringBuilder();
+
+    long epoch = 1288648500000L;
+    ZoneId zoneId = ZoneId.of("America/New_York");
+    ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
+    ZonedDateTime end = start.withYear(2020).withMonth(9);
+
+    CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.EN_US);
+    f.format(start, end, DateTimeIntervalSkeleton.y, buffer);
+    System.out.println(buffer);
+    // 2010 – 2020
+    
+    buffer.setLength(0);
+    f.format(start, end, DateTimeIntervalSkeleton.yMMM, buffer);
+    System.out.println(buffer);
+    // Nov 2010 – Sep 2020
+    
+    end = start.withMonth(9);
+    buffer.setLength(0);
+    f.format(start, end, DateTimeIntervalSkeleton.yMMM, buffer);
+    System.out.println(buffer);
+    // Nov – Sep 2010
+    
+    end = start.withDayOfMonth(23);
+    buffer.setLength(0);
+    f.format(start, end, DateTimeIntervalSkeleton.yMMMd, buffer);
+    System.out.println(buffer);
+    // Nov 1 – 23, 2010
+    
+    end = start.withHour(22);
+    buffer.setLength(0);
+    f.format(start, end, DateTimeIntervalSkeleton.hmv, buffer);
+    System.out.println(buffer);
+    // 5:55 – 10:55 PM ET
+    
+    start = start.withMinute(1);
+    end = start.withMinute(27);
+    buffer.setLength(0);
+    f.format(start, end, DateTimeIntervalSkeleton.Hm, buffer);
+    System.out.println(buffer);
+    // 17:01 – 17:27
+    
+    end = start.withMonth(12);
+    DateTimeField field = CalendarUtils.fieldOfGreatestDifference(start, end);
+    System.out.println(field);
+    // MONTH
+
+    // TODO: future. need to enable wrapping date with time range by exposing
+    // the localized wrapper function.
+//    switch (CalendarUtils.fieldOfGreatestDifference(start, end)) {
+//      case YEAR:
+//      case MONTH:
+//      case DAY:
+//        f.format(start, end, DateTimeIntervalSkeleton.yMMMd, buffer);
+//        break;
+//        
+//      default:
+//        CalendarFormatOptions options = new CalendarFormatOptions();
+//        options.setDateSkeleton(CalendarSkeleton.yMMMd);
+//        f.format(start, options, buffer);
+//        buffer.append('\u00a0');
+//        f.format(start, end, DateTimeIntervalSkeleton.hmv, buffer);  
+//        break;
+//    }
+  }
+  
   private static void datetime() {
     long epoch = 1288648500000L;
     ZoneId zoneId = ZoneId.of("America/New_York");
@@ -206,4 +277,5 @@ public class ReadmeExamples {
     // November
     
   }
+  
 }

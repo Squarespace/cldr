@@ -1,6 +1,12 @@
 
 # TODO
 
+### Documentation of examples, Javadoc hosting
+
+
+### Update unit test and benchmarks with timezone support
+
+
 ### Improve the catch-22 pluralized number patterns.
 
 In order to properly compute the plural category for a number, so that
@@ -36,9 +42,28 @@ for each plural category:
 	  "1000-count-many": "0 tysięcy"
 	  "1000-count-other": "0 tysiąca"
 
+
 ### Units
 
-Unit formatting (square feet, Megabytes, etc)
+Unit formatting: angle, length, area, duration, etc.
+
+http://www.unicode.org/reports/tr35/tr35-general.html#Unit_Elements
+
+Sequences of units:
+
+http://www.unicode.org/reports/tr35/tr35-35/tr35-general.html#Unit_Sequences
+
+
+### List formatting
+
+Joining lists together with commas, AND and OR.
+
+http://www.unicode.org/reports/tr35/tr35-general.html#ListPatterns
+
+
+### Date time intervals
+
+http://www.unicode.org/reports/tr35/tr35-dates.html#intervalFormats
 
 
 ### Intern strings and duplicate constants to reduce jar size
@@ -47,7 +72,9 @@ Many of the strings are duplicated across many locales and can be defined in
 one place as constants and referenced.
 
 
-### Update unit test and benchmarks with timezone support
+### Support at-least and ranges for decimals, currencies and units.
+
+http://www.unicode.org/reports/tr35/tr35-numbers.html#Miscellaneous_Patterns
 
 
 ----------------------------------------------------------

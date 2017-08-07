@@ -9,6 +9,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,11 +31,13 @@ import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZone;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneEntry;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneInfo;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.TimeZoneInfo;
+import com.squarespace.cldr.dates.DateTimeField;
 import com.squarespace.cldr.parse.DateTimePatternParser;
 import com.squarespace.cldr.parse.FieldPattern.Field;
 import com.squarespace.cldr.parse.FieldPattern.Node;
 import com.squarespace.cldr.parse.FieldPattern.Text;
 import com.squarespace.cldr.parse.WrapperPatternParser;
+import com.squarespace.compiler.parse.Pair;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
@@ -66,6 +69,12 @@ public class CalendarCodeGenerator {
 
   private static final DateTimePatternParser DATETIME_PARSER = new DateTimePatternParser();
   private static final WrapperPatternParser WRAPPER_PARSER = new WrapperPatternParser();
+  
+  public static void main(String[] args) throws IOException {
+    DataReader reader = DataReader.get();
+    Path outputDir = Paths.get("/Users/phensley/dev/squarespace-cldr/runtime/src/generated/java");
+    new CalendarCodeGenerator().generate(outputDir, reader);
+  }
   
   /**
    * Generates the date-time classes into the given output directory.
@@ -178,7 +187,9 @@ public class CalendarCodeGenerator {
     type.addMethod(method.build());
   }
   
-  
+  /**
+   * Creates a switch table to resolve a retired time zone to a valid one.
+   */
   private void buildTimeZoneAliases(TypeSpec.Builder type, Map<String, String> map) {
     MethodSpec.Builder method = MethodSpec.methodBuilder("getTimeZoneAlias")
         .addModifiers(PUBLIC, STATIC)
@@ -248,46 +259,17 @@ public class CalendarCodeGenerator {
     addTypedPattern(timeMethod, CALENDARFORMAT_TYPE, dateTimeData.timeFormats);
 
     MethodSpec.Builder wrapperMethod = buildWrappers(dateTimeData.dateTimeFormats);
-
-    MethodSpec.Builder formatMethod = MethodSpec.methodBuilder("formatSkeleton")
-        .addAnnotation(Override.class)
-        .addModifiers(PUBLIC)
-        .addParameter(String.class, "skeleton")
-        .addParameter(ZONED_DATETIME_TYPE, "d")
-        .addParameter(STRINGBUILDER_TYPE, "b")
-        .returns(boolean.class);
-
-    formatMethod.beginControlFlow("if (skeleton == null)");
-    formatMethod.addStatement("return false");
-    formatMethod.endControlFlow();
-    
-    formatMethod.beginControlFlow("switch (skeleton)");
-
-    // Skeleton patterns.
-    for (Skeleton skeleton : dateTimeData.dateTimeSkeletons) {
-      formatMethod.beginControlFlow("case $S:", skeleton.skeleton)
-        .addComment("Pattern: $S", skeleton.pattern);
-
-      addPattern(formatMethod, skeleton.pattern);
-
-      formatMethod.addStatement("break");
-      formatMethod.endControlFlow();
-    }
-
-    formatMethod.beginControlFlow("default:");
-    formatMethod.addStatement("return false");
-    formatMethod.endControlFlow();
-
-    formatMethod.endControlFlow();
-    formatMethod.addStatement("return true");
-
+    MethodSpec.Builder formatMethod = buildSkeletonFormatter(dateTimeData);
+    MethodSpec.Builder intervalMethod = buildIntervalFormatter(dateTimeData);
     MethodSpec.Builder gmtMethod = buildWrapTimeZoneGMTMethod(timeZoneData);
     MethodSpec.Builder regionFormatMethod = buildWrapTimeZoneRegionMethod(timeZoneData);
+
     return type
         .addMethod(dateMethod.build())
         .addMethod(timeMethod.build())
         .addMethod(wrapperMethod.build())
         .addMethod(formatMethod.build())
+        .addMethod(intervalMethod.build())
         .addMethod(gmtMethod.build())
         .addMethod(regionFormatMethod.build())
         .build();
@@ -337,7 +319,7 @@ public class CalendarCodeGenerator {
       }
     }
   }
-
+  
   /**
    * Build a method that will format a date and time (named or skeleton) in a
    * localized wrapper.
@@ -403,6 +385,130 @@ public class CalendarCodeGenerator {
     }
   }
 
+  /**
+   * Implements the formatSkeleton method.
+   */
+  private MethodSpec.Builder buildSkeletonFormatter(DateTimeData dateTimeData) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("formatSkeleton")
+        .addAnnotation(Override.class)
+        .addModifiers(PUBLIC)
+        .addParameter(String.class, "skeleton")
+        .addParameter(ZONED_DATETIME_TYPE, "d")
+        .addParameter(STRINGBUILDER_TYPE, "b")
+        .returns(boolean.class);
+
+    method.beginControlFlow("if (skeleton == null)");
+    method.addStatement("return false");
+    method.endControlFlow();
+    
+    method.beginControlFlow("switch (skeleton)");
+
+    // Skeleton patterns.
+    for (Skeleton skeleton : dateTimeData.dateTimeSkeletons) {
+      method.beginControlFlow("case $S:", skeleton.skeleton)
+        .addComment("Pattern: $S", skeleton.pattern);
+
+      addPattern(method, skeleton.pattern);
+
+      method.addStatement("break");
+      method.endControlFlow();
+    }
+
+    method.beginControlFlow("default:");
+    method.addStatement("return false");
+    method.endControlFlow();
+
+    method.endControlFlow();
+    method.addStatement("return true");
+    return method;
+  }
+  
+  /**
+   * Build methods to format date time intervals using the field of greatest difference.
+   */
+  private MethodSpec.Builder buildIntervalFormatter(DateTimeData dateTimeData) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("formatInterval")
+        .addAnnotation(Override.class)
+        .addModifiers(PUBLIC)
+        .addParameter(ZonedDateTime.class, "s")
+        .addParameter(ZonedDateTime.class, "e")
+        .addParameter(String.class, "k")
+        .addParameter(DateTimeField.class, "f") 
+        .addParameter(StringBuilder.class, "b");
+
+    method.beginControlFlow("if (k != null && f != null)");
+  
+    method.beginControlFlow("switch (k)");
+    for (Map.Entry<String, Map<String, String>> format : dateTimeData.intervalFormats.entrySet()) {
+      String skeleton = format.getKey();
+  
+      method.beginControlFlow("case $S:", skeleton);
+      method.beginControlFlow("switch (f)");
+      
+      for (Map.Entry<String, String> entry : format.getValue().entrySet()) {
+        String field = entry.getKey();
+        Pair<List<Node>, List<Node>> patterns = DATETIME_PARSER.splitIntervalPattern(entry.getValue());
+
+        method.beginControlFlow("case $L:", DateTimeField.fromString(field));
+        method.addComment("$S", DateTimePatternParser.render(patterns._1));
+        addIntervalPattern(method, patterns._1, "s");
+        method.addComment("$S", DateTimePatternParser.render(patterns._2));
+        addIntervalPattern(method, patterns._2, "e");
+        method.addStatement("return");
+        method.endControlFlow(); // case field:
+      }
+
+      method.addStatement("default: break");
+      method.endControlFlow(); // switch (f)
+      method.addStatement("break");
+      method.endControlFlow(); // case skeleton:
+    }
+    
+    method.addStatement("default: break");
+    method.endControlFlow(); // switch (k)
+
+    // Nothing matched so render the fallback.
+    addIntervalFallback(method, dateTimeData.intervalFallbackFormat);
+    method.endControlFlow();
+
+    return method;
+  }
+  
+  /**
+   * Adds code to format a date time interval pattern, which may be the start or end
+   * date time, signified by the 'which' parameter.
+   */
+  private void addIntervalPattern(MethodSpec.Builder method, List<Node> pattern, String which) {
+    for (Node node : pattern) {
+      if (node instanceof Text) {
+        method.addStatement("b.append($S)", ((Text)node).text());
+      } else if (node instanceof Field) {
+        Field field = (Field)node;
+        method.addStatement("formatField($L, '$L', $L, b)", which, field.ch(), field.width());
+      }
+    }
+  }
+  
+  /**
+   * Adds code to render the fallback pattern.
+   */
+  private void addIntervalFallback(MethodSpec.Builder method, String pattern) {
+    method.addComment("$S", pattern);
+    for (Node node : WRAPPER_PARSER.parseWrapper(pattern)) {
+      if (node instanceof Text) {
+        method.addStatement("b.append($S)", ((Text)node).text());
+
+      } else if (node instanceof Field) {
+        Field field = (Field)node;
+        String which = "s";
+        if (field.ch() == '1') {
+          which = "e";
+        }
+        method.addStatement("formatSkeleton(k, $L, b)", which);
+      }
+    }
+  }
+  
   /**
    * Indicates a skeleton represents a date based on the fields it contains.
    * Any time-related field will cause this to return false.

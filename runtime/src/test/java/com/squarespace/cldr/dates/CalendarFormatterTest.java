@@ -2,34 +2,17 @@ package com.squarespace.cldr.dates;
 
 
 
-import static org.testng.Assert.assertEquals;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import static com.squarespace.cldr.CLDR.DE;
+import static com.squarespace.cldr.CLDR.EN;
+import static com.squarespace.cldr.CLDR.FR;
 
 import org.testng.annotations.Test;
-
-import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 
 
 /**
  * Test the field-level date formatting logic.
  */
-public class CalendarFormatterTest {
-
-  private static final ZoneId UTC = ZoneId.of("Universal");
-  private static final ZoneId LONDON = ZoneId.of("Europe/London");
-  private static final ZoneId NEW_YORK = ZoneId.of("America/New_York");
-  private static final ZoneId LOS_ANGELES = ZoneId.of("America/Los_Angeles");
-  private static final ZoneId PARIS = ZoneId.of("Europe/Paris");
-  private static final ZoneId TOKYO = ZoneId.of("Asia/Tokyo");
-
-  private final CLDRLocale EN = new CLDRLocale("en", "", "", "");
-  private final CLDRLocale FR = new CLDRLocale("fr", "", "", "");
-  private final CLDRLocale DE = new CLDRLocale("de", "", "", "");
-
+public class CalendarFormatterTest extends CalendarFormatterTestBase {
 
   @Test
   public void testEra() {
@@ -405,107 +388,6 @@ public class CalendarFormatterTest {
     assertFormat(FR, 'Z', dt, "-0400", "-0400", "-0400", "UTC−04:00", "-04:00");
     assertFormat(FR, 'Z', dt.timeZone(UTC), "+0000", "+0000", "+0000", "UTC", "Z");
     assertFormat(FR, 'Z', dt.timeZone(LONDON), "+0100", "+0100", "+0100", "UTC+01:00", "+01:00");
-  }
-
-  private Datetime may_1_2017() {
-    return may_1_2017(NEW_YORK);
-  }
-
-  private Datetime may_1_2017(ZoneId zone) {
-    return datetime(ZonedDateTime.of(2017, 5, 2, 12, 13, 14, 1516, zone));
-  }
-
-  private Datetime jan_1_2005() {
-    return jan_1_2005(NEW_YORK);
-  }
-  
-  private Datetime jan_1_2005(ZoneId zone) {
-    return datetime(ZonedDateTime.of(2005, 1, 1, 0, 0, 0, 0, zone));
-  }
-  
-  private Datetime nov_11_2017() {
-    return nov_11_2017(NEW_YORK);
-  }
-
-  private Datetime nov_11_2017(ZoneId zone) {
-    return epoch(1509626157000L, zone);
-  }
-
-  private Datetime epoch(long epochMillis, ZoneId zone) {
-    return new Datetime(epochMillis, zone);
-  }
-
-  private Datetime datetime(ZonedDateTime d) {
-    return new Datetime(d);
-  }
-
-  private static class Datetime {
-
-    private ZonedDateTime d;
-
-    public Datetime(ZonedDateTime initial) {
-      this.d = initial;
-    }
-
-    public Datetime(long epochMillis, ZoneId zone) {
-      this(ZonedDateTime.ofInstant(Instant.ofEpochMilli(epochMillis), zone));
-    }
-
-    private Datetime make(ZonedDateTime datetime) {
-      return new Datetime(datetime);
-    }
-    
-    private Datetime year(int year) {
-      return make(d.withYear(year));
-    }
-
-    private Datetime month(int month) {
-      return make(d.withMonth(month));
-    }
-
-    private Datetime dayOfMonth(int dayOfMonth) {
-      return make(d.withDayOfMonth(dayOfMonth));
-    }
-
-    private Datetime dayOfYear(int dayOfYear) {
-      return make(d.withDayOfYear(dayOfYear));
-    }
-
-    private Datetime hour(int hour) {
-      return make(d.withHour(hour));
-    }
-
-    private Datetime minute(int minute) {
-      return make(d.withMinute(minute));
-    }
-
-    private Datetime second(int second) {
-      return make(d.withSecond(second));
-    }
-
-    private Datetime nanos(int nanos) {
-      return make(d.withNano(nanos));
-    }
-    
-    private Datetime timeZone(ZoneId zoneId) {
-      return make(d.withZoneSameLocal(zoneId));
-    }
-
-  }
-
-  /**
-   * Formats a date using the given field. The array of expected strings correspond to increasing field
-   * width, starting width 1, increasing by 1.
-   */
-  private void assertFormat(CLDRLocale locale, char field, Datetime datetime, String... expected) {
-    CalendarFormatter fmt = CLDR.get().getCalendarFormatter(locale);
-    StringBuilder buffer = new StringBuilder();
-    for (int i = 0; i < expected.length; i++) {
-      int width = i + 1;
-      fmt.formatField(datetime.d, field, width, buffer);
-      assertEquals(buffer.toString(), expected[i], "width " + width + " failed");
-      buffer.setLength(0);
-    }
   }
 
 }
