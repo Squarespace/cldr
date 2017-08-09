@@ -10,6 +10,7 @@ import com.squarespace.compiler.parse.Struct;
 
 /**
  * Container to hold CLDR pluralization rules, either ordinal or cardinal.
+ * Used during code generation.
  */
 public class PluralData {
 

@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.testng.Assert;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 
 
 public abstract class NumberFormatterBaseTest {
@@ -41,12 +40,12 @@ public abstract class NumberFormatterBaseTest {
     return new CurrencyFormatOptions(style);
   }
   
-  protected void test(CLDRLocale locale, DecimalFormatOptions options, List<Pair> numbers, List<Pair> expecteds) {
+  protected void test(CLDR.Locale locale, DecimalFormatOptions options, List<Pair> numbers, List<Pair> expecteds) {
     test(locale, null, options, numbers, expecteds);
   }
   
   protected void test(
-      CLDRLocale locale, 
+      CLDR.Locale locale, 
       String currency, 
       NumberFormatOptions<?> options, 
       List<Pair> numbers, 

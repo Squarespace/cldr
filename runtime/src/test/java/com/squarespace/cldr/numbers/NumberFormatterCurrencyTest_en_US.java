@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.squarespace.cldr.CLDR;
 
 
-public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
+public class NumberFormatterCurrencyTest_en_US extends NumberFormatterBaseTest {
 
   private final List<Pair> NUMBERS = numbers(
       "0"
@@ -31,7 +31,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testSymbolDefault() {
     CurrencyFormatOptions options = currency(SYMBOL).setGrouping(true);
-    test(CLDR.EN_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("$0.00", "$0.00"),
         pair("$1.00", "-$1.00"),
         pair("$1.00", "-$1.00"),
@@ -48,7 +48,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testAccountingDefault() {
     CurrencyFormatOptions options = currency(ACCOUNTING).setGrouping(true);
-    test(CLDR.EN_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("$0.00", "$0.00"),
         pair("$1.00", "($1.00)"),
         pair("$1.00", "($1.00)"),
@@ -65,7 +65,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testNameDefault() {
     CurrencyFormatOptions options = currency(NAME).setGrouping(true);
-    test(CLDR.EN_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("0.00 US dollars", "0.00 US dollars"),
         pair("1.00 US dollars", "-1.00 US dollars"),
         pair("1.00 US dollars", "-1.00 US dollars"),
@@ -82,7 +82,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testCodeDefault() {
     CurrencyFormatOptions options = currency(CODE).setGrouping(true);
-    test(CLDR.EN_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("0.00 USD", "0.00 USD"),
         pair("1.00 USD", "-1.00 USD"),
         pair("1.00 USD", "-1.00 USD"),
@@ -99,7 +99,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testShortDefault() {
     CurrencyFormatOptions options = currency(SHORT).setGrouping(true);
-    test(CLDR.EN_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("$0", "$0"),
         pair("$1", "-$1"),
         pair("$1", "-$1"),
@@ -120,7 +120,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
         .setMaximumFractionDigits(1)
         .setGrouping(true);
        
-    test(CLDR.EN_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("$0", "$0"),
         pair("$1", "-$1"),
         pair("$1", "-$1"),
@@ -135,7 +135,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
     
     options.setMaximumFractionDigits(2).setMaximumSignificantDigits(5);
 
-    test(CLDR.EN_US, CLDR.Currency.USD, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.USD, options, NUMBERS, pairs(
         pair("$0", "$0"),
         pair("$1", "-$1"),
         pair("$1", "-$1"),
@@ -158,7 +158,7 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
         .setMaximumFractionDigits(1)
         .setGrouping(true);
     
-    test(CLDR.EN_US, CLDR.Currency.SEK, options, numbers("3.59", "1200"), pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.SEK, options, numbers("3.59", "1200"), pairs(
         pair("kr\u00a03.6", "-kr\u00a03.6"),
         pair("kr\u00a01,200.0", "-kr\u00a01,200.0")
     ));
@@ -168,10 +168,10 @@ public class NumberFormatterCurrencyTest_EN_US extends NumberFormatterBaseTest {
   public void testCurrencies() {
     CurrencyFormatOptions options = currency(SYMBOL)
         .setSymbolWidth(CurrencySymbolWidth.NARROW);
-    test(CLDR.EN_US, CLDR.Currency.JPY, options, numbers("1234.56"), pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.JPY, options, numbers("1234.56"), pairs(
         pair("¥1,235", "-¥1,235")
     ));
-    test(CLDR.EN_US, CLDR.Currency.SEK, options, numbers("1234.56"), pairs(
+    test(CLDR.Locale.en_US, CLDR.Currency.SEK, options, numbers("1234.56"), pairs(
         pair("kr\u00a01,234.56", "-kr\u00a01,234.56")
     ));
   }

@@ -10,11 +10,11 @@ import org.testng.annotations.Test;
 import com.squarespace.cldr.CLDR;
 
 
-public class PluralCategoryTest_EN extends PluralBaseTest {
+public class PluralCategoryTest_en extends PluralBaseTest {
 
   @Test
   public void testCardinal() {
-    Fixture f = cardinal(CLDR.EN);
+    Fixture f = cardinal(CLDR.Locale.en);
     f.check("0", OTHER);
     f.check("0.0", OTHER);
     f.check("1", ONE);
@@ -24,7 +24,7 @@ public class PluralCategoryTest_EN extends PluralBaseTest {
     
   @Test
   public void testOrdinal() {
-    Fixture f = ordinal(CLDR.EN);
+    Fixture f = ordinal(CLDR.Locale.en);
     f.check("0", OTHER);
     f.check("1", ONE);
     f.check("2", TWO);

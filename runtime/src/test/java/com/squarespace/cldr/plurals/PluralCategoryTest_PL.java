@@ -1,6 +1,9 @@
 package com.squarespace.cldr.plurals;
 
-import static com.squarespace.cldr.plurals.PluralCategory.*;
+import static com.squarespace.cldr.plurals.PluralCategory.FEW;
+import static com.squarespace.cldr.plurals.PluralCategory.MANY;
+import static com.squarespace.cldr.plurals.PluralCategory.ONE;
+import static com.squarespace.cldr.plurals.PluralCategory.OTHER;
 
 import org.testng.annotations.Test;
 
@@ -11,7 +14,7 @@ public class PluralCategoryTest_PL extends PluralBaseTest {
 
   @Test
   public void testCardinal() {
-    Fixture f = cardinal(CLDR.PL);
+    Fixture f = cardinal(CLDR.Locale.pl);
     
     //   integer 1
     f.check("1", ONE);

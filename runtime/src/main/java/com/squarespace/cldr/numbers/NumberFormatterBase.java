@@ -7,7 +7,6 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 import com.squarespace.cldr.PluralRules;
 import com.squarespace.cldr.numbers.NumberPattern.Format;
 import com.squarespace.cldr.numbers.NumberPattern.Node;
@@ -30,7 +29,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
   protected static final NumberFormatterParams GENERIC_PARAMS = new NumberFormatterParams();
   private static final char NBSP = '\u00a0';
 
-  protected final CLDRLocale locale;
+  protected final CLDR.Locale locale;
   protected final NumberFormatterParams params;
   protected final NumberPattern[] decimalStandard;
   protected final NumberPattern[] percentStandard;
@@ -38,7 +37,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
   protected final NumberPattern[] currencyAccounting;
 
   protected NumberFormatterBase(
-      CLDRLocale locale,
+      CLDR.Locale locale,
       NumberFormatterParams params,
       NumberPattern[] decimalStandard,
       NumberPattern[] percentStandard,
@@ -70,7 +69,7 @@ public abstract class NumberFormatterBase implements NumberFormatter {
   /**
    * Return the locale associated with this number formatter.
    */
-  public CLDRLocale locale() {
+  public CLDR.Locale locale() {
     return locale;
   }
   

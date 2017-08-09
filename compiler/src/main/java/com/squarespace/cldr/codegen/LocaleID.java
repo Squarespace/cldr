@@ -3,7 +3,7 @@ package com.squarespace.cldr.codegen;
 import com.google.common.base.Objects;
 
 
-public class LocaleID {
+public class LocaleID implements Comparable<LocaleID> {
 
   public final String language;
   public final String territory;
@@ -36,6 +36,11 @@ public class LocaleID {
       default:
         throw new RuntimeException("Unparseable locale id: " + raw);
     }
+  }
+  
+  @Override
+  public int compareTo(LocaleID o) {
+    return this.safe.compareTo(o.safe);
   }
   
   @Override

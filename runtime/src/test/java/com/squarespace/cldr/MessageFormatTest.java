@@ -1,7 +1,7 @@
 package com.squarespace.cldr;
 
-import static com.squarespace.cldr.CLDR.EN_US;
-import static com.squarespace.cldr.CLDR.PL;
+import static com.squarespace.cldr.CLDR.Locale.en_US;
+import static com.squarespace.cldr.CLDR.Locale.pl;
 import static org.testng.Assert.assertEquals;
 
 import java.time.ZoneId;
@@ -35,7 +35,7 @@ public class MessageFormatTest {
   public void testIncomplete() {
     for (String prefix : new String[] { "", " ", "a ", "a }" }) {
       for (String pattern : INCOMPLETE_PATTERNS) {
-        MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, prefix + pattern);
+        MessageFormat msg = new MessageFormat(en_US, NY_ZONE, prefix + pattern);
         assertEquals(format(msg, args("1")), prefix);
       }
     }
@@ -44,13 +44,13 @@ public class MessageFormatTest {
   @Test
   public void testPlural() {
     String format = "{0 plural =2{is two} one{# is one} few{# is few} many{# is many} other{# is other}}";
-    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args("1")), "1 is one");
     assertEquals(format(msg, args("1.0")), "1.0 is other");
     assertEquals(format(msg, args("1.3")), "1.3 is other");
     assertEquals(format(msg, args("6")), "6 is other");
 
-    msg = new MessageFormat(PL, NY_ZONE, format);
+    msg = new MessageFormat(pl, NY_ZONE, format);
     assertEquals(format(msg, args("1")), "1 is one");
     assertEquals(format(msg, args("2")), "is two");
     assertEquals(format(msg, args("3")), "3 is few");
@@ -67,7 +67,7 @@ public class MessageFormatTest {
         "    one {You and someone else liked this}" +
         "  other {You and # others liked this}" +
         "}";
-    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args("0")), "Be the first to like this");
     assertEquals(format(msg, args("1")), "You liked this");
     assertEquals(format(msg, args("2")), "You and someone else liked this");
@@ -78,7 +78,7 @@ public class MessageFormatTest {
   @Test
   public void testOrdinal() {
     String format = "{0 selectordinal one{#st} two{#nd} few{#rd} other{#th}}";
-    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args("1")), "1st");
     assertEquals(format(msg, args("-2")), "-2nd");
     assertEquals(format(msg, args("3")), "3rd");
@@ -97,7 +97,7 @@ public class MessageFormatTest {
         "    =1 {# action on {1 datetime date:long}} " +
         " other {# actions starting on {1 datetime date:long}}" +
         "}";
-    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args("1", "1498583746000")), "1 action on June 27, 2017");
     assertEquals(format(msg, args("5", "1498583746000")), "5 actions starting on June 27, 2017");
   }
@@ -106,7 +106,7 @@ public class MessageFormatTest {
 //  @Test
 //  public void testCurrency() {
 //    String format = "{0 currency style:name min-fractional-digits:2}";
-//    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+//    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
 //    assertEquals(format(msg, args(money("10.25", "USD"))), "$10.25");
 //  }
 
@@ -114,14 +114,14 @@ public class MessageFormatTest {
 //  @Test
 //  public void testNumber() {
 //    String format = "{0 number max-frac:2}";
-//    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+//    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
 //    assertEquals(format(msg, args("3.141592653589793")), "3.14");
 //  }
 
   @Test
   public void testDateTime() {
     String format = "{0 datetime date:long time:medium}";
-    MessageFormat msg = new MessageFormat(EN_US, NY_ZONE, format);
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args("1498583746000")), "June 27, 2017 at 1:15:46 PM");
   }
 

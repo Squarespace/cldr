@@ -2,7 +2,7 @@ package com.squarespace.cldr.codegen.reader;
 
 
 /**
- * Container to hold supplemental CLDR currency data.
+ * Container to hold supplemental CLDR currency data during code generation.
  */
 public class CurrencyData {
 

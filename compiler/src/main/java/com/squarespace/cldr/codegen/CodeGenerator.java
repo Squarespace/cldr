@@ -1,7 +1,18 @@
 package com.squarespace.cldr.codegen;
 
+import static com.squarespace.cldr.codegen.Types.CLDR;
+import static com.squarespace.cldr.codegen.Types.CLDR_BASE;
+import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_BASE_CLS;
+import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_CLS;
+import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_IF;
+import static com.squarespace.cldr.codegen.Types.LIST_CLDR_LOCALE;
+import static com.squarespace.cldr.codegen.Types.LIST_STRING;
+import static com.squarespace.cldr.codegen.Types.PACKAGE_CLDR;
+import static com.squarespace.cldr.codegen.Types.PLURAL_RULES;
+import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
@@ -20,15 +31,12 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.io.CharSink;
 import com.google.common.io.Files;
-import com.squarespace.cldr.CLDRLocale;
 import com.squarespace.cldr.codegen.reader.DataReader;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 
@@ -39,17 +47,6 @@ import com.squareup.javapoet.TypeSpec;
  */
 public class CodeGenerator {
 
-  public static final String PACKAGE_CLDR = "com.squarespace.cldr";
-  public static final String PACKAGE_CLDR_DATES = "com.squarespace.cldr.dates";
-  public static final String PACKAGE_CLDR_PLURALS = "com.squarespace.cldr.plurals";
-  public static final String PACKAGE_CLDR_NUMBERS = "com.squarespace.cldr.numbers";
-
-  private static final TypeName CLDR_TYPE = ClassName.get(PACKAGE_CLDR, "CLDR");
-  private static final ClassName CLDRBASE_TYPE = ClassName.get(PACKAGE_CLDR, "CLDRBase");
-  private static final TypeName PLURAL_RULES_TYPE = ClassName.get(PACKAGE_CLDR_PLURALS, "_PluralRules");
-  private static final TypeName LOCALE_LIST_TYPE = ParameterizedTypeName.get(List.class, CLDRLocale.class);
-  private static final TypeName CURRENCY_LIST_TYPE = ParameterizedTypeName.get(List.class, String.class);
-  
   private static final String[] EMPTY = new String[] { };
 
   public static void main(String[] args) throws IOException {
@@ -79,19 +76,19 @@ public class CodeGenerator {
         .addModifiers(PRIVATE)
         .build();
 
-    FieldSpec instance = FieldSpec.builder(CLDR_TYPE, "instance", PRIVATE, STATIC, FINAL)
-        .initializer("new $T()", CLDR_TYPE)
+    FieldSpec instance = FieldSpec.builder(CLDR, "instance", PRIVATE, STATIC, FINAL)
+        .initializer("new $T()", CLDR)
         .build();
 
     MethodSpec getter = MethodSpec.methodBuilder("get")
         .addModifiers(PUBLIC, STATIC)
-        .returns(CLDR_TYPE)
+        .returns(CLDR)
         .addStatement("return instance")
         .build();
 
     TypeSpec.Builder type = TypeSpec.classBuilder("CLDR")
         .addModifiers(PUBLIC)
-        .superclass(CLDRBASE_TYPE)
+        .superclass(CLDR_BASE)
         .addField(instance)
         .addMethod(constructor)
         .addMethod(getter)
@@ -104,9 +101,7 @@ public class CodeGenerator {
         .collect(Collectors.toSet());
     
     createLocales(type, reader.getDefaultContent(), availableLocales);
-
-    List<String> currencies = numberGenerator.getCurrencies(reader);
-    createCurrencies(type, currencies);
+    createCurrencies(type, numberGenerator.getCurrencies(reader));
     
     addPluralRules(type);
     
@@ -138,13 +133,13 @@ public class CodeGenerator {
    * Add static instance of plural rules and accessor method.
    */
   private static void addPluralRules(TypeSpec.Builder type) {
-    FieldSpec field = FieldSpec.builder(PLURAL_RULES_TYPE, "pluralRules", PRIVATE, STATIC, FINAL)
-        .initializer("new $T()", PLURAL_RULES_TYPE)
+    FieldSpec field = FieldSpec.builder(PLURAL_RULES, "pluralRules", PRIVATE, STATIC, FINAL)
+        .initializer("new $T()", PLURAL_RULES)
         .build();
     
     MethodSpec method = MethodSpec.methodBuilder("getPluralRules")
         .addModifiers(PUBLIC)
-        .returns(PLURAL_RULES_TYPE)
+        .returns(PLURAL_RULES)
         .addStatement("return pluralRules")
         .build();
 
@@ -160,8 +155,8 @@ public class CodeGenerator {
     for (Map.Entry<LocaleID, ClassName> entry : dateClasses.entrySet()) {
       LocaleID localeId = entry.getKey();
       ClassName className = entry.getValue();
-      block.addStatement("$T.$L($L, $L.class)", CLDRBASE_TYPE, 
-          methodName, localeId.safe.toUpperCase(), className);
+      block.addStatement("$T.$L(Locale.$L, $L.class)", CLDR_BASE, 
+          methodName, localeId.safe, className);
     }
     return block.build();
   }
@@ -171,11 +166,41 @@ public class CodeGenerator {
    * See: http://cldr.unicode.org/translation/default-content
    */
   private static void createLocales(TypeSpec.Builder type, List<LocaleID> defaultContent, Set<LocaleID> available) {
+    TypeSpec.Builder localeBase = TypeSpec.classBuilder("_Locale")
+        .addModifiers(PROTECTED, STATIC)
+        .superclass(CLDR_LOCALE_BASE_CLS)
+        .addSuperinterface(CLDR_LOCALE_IF)
+        .addMethod(MethodSpec.constructorBuilder()
+            .addParameter(String.class, "language")
+            .addParameter(String.class, "script")
+            .addParameter(String.class, "territory")
+            .addParameter(String.class, "variant")
+            .addStatement("super(language, script, territory, variant)").build());
+
+    type.addType(localeBase.build());
+    
+    TypeSpec.Builder localeInterface = TypeSpec.interfaceBuilder("Locale")
+        .addModifiers(PUBLIC, STATIC)
+        .addMethod(MethodSpec.methodBuilder("language")
+            .addModifiers(PUBLIC, ABSTRACT)
+            .returns(String.class).build())
+        .addMethod(MethodSpec.methodBuilder("script")
+            .addModifiers(PUBLIC, ABSTRACT)
+            .returns(String.class).build())
+        .addMethod(MethodSpec.methodBuilder("territory")
+            .addModifiers(PUBLIC, ABSTRACT)
+            .returns(String.class).build())
+        .addMethod(MethodSpec.methodBuilder("variant")
+            .addModifiers(PUBLIC, ABSTRACT)
+            .returns(String.class).build());
+    
+    List<LocaleID> localeFields = new ArrayList<>();
+    
     int localeCount = 0;
     List<String> allLocales = new ArrayList<>();
     for (LocaleID locale : available) {
-      String name = addLocaleField(type, locale);
-      allLocales.add(name);
+      localeFields.add(locale);
+      allLocales.add(locale.safe);
       localeCount++;
     }
     
@@ -183,14 +208,20 @@ public class CodeGenerator {
     for (LocaleID locale : defaultContent) {
       LocaleID dest = new LocaleID(locale.language, "", "", "");
       if (available.contains(dest)) {
-        String name = addLocaleField(type, locale);
-        allLocales.add(name);
+        localeFields.add(locale);
+        allLocales.add(locale.safe);
         localeCount++;
-        block.addStatement("defaultContent.put($L, $L)",
-            locale.safe.toUpperCase(),
-            dest.safe.toUpperCase());
+        block.addStatement("defaultContent.put(Locale.$L, Locale.$L)",
+            locale.safe,
+            dest.safe);
       }
     }
+
+    Collections.sort(localeFields);
+    for (LocaleID locale : localeFields) {
+      addLocaleField(localeInterface, locale.safe, locale);
+    }
+    
     type.addStaticBlock(block.build());
 
     StringBuilder buf = new StringBuilder("$T.unmodifiableList($T.asList(\n");
@@ -198,7 +229,7 @@ public class CodeGenerator {
       if (i > 0) {
         buf.append(",\n");
       }
-      buf.append("  $L");
+      buf.append("  Locale.$L");
     }
     buf.append("))");
 
@@ -209,36 +240,36 @@ public class CodeGenerator {
     arguments.add(Arrays.class);
     arguments.addAll(allLocales);
     
-    FieldSpec.Builder field = FieldSpec.builder(LOCALE_LIST_TYPE, "AVAILABLE_LOCALES", PRIVATE, STATIC, FINAL);
+    FieldSpec.Builder field = FieldSpec.builder(LIST_CLDR_LOCALE, "AVAILABLE_LOCALES", PRIVATE, STATIC, FINAL);
     field.initializer(buf.toString(), arguments.toArray());
     type.addField(field.build());
     
     MethodSpec.Builder method = MethodSpec.methodBuilder("availableLocales")
         .addModifiers(PUBLIC, STATIC, FINAL)
-        .returns(LOCALE_LIST_TYPE)
+        .returns(LIST_CLDR_LOCALE)
         .addStatement("return AVAILABLE_LOCALES");
+    
     type.addMethod(method.build());
+    type.addType(localeInterface.build());
   }
 
   /**
    * Create a public locale field.
    */
-  private static String addLocaleField(TypeSpec.Builder type, LocaleID locale) {
-    String name = locale.safe.toUpperCase();
-    FieldSpec.Builder field = FieldSpec.builder(CLDRLocale.class, name, PUBLIC, STATIC, FINAL)
-        .initializer("new $T($S, $S, $S, $S)", 
-            CLDRLocale.class, locale.language, locale.script, locale.territory, locale.variant);
+  private static void addLocaleField(TypeSpec.Builder type, String name, LocaleID locale) {
+    FieldSpec.Builder field = FieldSpec.builder(CLDR_LOCALE_IF, name, PUBLIC, STATIC, FINAL)
+        .initializer("new $T($S, $S, $S, $S)",
+            CLDR_LOCALE_CLS, locale.language, locale.script, locale.territory, locale.variant);
     type.addField(field.build());
-    return name;
   }
-  
+
   /**
    * Create top-level container to hold currency constants.
    */
   private static void createCurrencies(TypeSpec.Builder type, List<String> currencies) {
-    TypeSpec.Builder currencyType = TypeSpec.classBuilder("Currency")
-        .addModifiers(PUBLIC, STATIC, FINAL);
-    
+    TypeSpec.Builder currencyType = TypeSpec.interfaceBuilder("Currency")
+        .addModifiers(PUBLIC, STATIC);
+
     List<String> codes = new ArrayList<>();
     codes.addAll(currencies);
     Collections.sort(codes);
@@ -260,13 +291,13 @@ public class CodeGenerator {
     arguments.add(Collections.class);
     arguments.add(Arrays.class);
     arguments.addAll(codes);
-    FieldSpec.Builder field = FieldSpec.builder(CURRENCY_LIST_TYPE, "AVAILABLE_CURRENCIES", PRIVATE, STATIC, FINAL);
+    FieldSpec.Builder field = FieldSpec.builder(LIST_STRING, "AVAILABLE_CURRENCIES", PRIVATE, STATIC, FINAL);
     field.initializer(buf.toString(), arguments.toArray());
     type.addField(field.build());
     
     MethodSpec.Builder method = MethodSpec.methodBuilder("availableCurrencies")
         .addModifiers(PUBLIC, STATIC, FINAL)
-        .returns(CURRENCY_LIST_TYPE)
+        .returns(LIST_STRING)
         .addStatement("return AVAILABLE_CURRENCIES");
     type.addMethod(method.build());
   }
@@ -279,4 +310,5 @@ public class CodeGenerator {
         .initializer("$S", currencyCode);
     type.addField(field.build());
   }
+  
 }

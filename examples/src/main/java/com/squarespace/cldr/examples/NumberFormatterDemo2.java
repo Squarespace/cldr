@@ -36,7 +36,7 @@ public class NumberFormatterDemo2 {
     };
 
     for (DecimalFormatOptions o : dopts) {
-      NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.EN_US);
+      NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
       for (BigDecimal n : numbers) {
         StringBuilder buf = new StringBuilder();
         fmt.formatDecimal(n, buf, o);
@@ -55,7 +55,7 @@ public class NumberFormatterDemo2 {
     };
       
     for (CurrencyFormatOptions o : copts) {
-      NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.EN_US);
+      NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
       for (BigDecimal n : numbers) {
         StringBuilder buf = new StringBuilder();
         fmt.formatCurrency(n, "USD", buf, o);

@@ -1,7 +1,9 @@
 package com.squarespace.cldr.codegen;
 
-import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR_NUMBERS;
-import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR_PLURALS;
+import static com.squarespace.cldr.codegen.Types.NUMBER_OPERANDS;
+import static com.squarespace.cldr.codegen.Types.PACKAGE_CLDR_PLURALS;
+import static com.squarespace.cldr.codegen.Types.PLURAL_CATEGORY;
+import static com.squarespace.cldr.codegen.Types.PLURAL_CONDITION;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -29,19 +31,15 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 
 /**
- * Emits classes to perform plural category assignment by language.
+ * Generates code to calculate plural categories using CLDR rules.
  */
 public class PluralCodeGenerator {
 
   private static final ClassName TYPE_BASE = ClassName.get(PACKAGE_CLDR_PLURALS, "PluralRulesBase");
-  private static final ClassName TYPE_NUMBER_OPERANDS = ClassName.get(PACKAGE_CLDR_NUMBERS, "NumberOperands");
-  private static final ClassName TYPE_PLURAL_CATEGORY = ClassName.get(PACKAGE_CLDR_PLURALS, "PluralCategory");
-  private static final TypeName TYPE_CONDITION = ClassName.get("", "Condition");
 
   public static void main(String[] args) throws Exception {
     Path outputDir = Paths.get("/Users/phensley/dev/squarespace-cldr/runtime/src/generated/java");
@@ -81,8 +79,8 @@ public class PluralCodeGenerator {
     MethodSpec.Builder method = MethodSpec.methodBuilder("eval" + pluralType)
         .addModifiers(PUBLIC)
         .addParameter(String.class, "language")
-        .addParameter(TYPE_NUMBER_OPERANDS, "o")
-        .returns(TYPE_PLURAL_CATEGORY);
+        .addParameter(NUMBER_OPERANDS, "o")
+        .returns(PLURAL_CATEGORY);
 
     method.beginControlFlow("switch (language)");
 
@@ -112,8 +110,8 @@ public class PluralCodeGenerator {
   private MethodSpec buildRuleMethod(String methodName, PluralData data, Map<String, FieldSpec> fieldMap) {
     MethodSpec.Builder method = MethodSpec.methodBuilder(methodName)
         .addModifiers(PRIVATE, STATIC)
-        .addParameter(TYPE_NUMBER_OPERANDS, "o")
-        .returns(TYPE_PLURAL_CATEGORY);
+        .addParameter(NUMBER_OPERANDS, "o")
+        .returns(PLURAL_CATEGORY);
 
     for (Map.Entry<String, PluralData.Rule> entry : data.rules().entrySet()) {
       String category = entry.getKey();
@@ -213,7 +211,7 @@ public class PluralCodeGenerator {
   public FieldSpec buildConditionField(int index, Struct<PluralType> branch) {
     String fieldDoc = PluralRulePrinter.print(branch);
     String name = String.format("COND_%d", index);
-    FieldSpec.Builder field = FieldSpec.builder(TYPE_CONDITION, name, PRIVATE, STATIC, FINAL)
+    FieldSpec.Builder field = FieldSpec.builder(PLURAL_CONDITION, name, PRIVATE, STATIC, FINAL)
         .addJavadoc(fieldDoc + "\n");
 
     List<Node<PluralType>> expressions = branch.nodes();

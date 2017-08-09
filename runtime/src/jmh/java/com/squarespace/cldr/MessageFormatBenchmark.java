@@ -26,7 +26,6 @@ public class MessageFormatBenchmark {
   private static final String FORMAT1 = "The total for the {0, plural, one{product} other{# products}} "
       + "you ordered is {1 currency style:name min-fractional-digits:2} at {2 datetime wrap:full}.";
 
-  private static final CLDRLocale EN_US = new CLDRLocale("en", "", "US", "POSIX");
   private static final ZoneId ZONEID = ZoneId.of("America/New_York");
 
   private static final MessageArgs ARGS1 = MessageArgs.newBuilder()
@@ -62,7 +61,7 @@ public class MessageFormatBenchmark {
 
     @Setup
     public void setup() throws RunnerException {
-      this.format1 = new MessageFormat(EN_US, ZONEID, FORMAT1);
+      this.format1 = new MessageFormat(CLDR.Locale.en_US, ZONEID, FORMAT1);
     }
 
   }

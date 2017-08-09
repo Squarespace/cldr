@@ -3,7 +3,6 @@ package com.squarespace.cldr.examples;
 import java.math.BigDecimal;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 import com.squarespace.cldr.numbers.CurrencyFormatOptions;
 import com.squarespace.cldr.numbers.CurrencyFormatStyle;
 import com.squarespace.cldr.numbers.DecimalFormatOptions;
@@ -41,12 +40,12 @@ public class NumberFormatterDemo {
         "10000000001"
     };
     
-    CLDRLocale[] locales = new CLDRLocale[] { 
-        CLDR.EN_US,
-        CLDR.ES,
-        CLDR.FR,
-        CLDR.DE,
-        CLDR.ZH 
+    CLDR.Locale[] locales = new CLDR.Locale[] { 
+        CLDR.Locale.en_US,
+        CLDR.Locale.es,
+        CLDR.Locale.fr,
+        CLDR.Locale.de,
+        CLDR.Locale.zh 
     };
 
     System.out.println("DECIMAL NUMBER FORMATTING\n");
@@ -63,7 +62,7 @@ public class NumberFormatterDemo {
         .setFormatMode(NumberFormatMode.SIGNIFICANT)
     };
 
-    for (CLDRLocale locale : locales) {
+    for (CLDR.Locale locale : locales) {
       for (DecimalFormatOptions opts : decimalOpts) {
         System.out.println("Locale \"" + locale + "\":\n\n  " + formatOptions(opts) + "\n");
         decimal(locale, numbers, opts);
@@ -97,7 +96,7 @@ public class NumberFormatterDemo {
       "RUB"
     };
     
-    for (CLDRLocale locale : locales) {
+    for (CLDR.Locale locale : locales) {
       for (CurrencyFormatOptions opts : currencyOpts) {
         System.out.println("Locale \"" + locale + "\":\n\n  " + formatOptions(opts) + "\n");
         money(locale, currencies, numbers, opts);
@@ -109,7 +108,7 @@ public class NumberFormatterDemo {
   /**
    * Format decimal numbers in this locale.
    */
-  private static void decimal(CLDRLocale locale, String[] numbers, DecimalFormatOptions opts) {
+  private static void decimal(CLDR.Locale locale, String[] numbers, DecimalFormatOptions opts) {
     for (String num : numbers) {
       BigDecimal n = new BigDecimal(num);
       StringBuilder buf = new StringBuilder("  ");
@@ -122,7 +121,7 @@ public class NumberFormatterDemo {
   /**
    * Format numbers in this locale for several currencies.
    */
-  private static void money(CLDRLocale locale, String[] currencies, String[] numbers, CurrencyFormatOptions opts) {
+  private static void money(CLDR.Locale locale, String[] currencies, String[] numbers, CurrencyFormatOptions opts) {
     for (String currency : currencies) {
       System.out.println("Currency " + currency);
       for (String num : numbers) {

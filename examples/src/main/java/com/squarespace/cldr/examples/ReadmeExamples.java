@@ -31,7 +31,7 @@ public class ReadmeExamples {
   }
 
   private static void numbers() {
-    NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.EN_US);
+    NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
     StringBuilder buffer = new StringBuilder();
 
     BigDecimal n = BigDecimal.valueOf(Math.PI);
@@ -71,7 +71,7 @@ public class ReadmeExamples {
   }
   
   private static void currencies() {
-    NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.EN_US);
+    NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
     
     StringBuilder buffer = new StringBuilder();
 
@@ -143,7 +143,7 @@ public class ReadmeExamples {
     ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
     ZonedDateTime end = start.withYear(2020).withMonth(12);
 
-    CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.EN_US);
+    CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.Locale.en_US);
     f.format(start, end, DateTimeIntervalSkeleton.y, buffer);
     System.out.println(buffer);
     // 2010 – 2020
@@ -208,7 +208,7 @@ public class ReadmeExamples {
     ZonedDateTime datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
     
     StringBuilder buffer = new StringBuilder();
-    CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.EN_US);
+    CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.Locale.en_US);
 
     CalendarFormatOptions options = new CalendarFormatOptions();
     

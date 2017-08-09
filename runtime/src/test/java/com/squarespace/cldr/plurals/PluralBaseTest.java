@@ -3,7 +3,6 @@ package com.squarespace.cldr.plurals;
 import org.testng.Assert;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 import com.squarespace.cldr.PluralRules;
 import com.squarespace.cldr.numbers.NumberOperands;
 
@@ -11,20 +10,20 @@ public class PluralBaseTest {
 
   private static final PluralRules PLURAL_RULES = CLDR.get().getPluralRules();
   
-  protected Fixture cardinal(CLDRLocale locale) {
+  protected Fixture cardinal(CLDR.Locale locale) {
     return new Fixture(locale, false);
   }
   
-  protected Fixture ordinal(CLDRLocale locale) {
+  protected Fixture ordinal(CLDR.Locale locale) {
     return new Fixture(locale, true);
   }
   
   protected static class Fixture {
     
-    private final CLDRLocale locale;
+    private final CLDR.Locale locale;
     private final boolean ordinal;
     
-    public Fixture(CLDRLocale locale, boolean ordinal) {
+    public Fixture(CLDR.Locale locale, boolean ordinal) {
       this.locale = locale;
       this.ordinal = ordinal;
     }

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 import com.squarespace.cldr.numbers.CurrencyFormatOptions;
 import com.squarespace.cldr.numbers.CurrencyFormatStyle;
 import com.squarespace.cldr.numbers.DecimalFormatOptions;
@@ -65,7 +64,7 @@ public class NumberStress {
     };
 
     CLDR cldr = CLDR.get();
-    List<CLDRLocale> locales = CLDR.availableLocales();
+    List<CLDR.Locale> locales = CLDR.availableLocales();
     List<String> currencies = CLDR.availableCurrencies();
 
     List<BigDecimal> nums = new ArrayList<>();
@@ -75,7 +74,7 @@ public class NumberStress {
     
     long start = System.currentTimeMillis();
     StringBuilder buf = new StringBuilder();
-    for (CLDRLocale locale : locales) {
+    for (CLDR.Locale locale : locales) {
       System.out.println("generating " + locale);
       NumberFormatter fmt = cldr.getNumberFormatter(locale);
 

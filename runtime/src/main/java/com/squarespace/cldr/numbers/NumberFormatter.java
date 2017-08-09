@@ -2,7 +2,7 @@ package com.squarespace.cldr.numbers;
 
 import java.math.BigDecimal;
 
-import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.CLDR;
 
 
 /**
@@ -13,7 +13,7 @@ public interface NumberFormatter {
   /**
    * Returns the locale associated with this formatter.
    */
-  CLDRLocale locale();
+  CLDR.Locale locale();
 
   /**
    * Format the number as a decimal, using the options, and write it to the buffer.

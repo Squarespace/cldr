@@ -8,7 +8,7 @@ import com.squarespace.cldr.codegen.LocaleID;
 
 
 /**
- * Container to hold CLDR date-time data.
+ * Container to hold CLDR date-time data during code generation.
  */
 public class DateTimeData {
 

@@ -9,7 +9,7 @@ import java.time.zone.ZoneRules;
 import java.time.zone.ZoneRulesException;
 import java.util.Map;
 
-import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.dates.TimeZoneNames.Name;
 
 
@@ -24,7 +24,7 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   // TODO: fuzzy skeleton matching (needed?)
 
   // Locale-specific data populated through code generation of the subclasses.
-  protected CLDRLocale locale;
+  protected CLDR.Locale locale;
   protected int firstDay;
   protected int minDays;
   protected FieldVariants eras;
@@ -41,7 +41,7 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   protected Map<String, TimeZoneNames> timezoneNames;
   protected Map<String, TimeZoneNames> metazoneNames;
   
-  public CLDRLocale locale() {
+  public CLDR.Locale locale() {
     return locale;
   }
   

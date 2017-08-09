@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import com.squarespace.cldr.CLDR;
 
 
-public class NumberFormatterDecimalTest_EN_US extends NumberFormatterBaseTest {
+public class NumberFormatterDecimalTest_en_US extends NumberFormatterBaseTest {
 
   private final List<Pair> NUMBERS = numbers(
       "0"
@@ -32,7 +32,7 @@ public class NumberFormatterDecimalTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testDecimalDefault() {
     DecimalFormatOptions options = decimal().setGrouping(true);
-    test(CLDR.EN_US, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, options, NUMBERS, pairs(
         pair("0", "0"),
         pair("1", "-1"),
         pair("1", "-1"),
@@ -51,7 +51,7 @@ public class NumberFormatterDecimalTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testPercentDefault() {
     DecimalFormatOptions options = decimal(PERCENT).setGrouping(true);
-    test(CLDR.EN_US, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, options, NUMBERS, pairs(
         pair("0%", "0%"),
         pair("100%", "-100%"),
         pair("100%", "-100%"),
@@ -70,7 +70,7 @@ public class NumberFormatterDecimalTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testPermilleDefault() {
     DecimalFormatOptions options = decimal(PERMILLE).setGrouping(true);
-    test(CLDR.EN_US, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, options, NUMBERS, pairs(
         pair("0‰", "0‰"),
         pair("1,000‰", "-1,000‰"),
         pair("1,000‰", "-1,000‰"),
@@ -89,7 +89,7 @@ public class NumberFormatterDecimalTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testShortDefault() {
     DecimalFormatOptions options = decimal(SHORT).setGrouping(true);
-    test(CLDR.EN_US, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, options, NUMBERS, pairs(
         pair("0", "0"),
         pair("1", "-1"),
         pair("1", "-1"),
@@ -108,7 +108,7 @@ public class NumberFormatterDecimalTest_EN_US extends NumberFormatterBaseTest {
   @Test
   public void testLongDefault() {
     DecimalFormatOptions options = decimal(LONG).setGrouping(true);
-    test(CLDR.EN_US, options, NUMBERS, pairs(
+    test(CLDR.Locale.en_US, options, NUMBERS, pairs(
         pair("0", "0"),
         pair("1", "-1"),
         pair("1", "-1"),

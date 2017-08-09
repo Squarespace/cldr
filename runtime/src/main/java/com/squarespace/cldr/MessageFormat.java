@@ -81,8 +81,6 @@ import com.squarespace.compiler.text.Scanner.Stream;
 public class MessageFormat {
 
   private static final int DEFAULT_MAXDEPTH = 4;
-
-  private static final CLDRLocale EN_US = new CLDRLocale("en", "", "US", "POSIX");
   private static final ZoneId DEFAULT_ZONEID = ZoneId.of("America/New_York");
 
   // Names of tag types.
@@ -134,7 +132,7 @@ public class MessageFormat {
   private final CalendarFormatOptions calendarOptions = new CalendarFormatOptions();
 
   // Locale, currency and time zone defaults.
-  private CLDRLocale locale = EN_US;
+  private CLDR.Locale locale = CLDR.Locale.en_US;
   private ZoneId timeZone;
 
   // Stack of streams for recursive formatting.
@@ -153,7 +151,7 @@ public class MessageFormat {
   /**
    * Construct a message formatter with the given locale, time zone and message format.
    */
-  public MessageFormat(CLDRLocale locale, ZoneId timeZone, String format) {
+  public MessageFormat(CLDR.Locale locale, ZoneId timeZone, String format) {
     this(locale, timeZone, format, DEFAULT_MAXDEPTH);
   }
 
@@ -161,7 +159,7 @@ public class MessageFormat {
    * Construct a message formatter with the given locale, time zone, message format,
    * and maximum recursion depth.
    */
-  public MessageFormat(CLDRLocale locale, ZoneId timeZone, String format, int maxDepth) {
+  public MessageFormat(CLDR.Locale locale, ZoneId timeZone, String format, int maxDepth) {
     this.locale = locale;
     this.timeZone = timeZone;
     this.streams = new Stream[maxDepth];
@@ -171,7 +169,7 @@ public class MessageFormat {
   /**
    * Set the locale for this message.
    */
-  public void setLocale(CLDRLocale locale) {
+  public void setLocale(CLDR.Locale locale) {
     this.locale = locale;
   }
 

@@ -63,7 +63,7 @@ public class NumberFormatBenchmark {
     
     @Setup
     public void setup() throws RunnerException {
-      en_US = CLDR.get().getNumberFormatter(CLDR.EN_US);
+      en_US = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
     }
    
     public void formatDecimal(BigDecimal n, DecimalFormatOptions opts) {

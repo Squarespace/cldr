@@ -4,6 +4,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 
+/**
+ * Holds time zone data during code generation.
+ */
 public class TimeZoneData {
 
   public String hourFormat;

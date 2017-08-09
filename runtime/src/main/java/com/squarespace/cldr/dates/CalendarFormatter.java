@@ -2,7 +2,7 @@ package com.squarespace.cldr.dates;
 
 import java.time.ZonedDateTime;
 
-import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.CLDR;
 
 
 /**
@@ -13,7 +13,7 @@ public interface CalendarFormatter {
   /**
    * Returns the locale associated with this formatter.
    */
-  CLDRLocale locale();
+  CLDR.Locale locale();
 
   /**
    * Format a date time with the given options, writing the output to the buffer.

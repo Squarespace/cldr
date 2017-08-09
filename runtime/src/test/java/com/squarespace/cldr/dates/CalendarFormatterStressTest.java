@@ -7,7 +7,6 @@ import java.time.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 
 
 public class CalendarFormatterStressTest {
@@ -27,19 +26,19 @@ public class CalendarFormatterStressTest {
   public void testCalendarFormatter() {
     StringBuilder buffer = new StringBuilder();
     long epoch = 1288648500000L;
-    CLDRLocale[] locales = new CLDRLocale[] {
-      CLDR.EN_US,
-      CLDR.AM,
-      CLDR.AR,
-      CLDR.FR,
-      CLDR.DE,
-      CLDR.EN_GB
+    CLDR.Locale[] locales = new CLDR.Locale[] {
+      CLDR.Locale.en_US,
+      CLDR.Locale.am,
+      CLDR.Locale.ar,
+      CLDR.Locale.fr,
+      CLDR.Locale.de,
+      CLDR.Locale.en_GB
     };
     
     ZoneId zoneId = ZoneId.of("America/New_York");
     ZonedDateTime datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
 
-    for (CLDRLocale locale : locales) {
+    for (CLDR.Locale locale : locales) {
       CalendarFormatter f = CLDR.get().getCalendarFormatter(locale);
       int outer = DATE * TIME * WRAPPER * DATESKEL * TIMESKEL;
       int inner = FORMATS_LEN * SKELETONS_LEN;

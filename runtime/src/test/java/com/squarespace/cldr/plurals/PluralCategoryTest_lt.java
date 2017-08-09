@@ -10,11 +10,11 @@ import org.testng.annotations.Test;
 import com.squarespace.cldr.CLDR;
 
 
-public class PluralCategoryTest_LT extends PluralBaseTest {
+public class PluralCategoryTest_lt extends PluralBaseTest {
 
   @Test
   public void testCardinal() {
-    Fixture f = cardinal(CLDR.LT);
+    Fixture f = cardinal(CLDR.Locale.lt);
     
     //   integer 1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, … 
     //   decimal 1.0, 21.0, 31.0, 41.0, 51.0, 61.0, 71.0, 81.0, 101.0, 1001.0, …

@@ -1,4 +1,4 @@
-package com.squarespace.cldr.numbers;
+package com.squarespace.cldr.examples;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -6,7 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
+import com.squarespace.cldr.numbers.CurrencyFormatOptions;
+import com.squarespace.cldr.numbers.CurrencyFormatStyle;
+import com.squarespace.cldr.numbers.DecimalFormatOptions;
+import com.squarespace.cldr.numbers.DecimalFormatStyle;
+import com.squarespace.cldr.numbers.NumberFormatter;
 
 
 public class NumberFormatterStress {
@@ -45,7 +49,7 @@ public class NumberFormatterStress {
     int iterations = 1000000;
     CLDR cldr = CLDR.get();
 
-    CLDRLocale locale = CLDR.EN_US;
+    CLDR.Locale locale = CLDR.Locale.en_US;
     String currency = CLDR.Currency.USD;
 
     List<BigDecimal> nums = new ArrayList<>();

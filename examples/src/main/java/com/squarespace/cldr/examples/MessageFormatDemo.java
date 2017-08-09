@@ -28,7 +28,7 @@ public class MessageFormatDemo {
         "  other {You and # others liked {1, plural, =1{this item} other{these # items}}}" +
         "}";
 
-    MessageFormat msg = new MessageFormat(CLDR.EN_US, ZONEID, format);
+    MessageFormat msg = new MessageFormat(CLDR.Locale.en_US, ZONEID, format);
     
     for (int i = 0; i < 6; i++) {
       StringBuilder buf = new StringBuilder();

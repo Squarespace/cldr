@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.CLDRLocale;
 
 public class CalendarFormatterTestBase {
 
@@ -58,7 +57,7 @@ public class CalendarFormatterTestBase {
    * Formats a date time interval using the given skeleton.
    */
   protected void assertFormat(
-      CLDRLocale locale, DateTimeIntervalSkeleton skeleton, Datetime start, Datetime end, String expected) {
+      CLDR.Locale locale, DateTimeIntervalSkeleton skeleton, Datetime start, Datetime end, String expected) {
     CalendarFormatter fmt = CLDR.get().getCalendarFormatter(locale);
     StringBuilder buffer = new StringBuilder();
     fmt.format(start.d, end.d, skeleton, buffer);
@@ -69,7 +68,7 @@ public class CalendarFormatterTestBase {
    * Formats a date using the given field. The array of expected strings correspond to increasing field
    * width, starting width 1, increasing by 1.
    */
-  protected void assertFormat(CLDRLocale locale, char field, Datetime datetime, String... expected) {
+  protected void assertFormat(CLDR.Locale locale, char field, Datetime datetime, String... expected) {
     CalendarFormatter fmt = CLDR.get().getCalendarFormatter(locale);
     StringBuilder buffer = new StringBuilder();
     for (int i = 0; i < expected.length; i++) {

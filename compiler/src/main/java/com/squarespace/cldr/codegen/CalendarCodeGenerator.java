@@ -1,7 +1,6 @@
 package com.squarespace.cldr.codegen;
 
-import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR;
-import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR_DATES;
+import static com.squarespace.cldr.codegen.Types.*;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -48,24 +47,9 @@ import com.squareup.javapoet.TypeSpec;
 
 
 /**
- * Generates the CLDR classes that encapsulate the formatting instructions for
- * date-time patterns in a given locale.
+ * Generates code to format dates and times using CLDR data.
  */
 public class CalendarCodeGenerator {
-
-  private static final ClassName ZONED_DATETIME_TYPE = ClassName.get("java.time", "ZonedDateTime");
-  private static final ClassName STRINGBUILDER_TYPE = ClassName.get("java.lang", "StringBuilder");
-  private static final ClassName STRING_TYPE = ClassName.get("java.lang", "String");
-  private static final ClassName MAP_TYPE = ClassName.get("java.util", "Map");
-  private static final ClassName HASHMAP_TYPE = ClassName.get("java.util", "HashMap");
-  
-  private static final ClassName CLDR_TYPE = ClassName.get(PACKAGE_CLDR, "CLDR");
-
-  private static final ClassName FORMATTER_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "CalendarFormatterBase");
-  private static final ClassName FIELD_VARIANTS_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "FieldVariants");
-  private static final ClassName SKELETON_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "SkeletonType");
-  private static final ClassName CALENDARFORMAT_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "CalendarFormat");
-  private static final ClassName TIMEZONENAMES_TYPE = ClassName.get(PACKAGE_CLDR_DATES, "TimeZoneNames");
 
   private static final DateTimePatternParser DATETIME_PARSER = new DateTimePatternParser();
   private static final WrapperPatternParser WRAPPER_PARSER = new WrapperPatternParser();
@@ -94,9 +78,9 @@ public class CalendarCodeGenerator {
       TimeZoneData timeZoneData = reader.timezones().get(localeId);
       
       TypeSpec type = createFormatter(dateTimeData, timeZoneData, className);
-      CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_DATES, className, type);
+      CodeGenerator.saveClass(outputDir, Types.PACKAGE_CLDR_DATES, className, type);
 
-      ClassName cls = ClassName.get(PACKAGE_CLDR_DATES, className);
+      ClassName cls = ClassName.get(Types.PACKAGE_CLDR_DATES, className);
       dateClasses.put(localeId, cls);
       dateTimeDataList.add(dateTimeData);
     }
@@ -109,7 +93,7 @@ public class CalendarCodeGenerator {
     addMetaZones(utilsType, reader.metazones());
     buildTimeZoneAliases(utilsType, reader.timezoneAliases());
 
-    CodeGenerator.saveClass(outputDir, PACKAGE_CLDR_DATES, "_CalendarUtils", utilsType.build());
+    CodeGenerator.saveClass(outputDir, Types.PACKAGE_CLDR_DATES, "_CalendarUtils", utilsType.build());
 
     return dateClasses;
   }
@@ -138,12 +122,12 @@ public class CalendarCodeGenerator {
    * Populate the metaZone mapping.
    */
   private void addMetaZones(TypeSpec.Builder type, Map<String, MetaZone> metazones) {
-    ClassName metazoneType = ClassName.get(PACKAGE_CLDR_DATES, "MetaZone");
-    TypeName mapType = ParameterizedTypeName.get(MAP_TYPE, STRING_TYPE, metazoneType);
+    ClassName metazoneType = ClassName.get(Types.PACKAGE_CLDR_DATES, "MetaZone");
+    TypeName mapType = ParameterizedTypeName.get(MAP, STRING, metazoneType);
     FieldSpec.Builder field = FieldSpec.builder(mapType, "metazones", PROTECTED, STATIC, FINAL);
     
     CodeBlock.Builder code = CodeBlock.builder();
-    code.beginControlFlow("new $T<$T, $T>() {", HASHMAP_TYPE, STRING_TYPE, metazoneType);
+    code.beginControlFlow("new $T<$T, $T>() {", HashMap.class, String.class, metazoneType);
     for (Map.Entry<String, MetaZone> entry : metazones.entrySet()) {
       String zoneId = entry.getKey();
       MetaZone zone = entry.getValue();
@@ -214,7 +198,7 @@ public class CalendarCodeGenerator {
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
         .addModifiers(PUBLIC);
 
-    constructor.addStatement("this.locale = $T.$L", CLDR_TYPE, id.safe.toUpperCase());
+    constructor.addStatement("this.locale = $T.$L", CLDR_LOCALE_IF, id.safe);
     constructor.addStatement("this.firstDay = $L", dateTimeData.firstDay);
     constructor.addStatement("this.minDays = $L", dateTimeData.minDays);
 
@@ -233,45 +217,29 @@ public class CalendarCodeGenerator {
     buildMetaZoneNames(constructor, timeZoneData);
     
     TypeSpec.Builder type = TypeSpec.classBuilder(className)
-        .superclass(FORMATTER_TYPE)
+        .superclass(CALENDAR_FORMATTER)
         .addModifiers(PUBLIC)
         .addJavadoc(
             "Locale \"" + dateTimeData.id + "\"\n" +
             "See http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table\n")
         .addMethod(constructor.build());
 
-    MethodSpec.Builder dateMethod = MethodSpec.methodBuilder("formatDate")
-        .addAnnotation(Override.class)
-        .addModifiers(PUBLIC)
-        .addParameter(CALENDARFORMAT_TYPE, "type")
-        .addParameter(ZONED_DATETIME_TYPE, "d")
-        .addParameter(STRINGBUILDER_TYPE, "b");
-
-    addTypedPattern(dateMethod, CALENDARFORMAT_TYPE, dateTimeData.dateFormats);
-
-    MethodSpec.Builder timeMethod = MethodSpec.methodBuilder("formatTime")
-      .addAnnotation(Override.class)
-      .addModifiers(PUBLIC)
-      .addParameter(CALENDARFORMAT_TYPE, "type")
-      .addParameter(ZONED_DATETIME_TYPE, "d")
-      .addParameter(STRINGBUILDER_TYPE, "b");
-
-    addTypedPattern(timeMethod, CALENDARFORMAT_TYPE, dateTimeData.timeFormats);
-
-    MethodSpec.Builder wrapperMethod = buildWrappers(dateTimeData.dateTimeFormats);
-    MethodSpec.Builder formatMethod = buildSkeletonFormatter(dateTimeData);
-    MethodSpec.Builder intervalMethod = buildIntervalFormatter(dateTimeData);
-    MethodSpec.Builder gmtMethod = buildWrapTimeZoneGMTMethod(timeZoneData);
-    MethodSpec.Builder regionFormatMethod = buildWrapTimeZoneRegionMethod(timeZoneData);
+    MethodSpec dateMethod = buildTypedPatternMethod("formatDate", CALENDAR_FORMAT, dateTimeData.dateFormats);
+    MethodSpec timeMethod = buildTypedPatternMethod("formatTime", CALENDAR_FORMAT, dateTimeData.timeFormats);
+    MethodSpec wrapperMethod = buildWrapperMethod(dateTimeData.dateTimeFormats);
+    MethodSpec skeletonMethod = buildSkeletonFormatter(dateTimeData.dateTimeSkeletons);
+    MethodSpec intervalMethod = buildIntervalMethod(dateTimeData.intervalFormats, dateTimeData.intervalFallbackFormat);
+    MethodSpec gmtMethod = buildWrapTimeZoneGMTMethod(timeZoneData);
+    MethodSpec regionFormatMethod = buildWrapTimeZoneRegionMethod(timeZoneData);
 
     return type
-        .addMethod(dateMethod.build())
-        .addMethod(timeMethod.build())
-        .addMethod(wrapperMethod.build())
-        .addMethod(formatMethod.build())
-        .addMethod(intervalMethod.build())
-        .addMethod(gmtMethod.build())
-        .addMethod(regionFormatMethod.build())
+        .addMethod(dateMethod)
+        .addMethod(timeMethod)
+        .addMethod(wrapperMethod)
+        .addMethod(skeletonMethod)
+        .addMethod(intervalMethod)
+        .addMethod(gmtMethod)
+        .addMethod(regionFormatMethod)
         .build();
   }
 
@@ -280,7 +248,14 @@ public class CalendarCodeGenerator {
    * This generates a switch statement to format patterns of this type.
    * See CLDR "dateFormats" and "timeFormats" nodes.
    */
-  private void addTypedPattern(MethodSpec.Builder method, ClassName type, Format format) {
+  private MethodSpec buildTypedPatternMethod(String methodName, ClassName type, Format format) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder(methodName)
+        .addAnnotation(Override.class)
+        .addModifiers(PUBLIC)
+        .addParameter(CALENDAR_FORMAT, "type")
+        .addParameter(ZonedDateTime.class, "d")
+        .addParameter(StringBuilder.class, "b");
+
     method.beginControlFlow("if (type == null)");
     method.addStatement("return");
     method.endControlFlow();
@@ -291,6 +266,8 @@ public class CalendarCodeGenerator {
     addTypedPattern(method, "LONG", format.long_);
     addTypedPattern(method, "FULL", format.full);
     method.endControlFlow();
+    
+    return method.build();
   }
 
   /**
@@ -324,17 +301,17 @@ public class CalendarCodeGenerator {
    * Build a method that will format a date and time (named or skeleton) in a
    * localized wrapper.
    */
-  private MethodSpec.Builder buildWrappers(Format format) {
+  private MethodSpec buildWrapperMethod(Format format) {
     MethodSpec.Builder method = MethodSpec.methodBuilder("formatWrapped")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
-        .addParameter(CALENDARFORMAT_TYPE, "wrapperType")
-        .addParameter(CALENDARFORMAT_TYPE, "dateType")
-        .addParameter(CALENDARFORMAT_TYPE, "timeType")
+        .addParameter(CALENDAR_FORMAT, "wrapperType")
+        .addParameter(CALENDAR_FORMAT, "dateType")
+        .addParameter(CALENDAR_FORMAT, "timeType")
         .addParameter(String.class, "dateSkel")
         .addParameter(String.class, "timeSkel")
-        .addParameter(ZONED_DATETIME_TYPE, "d")
-        .addParameter(STRINGBUILDER_TYPE, "b");
+        .addParameter(ZonedDateTime.class, "d")
+        .addParameter(StringBuilder.class, "b");
 
     Map<String, List<String>> map = deduplicateFormats(format);
 
@@ -350,7 +327,7 @@ public class CalendarCodeGenerator {
     }
     method.endControlFlow();
 
-    return method;
+    return method.build();
   }
 
   /**
@@ -388,13 +365,13 @@ public class CalendarCodeGenerator {
   /**
    * Implements the formatSkeleton method.
    */
-  private MethodSpec.Builder buildSkeletonFormatter(DateTimeData dateTimeData) {
+  private MethodSpec buildSkeletonFormatter(List<Skeleton> skeletons) {
     MethodSpec.Builder method = MethodSpec.methodBuilder("formatSkeleton")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
         .addParameter(String.class, "skeleton")
-        .addParameter(ZONED_DATETIME_TYPE, "d")
-        .addParameter(STRINGBUILDER_TYPE, "b")
+        .addParameter(ZonedDateTime.class, "d")
+        .addParameter(StringBuilder.class, "b")
         .returns(boolean.class);
 
     method.beginControlFlow("if (skeleton == null)");
@@ -404,7 +381,7 @@ public class CalendarCodeGenerator {
     method.beginControlFlow("switch (skeleton)");
 
     // Skeleton patterns.
-    for (Skeleton skeleton : dateTimeData.dateTimeSkeletons) {
+    for (Skeleton skeleton : skeletons) {
       method.beginControlFlow("case $S:", skeleton.skeleton)
         .addComment("Pattern: $S", skeleton.pattern);
 
@@ -420,13 +397,14 @@ public class CalendarCodeGenerator {
 
     method.endControlFlow();
     method.addStatement("return true");
-    return method;
+    
+    return method.build();
   }
   
   /**
    * Build methods to format date time intervals using the field of greatest difference.
    */
-  private MethodSpec.Builder buildIntervalFormatter(DateTimeData dateTimeData) {
+  private MethodSpec buildIntervalMethod(Map<String, Map<String, String>> intervalFormats, String fallback) {
     MethodSpec.Builder method = MethodSpec.methodBuilder("formatInterval")
         .addAnnotation(Override.class)
         .addModifiers(PUBLIC)
@@ -436,42 +414,54 @@ public class CalendarCodeGenerator {
         .addParameter(DateTimeField.class, "f") 
         .addParameter(StringBuilder.class, "b");
 
+    // Only enter the switches if both params are non-null.
     method.beginControlFlow("if (k != null && f != null)");
   
+    // BEGIN switch (k)
     method.beginControlFlow("switch (k)");
-    for (Map.Entry<String, Map<String, String>> format : dateTimeData.intervalFormats.entrySet()) {
+    for (Map.Entry<String, Map<String, String>> format : intervalFormats.entrySet()) {
       String skeleton = format.getKey();
   
+      // BEGIN "case skeleton:"
       method.beginControlFlow("case $S:", skeleton);
       method.beginControlFlow("switch (f)");
       
       for (Map.Entry<String, String> entry : format.getValue().entrySet()) {
         String field = entry.getKey();
+        
+        // Split the interval pattern on the boundary. We end up with two patterns, one for
+        // start and end respectively.
         Pair<List<Node>, List<Node>> patterns = DATETIME_PARSER.splitIntervalPattern(entry.getValue());
 
+        // BEGIN "case field:"
+        // Render this pair of patterns when the given field matches.
         method.beginControlFlow("case $L:", DateTimeField.fromString(field));
         method.addComment("$S", DateTimePatternParser.render(patterns._1));
         addIntervalPattern(method, patterns._1, "s");
         method.addComment("$S", DateTimePatternParser.render(patterns._2));
         addIntervalPattern(method, patterns._2, "e");
         method.addStatement("return");
-        method.endControlFlow(); // case field:
+        method.endControlFlow(); 
+        // END "case field:"
       }
 
       method.addStatement("default: break");
       method.endControlFlow(); // switch (f)
       method.addStatement("break");
-      method.endControlFlow(); // case skeleton:
+      method.endControlFlow(); 
+      // END "case skeleton:"
     }
     
     method.addStatement("default: break");
-    method.endControlFlow(); // switch (k)
+    method.endControlFlow();
+    // END switch (k)
 
-    // Nothing matched so render the fallback.
-    addIntervalFallback(method, dateTimeData.intervalFallbackFormat);
+    // One of the parameters was null, or nothing matched, so render the
+    // fallback, e.g. format the start / end separately as "{0} - {1}"
+    addIntervalFallback(method, fallback);
     method.endControlFlow();
 
-    return method;
+    return method.build();
   }
   
   /**
@@ -541,17 +531,20 @@ public class CalendarCodeGenerator {
         .addJavadoc("Indicates whether a given skeleton pattern is a DATE or TIME.\n")
         .addModifiers(PUBLIC, STATIC)
         .addParameter(String.class, "skeleton")
-        .returns(SKELETON_TYPE);
+        .returns(SKELETON);
 
     method.beginControlFlow("switch (skeleton)");
+    
     for (String skel : dateSkeletons) {
       method.addCode("case $S:\n", skel);
     }
-    method.addStatement("  return $T.DATE", SKELETON_TYPE);
+    method.addStatement("  return $T.DATE", SKELETON);
+    
     for (String skel : timeSkeletons) {
       method.addCode("case $S:\n", skel);
     }
-    method.addStatement("  return $T.TIME", SKELETON_TYPE);
+    method.addStatement("  return $T.TIME", SKELETON);
+
     method.addCode("default:\n");
     method.addStatement("  return null");
     method.endControlFlow();
@@ -564,7 +557,7 @@ public class CalendarCodeGenerator {
    */
   private void variantsFieldInit(MethodSpec.Builder method, String fieldName, Variants v) {
     Stmt b = new Stmt();
-    b.append("$L = new $T(", fieldName, FIELD_VARIANTS_TYPE);
+    b.append("$L = new $T(", fieldName, FIELD_VARIANTS);
     b.append("\n  ").append(v.abbreviated).comma();
     b.append("\n  ").append(v.narrow).comma();
     b.append("\n  ").append(v.short_).comma();
@@ -592,23 +585,23 @@ public class CalendarCodeGenerator {
   private void buildTimeZoneNames(MethodSpec.Builder method, TimeZoneData data) {
     CodeBlock.Builder code = CodeBlock.builder();
     code.beginControlFlow("\nthis.$L = new $T<$T, $T>() {", "timezoneNames", 
-        HASHMAP_TYPE, STRING_TYPE, TIMEZONENAMES_TYPE);
+        HASHMAP, STRING, TIMEZONE_NAMES);
     
     for (TimeZoneInfo info : data.timeZoneInfo) {
       if (info.nameLong == null && info.nameShort == null) {
         continue;
       }
-      code.add("\nput($S, new $T($S, ", info.zone, TIMEZONENAMES_TYPE, info.zone);
+      code.add("\nput($S, new $T($S, ", info.zone, TIMEZONE_NAMES, info.zone);
       if (info.nameLong == null) {
         code.add("  null,");
       } else {
-        code.add("  new $T.Name($S, $S, $S),", TIMEZONENAMES_TYPE, 
+        code.add("  new $T.Name($S, $S, $S),", TIMEZONE_NAMES, 
             info.nameLong.generic, info.nameLong.standard, info.nameLong.daylight);
       }
       if (info.nameShort == null) {
         code.add("\n  null");
       } else {
-        code.add("\n  new $T.Name($S, $S, $S)", TIMEZONENAMES_TYPE, 
+        code.add("\n  new $T.Name($S, $S, $S)", TIMEZONE_NAMES, 
             info.nameShort.generic, info.nameShort.standard, info.nameShort.daylight);
       }
       code.add("));\n");
@@ -623,23 +616,23 @@ public class CalendarCodeGenerator {
   private void buildMetaZoneNames(MethodSpec.Builder method, TimeZoneData data) {
     CodeBlock.Builder code = CodeBlock.builder();
     code.beginControlFlow("\nthis.$L = new $T<$T, $T>() {", "metazoneNames", 
-        HASHMAP_TYPE, STRING_TYPE, TIMEZONENAMES_TYPE);
+        HASHMAP, STRING, TIMEZONE_NAMES);
     
     for (MetaZoneInfo info : data.metaZoneInfo) {
       if (info.nameLong == null && info.nameShort == null) {
         continue;
       }
-      code.add("\nput($S, new $T($S, ", info.zone, TIMEZONENAMES_TYPE, info.zone);
+      code.add("\nput($S, new $T($S, ", info.zone, TIMEZONE_NAMES, info.zone);
       if (info.nameLong == null) {
         code.add("\n  null,");
       } else {
-        code.add("\n  new $T.Name($S, $S, $S),", TIMEZONENAMES_TYPE, 
+        code.add("\n  new $T.Name($S, $S, $S),", TIMEZONE_NAMES, 
             info.nameLong.generic, info.nameLong.standard, info.nameLong.daylight);
       }
       if (info.nameShort == null) {
         code.add("\n  null");
       } else {
-        code.add("\n  new $T.Name($S, $S, $S)", TIMEZONENAMES_TYPE, 
+        code.add("\n  new $T.Name($S, $S, $S)", TIMEZONE_NAMES, 
             info.nameShort.generic, info.nameShort.standard, info.nameShort.daylight);
       }
       code.add("));\n");
@@ -651,7 +644,7 @@ public class CalendarCodeGenerator {
   /**
    * Builds a method to format the timezone as hourFormat with a GMT wrapper.
    */
-  private MethodSpec.Builder buildWrapTimeZoneGMTMethod(TimeZoneData data) {
+  private MethodSpec buildWrapTimeZoneGMTMethod(TimeZoneData data) {
     String[] hourFormat = data.hourFormat.split(";");
     List<Node> positive = DATETIME_PARSER.parse(hourFormat[0]);
     List<Node> negative = DATETIME_PARSER.parse(hourFormat[1]);
@@ -686,13 +679,13 @@ public class CalendarCodeGenerator {
         method.endControlFlow();
       }
     }
-    return method;
+    return method.build();
   }
   
   /**
    * Build a method to wrap a region in the regionFormat.
    */
-  private MethodSpec.Builder buildWrapTimeZoneRegionMethod(TimeZoneData data) {
+  private MethodSpec buildWrapTimeZoneRegionMethod(TimeZoneData data) {
     MethodSpec.Builder method = MethodSpec.methodBuilder("wrapTimeZoneRegion")
         .addModifiers(PROTECTED)
         .addParameter(StringBuilder.class, "b")
@@ -709,7 +702,7 @@ public class CalendarCodeGenerator {
       }
     }
     
-    return method;
+    return method.build();
   }
   
   /**

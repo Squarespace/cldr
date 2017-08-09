@@ -1,6 +1,8 @@
 package com.squarespace.cldr.codegen;
 
-import static com.squarespace.cldr.codegen.CodeGenerator.PACKAGE_CLDR_NUMBERS;
+import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_IF;
+import static com.squarespace.cldr.codegen.Types.NUMBER_FORMATTER_BASE;
+import static com.squarespace.cldr.codegen.Types.PACKAGE_CLDR_NUMBERS;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PROTECTED;
@@ -22,7 +24,6 @@ import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
 
-import com.squarespace.cldr.CLDRLocale;
 import com.squarespace.cldr.codegen.reader.CurrencyData;
 import com.squarespace.cldr.codegen.reader.DataReader;
 import com.squarespace.cldr.codegen.reader.NumberData;
@@ -42,9 +43,11 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 
+/**
+ * Generates code to format numbers and currencies using CLDR data.
+ */
 public class NumberCodeGenerator {
 
-  private static final ClassName TYPE_FORMATTER_BASE = ClassName.get(PACKAGE_CLDR_NUMBERS, "NumberFormatterBase");
   private static final WrapperPatternParser WRAPPER_PARSER = new WrapperPatternParser();
   private static final NumberPatternParser NUMBER_PARSER = new NumberPatternParser();
 
@@ -92,15 +95,17 @@ public class NumberCodeGenerator {
 
     // TODO: add descriptive javadoc to type
     TypeSpec.Builder type = TypeSpec.classBuilder(className)
-        .superclass(TYPE_FORMATTER_BASE)
+        .superclass(NUMBER_FORMATTER_BASE)
         .addModifiers(Modifier.PUBLIC);
     
     // Build the constructor's code block
     String fmt = "super(\n";
     List<Object> args = new ArrayList<>();
 
-    fmt += "new $T($S, $S, $S, $S),\n";
-    args.addAll(Arrays.asList(CLDRLocale.class, id.language, id.script, id.territory, id.variant));
+    fmt += "$T.$L,\n";
+    args.add(CLDR_LOCALE_IF);
+    args.add(id.safe);
+
     fmt += "new _Params(),\n";
 
     fmt += "// decimal standard\n";
@@ -503,7 +508,6 @@ public class NumberCodeGenerator {
    * prefix or suffix.
    */
   private void addUnitWrappers(TypeSpec.Builder type, NumberData data) {
-    // TODO: optimize this by grouping on distinct patterns to eliminate redundancy.
     MethodSpec.Builder method = MethodSpec.methodBuilder("wrapUnits")
         .addModifiers(PROTECTED)
         .addParameter(PluralCategory.class, "category")
