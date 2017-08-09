@@ -131,41 +131,8 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   /**
    * Format a date time interval, guessing at the best skeleton to use based on the field
    * of greatest difference between the start and end date-time.  If the end date-time has
-   * a different time zone than the start, this is corrected for comparison.
-   * 
-   * Greatest difference is calculated by comparing fields in the following order:
-   * 
-   *    year, month, date, day-of-week, am-pm, hour, hour-of-day, minute, and second
-   */
-  public void format(ZonedDateTime start, ZonedDateTime end, StringBuilder buffer) {
-    DateTimeField field = CalendarFormattingUtils.greatestDifference(start, end);
-    DateTimeIntervalSkeleton skeleton = null;
-    switch (field) {
-      case YEAR:
-        skeleton = DateTimeIntervalSkeleton.y;
-        break;
-      case MONTH:
-        skeleton = DateTimeIntervalSkeleton.yM;
-        break;
-      case DAY:
-        skeleton = DateTimeIntervalSkeleton.yMd;
-        break;
-      case HOUR:
-        skeleton = DateTimeIntervalSkeleton.h;
-        break;
-      case MINUTE:
-        skeleton = DateTimeIntervalSkeleton.hm;
-        break;
-      default:
-        break;
-    }
-    formatInterval(start, end, skeleton.skeleton(), field, buffer);
-  }
-  
-  /**
-   * Format a date time interval, guessing at the best skeleton to use based on the field
-   * of greatest difference between the start and end date-time.  If the end date-time has
-   * a different time zone than the start, this is corrected for comparison.
+   * a different time zone than the start, this is corrected for comparison. If the
+   * skeleton is null, one is selected automatically using the field of greatest difference.
    * 
    * Greatest difference is calculated by comparing fields in the following order:
    * 
@@ -176,6 +143,19 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
       ZonedDateTime start, ZonedDateTime end, DateTimeIntervalSkeleton skeleton, StringBuilder buffer) {
     
     DateTimeField field = CalendarFormattingUtils.greatestDifference(start, end);
+    if (skeleton == null) {
+      switch (field) {
+        case YEAR:
+        case MONTH:
+        case DAY:
+          skeleton = DateTimeIntervalSkeleton.yMMMd;
+          break;
+        
+        default:
+          skeleton = DateTimeIntervalSkeleton.hmv;
+          break;
+      }
+    }
     formatInterval(start, end, skeleton.skeleton(), field, buffer);
   }
   
