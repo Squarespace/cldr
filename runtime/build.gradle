@@ -7,6 +7,8 @@ apply plugin: 'me.champeau.gradle.jmh'
 
 dependencies {
   compile project(':cldr-core')
+
+  testCompile 'org.hamcrest:java-hamcrest:2.0.0.0'
 }
 
 sourceSets.main.java.srcDirs = ['src/main/java', 'src/generated/java']

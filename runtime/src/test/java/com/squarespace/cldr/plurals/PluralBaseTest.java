@@ -3,7 +3,6 @@ package com.squarespace.cldr.plurals;
 import org.testng.Assert;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.PluralRules;
 import com.squarespace.cldr.numbers.NumberOperands;
 
 public class PluralBaseTest {

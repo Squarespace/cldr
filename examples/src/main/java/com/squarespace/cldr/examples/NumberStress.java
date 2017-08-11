@@ -64,8 +64,8 @@ public class NumberStress {
     };
 
     CLDR cldr = CLDR.get();
-    List<CLDR.Locale> locales = CLDR.availableLocales();
-    List<String> currencies = CLDR.availableCurrencies();
+    List<CLDR.Locale> locales = cldr.availableLocales();
+    List<String> currencies = cldr.availableCurrencies();
 
     List<BigDecimal> nums = new ArrayList<>();
     for (String num : numbers) {

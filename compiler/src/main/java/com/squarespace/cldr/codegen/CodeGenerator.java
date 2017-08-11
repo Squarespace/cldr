@@ -2,17 +2,15 @@ package com.squarespace.cldr.codegen;
 
 import static com.squarespace.cldr.codegen.Types.CLDR;
 import static com.squarespace.cldr.codegen.Types.CLDR_BASE;
-import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_BASE_CLS;
-import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_CLS;
 import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_IF;
-import static com.squarespace.cldr.codegen.Types.LIST_CLDR_LOCALE;
+import static com.squarespace.cldr.codegen.Types.LIST_CLDR_LOCALE_IF;
 import static com.squarespace.cldr.codegen.Types.LIST_STRING;
+import static com.squarespace.cldr.codegen.Types.META_LOCALE;
 import static com.squarespace.cldr.codegen.Types.PACKAGE_CLDR;
 import static com.squarespace.cldr.codegen.Types.PLURAL_RULES;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
@@ -69,8 +67,8 @@ public class CodeGenerator {
     NumberCodeGenerator numberGenerator = new NumberCodeGenerator();
     Map<LocaleID, ClassName> numberClasses = numberGenerator.generate(outputDir, reader);
     
-    CodeBlock calendarIndex = indexFormatters("registerCalendarFormatter", dateClasses);
-    CodeBlock numberIndex = indexFormatters("registerNumberFormatter", numberClasses);
+    MethodSpec registerCalendars = indexFormatters("registerCalendars", "registerCalendarFormatter", dateClasses);
+    MethodSpec registerNumbers = indexFormatters("registerNumbers", "registerNumberFormatter", numberClasses);
     
     MethodSpec constructor = MethodSpec.constructorBuilder()
         .addModifiers(PRIVATE)
@@ -89,22 +87,33 @@ public class CodeGenerator {
     TypeSpec.Builder type = TypeSpec.classBuilder("CLDR")
         .addModifiers(PUBLIC)
         .superclass(CLDR_BASE)
-        .addField(instance)
         .addMethod(constructor)
         .addMethod(getter)
-        .addStaticBlock(calendarIndex)
-        .addStaticBlock(numberIndex);
+        .addMethod(registerCalendars)
+        .addMethod(registerNumbers);
 
-    Set<LocaleID> availableLocales = reader.getAvailableLocales()
+    Set<LocaleID> availableLocales = reader.availableLocales()
         .stream()
         .map(s -> LocaleID.parse(s))
         .collect(Collectors.toSet());
     
-    createLocales(type, reader.getDefaultContent(), availableLocales);
+    createLocales(type, reader.defaultContent(), availableLocales);
+    createLanguageAliases(type, reader.languageAliases());
+    createLikelySubtags(type, reader.likelySubtags());
     createCurrencies(type, numberGenerator.getCurrencies(reader));
     
     addPluralRules(type);
+
+    // Initialize all static maps.
+    type.addStaticBlock(CodeBlock.builder()
+      .addStatement("registerCalendars()")
+      .addStatement("registerNumbers()")
+      .addStatement("registerDefaultContent()")
+      .addStatement("registerLanguageAliases()")
+      .addStatement("registerLikelySubtags()").build());
     
+    type.addField(instance);
+
     saveClass(outputDir, PACKAGE_CLDR, "CLDR", type.build());
   }
 
@@ -150,15 +159,19 @@ public class CodeGenerator {
   /**
    * Generates a static code block that populates the formatter map.
    */
-  private static CodeBlock indexFormatters(String methodName, Map<LocaleID, ClassName> dateClasses) {
-    CodeBlock.Builder block = CodeBlock.builder();
+  private static MethodSpec indexFormatters(
+      String methodName, String registerMethodName, Map<LocaleID, ClassName> dateClasses) {
+    
+    MethodSpec.Builder method = MethodSpec.methodBuilder(methodName)
+        .addModifiers(PRIVATE, STATIC);
+    
     for (Map.Entry<LocaleID, ClassName> entry : dateClasses.entrySet()) {
       LocaleID localeId = entry.getKey();
       ClassName className = entry.getValue();
-      block.addStatement("$T.$L(Locale.$L, $L.class)", CLDR_BASE, 
-          methodName, localeId.safe, className);
+      method.addStatement("$T.$L(Locale.$L, $L.class)", CLDR_BASE, 
+          registerMethodName, localeId.safe, className);
     }
-    return block.build();
+    return method.build();
   }
   
   /**
@@ -166,18 +179,19 @@ public class CodeGenerator {
    * See: http://cldr.unicode.org/translation/default-content
    */
   private static void createLocales(TypeSpec.Builder type, List<LocaleID> defaultContent, Set<LocaleID> available) {
-    TypeSpec.Builder localeBase = TypeSpec.classBuilder("_Locale")
-        .addModifiers(PROTECTED, STATIC)
-        .superclass(CLDR_LOCALE_BASE_CLS)
-        .addSuperinterface(CLDR_LOCALE_IF)
-        .addMethod(MethodSpec.constructorBuilder()
-            .addParameter(String.class, "language")
-            .addParameter(String.class, "script")
-            .addParameter(String.class, "territory")
-            .addParameter(String.class, "variant")
-            .addStatement("super(language, script, territory, variant)").build());
-
-    type.addType(localeBase.build());
+//    TypeSpec.Builder localeBase = TypeSpec.classBuilder("_Locale")
+//        .addModifiers(PROTECTED, STATIC)
+//        .superclass(META_LOCALE)
+//        .addSuperinterface(LOCALE)
+//        .addMethod(MethodSpec.constructorBuilder()
+//            .addModifiers(PROTECTED)
+//            .addParameter(String.class, "language")
+//            .addParameter(String.class, "script")
+//            .addParameter(String.class, "territory")
+//            .addParameter(String.class, "variant")
+//            .addStatement("super(language, script, territory, variant)").build());
+//
+//    type.addType(localeBase.build());
     
     TypeSpec.Builder localeInterface = TypeSpec.interfaceBuilder("Locale")
         .addModifiers(PUBLIC, STATIC)
@@ -192,6 +206,12 @@ public class CodeGenerator {
             .returns(String.class).build())
         .addMethod(MethodSpec.methodBuilder("variant")
             .addModifiers(PUBLIC, ABSTRACT)
+            .returns(String.class).build())
+        .addMethod(MethodSpec.methodBuilder("compact")
+            .addModifiers(PUBLIC, ABSTRACT)
+            .returns(String.class).build())
+        .addMethod(MethodSpec.methodBuilder("expanded")
+            .addModifiers(PUBLIC, ABSTRACT)
             .returns(String.class).build());
     
     List<LocaleID> localeFields = new ArrayList<>();
@@ -204,25 +224,26 @@ public class CodeGenerator {
       localeCount++;
     }
     
-    CodeBlock.Builder block = CodeBlock.builder();
+    MethodSpec.Builder method = MethodSpec.methodBuilder("registerDefaultContent")
+        .addModifiers(PRIVATE, STATIC);
+    
     for (LocaleID locale : defaultContent) {
       LocaleID dest = new LocaleID(locale.language, "", "", "");
       if (available.contains(dest)) {
         localeFields.add(locale);
         allLocales.add(locale.safe);
         localeCount++;
-        block.addStatement("defaultContent.put(Locale.$L, Locale.$L)",
+        method.addStatement("defaultContent.put(Locale.$L, Locale.$L)",
             locale.safe,
             dest.safe);
       }
     }
+    type.addMethod(method.build());
 
     Collections.sort(localeFields);
     for (LocaleID locale : localeFields) {
       addLocaleField(localeInterface, locale.safe, locale);
     }
-    
-    type.addStaticBlock(block.build());
 
     StringBuilder buf = new StringBuilder("$T.unmodifiableList($T.asList(\n");
     for (int i = 0; i < localeCount; i++) {
@@ -240,13 +261,13 @@ public class CodeGenerator {
     arguments.add(Arrays.class);
     arguments.addAll(allLocales);
     
-    FieldSpec.Builder field = FieldSpec.builder(LIST_CLDR_LOCALE, "AVAILABLE_LOCALES", PRIVATE, STATIC, FINAL);
+    FieldSpec.Builder field = FieldSpec.builder(LIST_CLDR_LOCALE_IF, "AVAILABLE_LOCALES", PRIVATE, STATIC, FINAL);
     field.initializer(buf.toString(), arguments.toArray());
     type.addField(field.build());
     
-    MethodSpec.Builder method = MethodSpec.methodBuilder("availableLocales")
-        .addModifiers(PUBLIC, STATIC, FINAL)
-        .returns(LIST_CLDR_LOCALE)
+    method = MethodSpec.methodBuilder("availableLocales")
+        .addModifiers(PUBLIC, FINAL)
+        .returns(LIST_CLDR_LOCALE_IF)
         .addStatement("return AVAILABLE_LOCALES");
     
     type.addMethod(method.build());
@@ -259,10 +280,48 @@ public class CodeGenerator {
   private static void addLocaleField(TypeSpec.Builder type, String name, LocaleID locale) {
     FieldSpec.Builder field = FieldSpec.builder(CLDR_LOCALE_IF, name, PUBLIC, STATIC, FINAL)
         .initializer("new $T($S, $S, $S, $S)",
-            CLDR_LOCALE_CLS, locale.language, locale.script, locale.territory, locale.variant);
+            META_LOCALE,
+            strOrNull(locale.language), 
+            strOrNull(locale.script),
+            strOrNull(locale.territory),
+            strOrNull(locale.variant));
     type.addField(field.build());
   }
+  
+  /**
+   * Create locale alias mapping.
+   */
+  private static void createLanguageAliases(TypeSpec.Builder type, Map<String, String> languageAliases) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("registerLanguageAliases")
+        .addModifiers(PRIVATE, STATIC);
+    
+    for (Map.Entry<String, String> entry : languageAliases.entrySet()) {
+      method.addStatement("languageAliasMap.put($T.fromLanguageTag($S), $T.fromLanguageTag($S))",
+          META_LOCALE, entry.getKey(), META_LOCALE, entry.getValue());
+    }
+    
+    type.addMethod(method.build());
+  }
 
+  /**
+   * Create likely subtags mapping.
+   */
+  private static void createLikelySubtags(TypeSpec.Builder type, Map<String, String> likelySubtags) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("registerLikelySubtags")
+        .addModifiers(PRIVATE, STATIC);
+    
+    for (Map.Entry<String, String> entry : likelySubtags.entrySet()) {
+      method.addStatement("likelySubtagsMap.put($T.fromLanguageTag($S), $T.fromLanguageTag($S))",
+          META_LOCALE, entry.getKey(), META_LOCALE, entry.getValue());
+    }
+    
+    type.addMethod(method.build());
+  }
+  
+  private static String strOrNull(String value) {
+    return value.equals("") ? null : value;
+  }
+  
   /**
    * Create top-level container to hold currency constants.
    */
@@ -296,7 +355,7 @@ public class CodeGenerator {
     type.addField(field.build());
     
     MethodSpec.Builder method = MethodSpec.methodBuilder("availableCurrencies")
-        .addModifiers(PUBLIC, STATIC, FINAL)
+        .addModifiers(PUBLIC, FINAL)
         .returns(LIST_STRING)
         .addStatement("return AVAILABLE_CURRENCIES");
     type.addMethod(method.build());

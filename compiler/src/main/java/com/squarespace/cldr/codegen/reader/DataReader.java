@@ -67,7 +67,10 @@ public class DataReader {
       "ordinals.json",
       "plurals.json",
       "timeZoneNames.json",
-      "weekData.json"
+      "weekData.json",
+      
+      // Temporary fix for language matching
+      "languageMatching-fix.json"
   );
 
   /**
@@ -86,7 +89,10 @@ public class DataReader {
   private static final String[] FILES = new String[] {
       "data/cldr-core/",
       "data/cldr-dates-modern/main/",
-      "data/cldr-numbers-modern/main/"
+      "data/cldr-numbers-modern/main/",
+      
+      // Special cases where we need to correct all or most of a JSON file.
+      "fixes"
   };
 
   private static final String[] PATCHES = new String[] {
@@ -120,7 +126,8 @@ public class DataReader {
   private final Map<String, CurrencyData> currencies = new LinkedHashMap<>();
   private final Map<String, PluralData> ordinals = new HashMap<>();
   private final Map<String, PluralData> cardinals = new HashMap<>();
-  private final Map<String, String> likelySubtags = new HashMap<>();
+  private final Map<String, String> languageAliases = new LinkedHashMap<>();
+  private final Map<String, String> likelySubtags = new LinkedHashMap<>();
   private final NumberPatternParser numberPatternParser = new NumberPatternParser();
   
   private final DateTimeFormatter metazoneFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
@@ -151,12 +158,23 @@ public class DataReader {
     return instance;
   }
 
-  public List<LocaleID> getDefaultContent() {
+  public List<LocaleID> defaultContent() {
     return defaultContent;
   }
   
-  public List<String> getAvailableLocales() {
+  public List<String> availableLocales() {
     return availableLocales;
+  }
+  
+  public Map<String, String> languageAliases() {
+    return languageAliases;
+  }
+
+  /**
+   * List of likely subtags, to assist with language matching.
+   */
+  public Map<String, String> likelySubtags() {
+    return likelySubtags;
   }
 
   /**
@@ -202,13 +220,6 @@ public class DataReader {
   }
 
   /**
-   * List of likely subtags, to assist with locale matching.
-   */
-  public Map<String, String> likelySubtags() {
-    return likelySubtags;
-  }
-
-  /**
    * Number formatting data.
    */
   public Map<LocaleID, NumberData> numbers() {
@@ -245,6 +256,7 @@ public class DataReader {
         case "aliases.json":
         {
           parseTimeZoneAliases(root);
+          parseLanguageAliases(root);
           break;
         }
         
@@ -283,6 +295,13 @@ public class DataReader {
           parseDefaultContent(root);
           break;
           
+        // Fix language matching to include both desired and supported.
+        case "languageMatching-fix.json":
+        {
+          // TODO:
+          break;
+        }
+        
         case "likelySubtags.json":
           parseLikelySubtags(root);
           break;
@@ -370,10 +389,15 @@ public class DataReader {
       // Check if this patch should be applied to the locale we're processing/
       JsonArray locales = patch.getAsJsonArray("locales");
       boolean shouldPatch = false;
-      for (JsonElement locale : locales) {
-        if (locale.getAsString().equals(code)) {
-          shouldPatch = true;
-          break;
+      if (code == null) {
+        shouldPatch = true;
+      } else {
+        // Only patch if the locale matches.
+        for (JsonElement locale : locales) {
+          if (locale.getAsString().equals(code)) {
+            shouldPatch = true;
+            break;
+          }
         }
       }
       
@@ -392,7 +416,6 @@ public class DataReader {
     }
     
     return root;
-    
   }
 
   /**
@@ -1000,6 +1023,18 @@ public class DataReader {
       } else {
         parseTimeZoneAlias(node, zone);
       }
+    }
+  }
+  
+  /**
+   * Parse the supplemental language aliases map.
+   */
+  private void parseLanguageAliases(JsonObject root) {
+    JsonObject node = resolve(root, "supplemental", "metadata", "alias", "languageAlias");
+    for (String tag : objectKeys(node)) {
+      JsonObject value = node.getAsJsonObject(tag);
+      String replacement = string(value, "_replacement");
+      languageAliases.put(tag, replacement);
     }
   }
   

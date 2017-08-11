@@ -1,4 +1,4 @@
-package com.squarespace.cldr;
+package com.squarespace.cldr.plurals;
 
 import com.squarespace.cldr.numbers.NumberOperands;
 import com.squarespace.cldr.plurals.PluralCategory;

@@ -11,8 +11,8 @@ import org.testng.annotations.Test;
 
 public class MessageFormatTest {
 
-  private static String EUR = "EUR";
-  private static String USD = "USD";
+//  private static String EUR = "EUR";
+//  private static String USD = "USD";
 
   private static final ZoneId NY_ZONE = ZoneId.of("America/New_York");
 
@@ -131,19 +131,19 @@ public class MessageFormatTest {
     return buf.toString();
   }
 
-  private static MessageArg money(String value, String currency) {
-    StringMessageArg arg = new StringMessageArg(value);
-    arg.setCurrency(currency);
-    return arg;
-  }
+//  private static MessageArg money(String value, String currency) {
+//    StringMessageArg arg = new StringMessageArg(value);
+//    arg.setCurrency(currency);
+//    return arg;
+//  }
 
-  private static MessageArgs args(MessageArg... args) {
-    MessageArgs.Builder result = MessageArgs.newBuilder();
-    for (MessageArg arg : args) {
-      result.add(arg);
-    }
-    return result.build();
-  }
+//  private static MessageArgs args(MessageArg... args) {
+//    MessageArgs.Builder result = MessageArgs.newBuilder();
+//    for (MessageArg arg : args) {
+//      result.add(arg);
+//    }
+//    return result.build();
+//  }
 
   private static MessageArgs args(String... value) {
     MessageArgs.Builder args = MessageArgs.newBuilder();

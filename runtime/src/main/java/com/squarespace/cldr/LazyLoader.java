@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Lazy loader for classes, builds an instance on the first request.
  */
-public class LazyLoader<K, V> {
+class LazyLoader<K, V> {
 
   private final Map<K, Entry<V>> classMap = new ConcurrentHashMap<>();
 

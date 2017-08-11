@@ -1,0 +1,738 @@
+{
+  "supplemental": {
+    "languageMatching": {
+      "written": {
+        "gu": {
+          "supported": "hi", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "mfe": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ach": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "gd": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ga": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "gn": {
+          "supported": "es", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "gl": {
+          "supported": "es", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "lg": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "*_*_*": {
+          "supported": "*_*_*", 
+          "percent": "96"
+        }, 
+        "lb": {
+          "supported": "de", 
+          "percent": "96", 
+          "oneway": 1
+        }, 
+        "la": {
+          "supported": "it", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ln": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "lo": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "tt": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "tn": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "to": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "tk": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "pcm": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "tg": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "lo_Laoo": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "te": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "*_*": {
+          "supported": "*_*", 
+          "percent": "60"
+        }, 
+        "haw": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "yi": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ssy": {
+          "supported": "aa", 
+          "percent": "96"
+        }, 
+        "ceb": {
+          "supported": "fil", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "yo": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "da": {
+          "supported": "nb", 
+          "percent": "92"
+        }, 
+        "is": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "crs": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "qu": {
+          "supported": "es", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "uz_Latn": {
+          "supported": "ru_Cyrl", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "uz": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "en_*_001": {
+          "supported": "en_*_*", 
+          "percent": "96"
+        }, 
+        "or_Orya": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "pt_*_US": {
+          "supported": "pt_*_*", 
+          "percent": "92"
+        }, 
+        "eo": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "en_*_*": {
+          "supported": "en_*_*", 
+          "percent": "95"
+        }, 
+        "ee": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "zh_Hans": {
+          "supported": "zh_Hant", 
+          "percent": "85", 
+          "oneway": 1
+        }, 
+        "zh_Hant": {
+          "supported": "zh_Hans", 
+          "percent": "81", 
+          "oneway": 1
+        }, 
+        "eu": {
+          "supported": "es", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "et": {
+          "supported": "fi", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "rw": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ti_Ethi": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ne_Deva": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "lua": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "rm": {
+          "supported": "de", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "rn": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "bn": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "be": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "wo": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "jv": {
+          "supported": "id", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "tum": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "br": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "zh_Hant_HK": {
+          "supported": "zh_Hant_MO", 
+          "percent": "97"
+        }, 
+        "om": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "kn_Knda": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "oc": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "kri": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "tlh": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "or": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "sr_Latn": {
+          "supported": "sr_Cyrl", 
+          "percent": "95"
+        }, 
+        "pa_Guru": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "xh": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "*": {
+          "supported": "*", 
+          "percent": "20"
+        }, 
+        "co": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "nso": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "tk_Latn": {
+          "supported": "ru_Cyrl", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "cy": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "sd_Arab": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "az_Latn": {
+          "supported": "ru_Cyrl", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ps": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "km_Khmr": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "es_*_ES": {
+          "supported": "es_*_*", 
+          "percent": "92"
+        }, 
+        "si_Sinh": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ur_Arab": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "am_*_*": {
+          "supported": "en_*_GB", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "chr": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "pa": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "hy_Armn": {
+          "supported": "ru_Cyrl", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "loz": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "en_*_US": {
+          "supported": "en_*_*", 
+          "percent": "94"
+        }, 
+        "ak": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "es_*_419": {
+          "supported": "es_*_*", 
+          "percent": "96"
+        }, 
+        "hy": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "hr": {
+          "supported": "bs", 
+          "percent": "96"
+        }, 
+        "ti": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ht": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "es_*_*": {
+          "supported": "es_*_*", 
+          "percent": "95"
+        }, 
+        "ha": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "gaa": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ka_Geor": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "mg": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "te_Telu": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "pt_*_BR": {
+          "supported": "pt_*_*", 
+          "percent": "92"
+        }, 
+        "bem": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ml": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "mn": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "mi": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "mk": {
+          "supported": "bg", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ur": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "mt": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ms": {
+          "supported": "id", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "mr": {
+          "supported": "hi", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ug": {
+          "supported": "zh", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ta": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "my": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "pt_*_*": {
+          "supported": "pt_*_*", 
+          "percent": "96"
+        }, 
+        "ab": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "yi_Hebr": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "bho": {
+          "supported": "hi", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "af": {
+          "supported": "nl", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "bn_Beng": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ta_Taml": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ia": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "su": {
+          "supported": "id", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "zu": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ay": {
+          "supported": "es", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "az": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ig": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "nn": {
+          "supported": "no", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "no": {
+          "supported": "nb", 
+          "percent": "99"
+        }, 
+        "ml_Mlym": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ne": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ny": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "nyn": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "sn": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "fy": {
+          "supported": "nl", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "en_*_GB": {
+          "supported": "en_*_*", 
+          "percent": "96"
+        }, 
+        "sa": {
+          "supported": "hi", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "fo": {
+          "supported": "da", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ka": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "kg": {
+          "supported": "fr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "my_Mymr": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "gsw": {
+          "supported": "de", 
+          "percent": "96", 
+          "oneway": 1
+        }, 
+        "ckb": {
+          "supported": "ar", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "kk": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "sq": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "sw": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "kn": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "km": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "st": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "si": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "sh": {
+          "supported": "sr", 
+          "percent": "96"
+        }, 
+        "so": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ps_Arab": {
+          "supported": "en_Latn", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ku": {
+          "supported": "tr", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "ky": {
+          "supported": "ru", 
+          "percent": "90", 
+          "oneway": 1
+        }, 
+        "sd": {
+          "supported": "en", 
+          "percent": "90", 
+          "oneway": 1
+        }
+      }
+    }
+  }
+}

@@ -26,12 +26,15 @@ public class Types {
   public static final ClassName CLDR = get(PACKAGE_CLDR, "CLDR");
   public static final ClassName CLDR_BASE = get(PACKAGE_CLDR, "CLDRBase");
   public static final ClassName CLDR_LOCALE_IF = get(PACKAGE_CLDR, "CLDR", "Locale");
-  public static final ClassName CLDR_LOCALE_CLS = get(PACKAGE_CLDR, "CLDR", "_Locale");
-  public static final ClassName CLDR_LOCALE_BASE_CLS = get(PACKAGE_CLDR, "_LocaleBase");
+//  public static final ClassName CLDR_LOCALE_CLS = get(PACKAGE_CLDR, "CLDR", "_Locale");
+//  public static final ClassName LOCALE = get(PACKAGE_CLDR, "Locale");
+  public static final ClassName META_LOCALE = get(PACKAGE_CLDR, "MetaLocale");
+
+//  public static final ClassName CLDR_LOCALE_BASE_CLS = get(PACKAGE_CLDR, "_LocaleBase");
 
   public static final ClassName PLURAL_RULES = get(PACKAGE_CLDR_PLURALS, "_PluralRules");
 
-  public static final TypeName LIST_CLDR_LOCALE = ParameterizedTypeName.get(LIST, CLDR_LOCALE_IF);
+  public static final TypeName LIST_CLDR_LOCALE_IF = ParameterizedTypeName.get(LIST, CLDR_LOCALE_IF);
 
   public static final ClassName PLURAL_CATEGORY = get(PACKAGE_CLDR_PLURALS, "PluralCategory");
   public static final ClassName PLURAL_CONDITION = get("", "Condition");

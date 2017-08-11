@@ -7,18 +7,18 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import com.squarespace.cldr.CLDR;
-import com.squarespace.cldr.PluralRules;
 import com.squarespace.cldr.numbers.NumberPattern.Format;
 import com.squarespace.cldr.numbers.NumberPattern.Node;
 import com.squarespace.cldr.numbers.NumberPattern.Symbol;
 import com.squarespace.cldr.numbers.NumberPattern.Text;
 import com.squarespace.cldr.plurals.PluralCategory;
+import com.squarespace.cldr.plurals.PluralRules;
 
 
 /**
  * Base class for localized decimal number formatters.
  */
-public abstract class NumberFormatterBase implements NumberFormatter {
+abstract class NumberFormatterBase implements NumberFormatter {
 
   protected static final PluralRules PLURAL_RULES = CLDR.get().getPluralRules();
   
