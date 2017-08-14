@@ -20,7 +20,7 @@ StringBuilder buffer = new StringBuilder();
 long epoch = 1288648500000L;
 ZoneId zoneId = ZoneId.of("America/New_York");
 ZonedDateTime datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
-CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.EN_US);
+CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.Locale.en_US);
 CalendarFormatOptions options = new CalendarFormatOptions();
 f.format(datetime, options, buffer);
 System.out.println(buffer);
@@ -95,7 +95,7 @@ ZoneId zoneId = ZoneId.of("America/New_York");
 ZonedDateTime start = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
 ZonedDateTime end = start.withYear(2020).withMonth(12);
 
-CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.EN_US);
+CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.Locale.en_US);
 f.format(start, end, DateTimeIntervalSkeleton.y, buffer);
 System.out.println(buffer);
 ```
@@ -146,7 +146,7 @@ System.out.println(field);
 
 ```java
 StringBuilder buffer = new StringBuilder();
-NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.EN_US);
+NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
 BigDecimal n = BigDecimal.valueOf(Math.PI);
 DecimalFormatOptions options = new DecimalFormatOptions();
 f.formatDecimal(n, buffer, options);
@@ -192,7 +192,7 @@ f.formatDecimal(n, buffer, options);
 
 ```java
 StringBuilder buffer = new StringBuilder();
-NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.EN_US);
+NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
 
 BigDecimal n = new BigDecimal("1");
 CurrencyFormatOptions options = new CurrencyFormatOptions();
