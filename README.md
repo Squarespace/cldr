@@ -11,6 +11,35 @@ See: http://cldr.unicode.org/
 
 License: [Apache 2.0](LICENSE)
 
+### Accessing Formatters
+
+For testing you can use a known locale using a pre-defined field:
+```java
+NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+System.out.println(f.locale());
+```
+> "en"
+
+.. or using a Java format locale string:
+```java
+f = CLDR.get().getNumberFormatter("en_US");
+System.out.println(f.locale());
+```
+> "en"
+
+.. or using a BCP 47 language tag:
+```java
+f = CLDR.get().getNumberFormatter("en-Latn-US");
+System.out.println(f.locale());
+```
+> "en"
+
+.. or using a Java locale object:
+```java
+f = CLDR.get().getNumberFormatter(java.util.Locale.US);
+System.out.println(f.locale());
+```
+> "en"
 
 ### Date and Time formatting
 

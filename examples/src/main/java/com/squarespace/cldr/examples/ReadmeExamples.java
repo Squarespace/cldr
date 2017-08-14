@@ -24,10 +24,29 @@ import com.squarespace.cldr.numbers.NumberRoundMode;
 public class ReadmeExamples {
 
   public static void main(String[] args) {
+    access();
     datetime();
     datetimeIntervals();
     numbers();
     currencies();
+  }
+  
+  private static void access() {
+    NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
+    System.out.println(f.locale());
+    // "en"
+
+    f = CLDR.get().getNumberFormatter("en_US");
+    System.out.println(f.locale());
+    // "en"
+    
+    f = CLDR.get().getNumberFormatter("en-Latn-US");
+    System.out.println(f.locale());
+    // "en"
+    
+    f = CLDR.get().getNumberFormatter(java.util.Locale.US);
+    System.out.println(f.locale());
+    // "en"
   }
 
   private static void numbers() {
