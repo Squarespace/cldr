@@ -38,6 +38,10 @@ public class UnitFactorSets {
       Unit.DAY, Unit.HOUR, Unit.MINUTE, Unit.SECOND
   );
 
+  public static final UnitFactorSet ELECTRIC = new UnitFactorSet(UnitFactors.ELECTRIC,
+      Unit.AMPERE, Unit.MILLIAMPERE
+  );
+
   public static final UnitFactorSet ENERGY = new UnitFactorSet(UnitFactors.ENERGY,
       Unit.KILOJOULE, Unit.JOULE
   );

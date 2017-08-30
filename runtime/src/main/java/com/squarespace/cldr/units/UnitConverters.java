@@ -48,6 +48,11 @@ public class UnitConverters {
     }
 
     @Override
+    public UnitFactorSet areaFactors() {
+      return UnitFactorSets.AREA_ENGLISH;
+    }
+    
+    @Override
     public Unit consumptionUnit() {
       return Unit.MILE_PER_GALLON;
     }

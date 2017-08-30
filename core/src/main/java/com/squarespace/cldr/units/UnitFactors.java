@@ -20,21 +20,17 @@ public class UnitFactors {
       .add(Unit.SQUARE_KILOMETER, "1000000", Unit.SQUARE_METER)
       .add(Unit.HECTARE, "10000", Unit.SQUARE_METER)
       .add(Unit.SQUARE_CENTIMETER, "1 / 10000", Unit.SQUARE_METER)
-      .add(Unit.SQUARE_MILE, "2589988.1103359996", Unit.SQUARE_METER)
-      .add(Unit.SQUARE_MILE, "4840", Unit.SQUARE_YARD)
+      .add(Unit.SQUARE_CENTIMETER, "2500 / 16129", Unit.SQUARE_INCH)
+      .add(Unit.SQUARE_MILE, "40468564224 / 15625", Unit.SQUARE_METER)
+      .add(Unit.SQUARE_MILE, "3097600", Unit.SQUARE_YARD)
+      .add(Unit.SQUARE_MILE, "27878400", Unit.SQUARE_FOOT)
       .add(Unit.ACRE, "43560", Unit.SQUARE_FOOT)
       .add(Unit.SQUARE_YARD, "9", Unit.SQUARE_FOOT)
       .add(Unit.SQUARE_FOOT, "144", Unit.SQUARE_INCH)
       ;
 
   public static final UnitFactorMap CONSUMPTION = new UnitFactorMap(UnitCategory.CONSUMPTION)
-      .add(Unit.LITER_PER_KILOMETER, "1 / 100", Unit.LITER_PER_100KILOMETERS)
-      .add(Unit.MILE_PER_GALLON, "235.2145", Unit.LITER_PER_100KILOMETERS)
-      .add(Unit.MILE_PER_GALLON_IMPERIAL, "282.4815", Unit.LITER_PER_100KILOMETERS)
-      ;
-
-  public static final UnitFactorMap CONSUMPTION_UK = CONSUMPTION.copy()
-      .add(Unit.MILE_PER_GALLON, "282.4815", Unit.LITER_PER_100KILOMETERS)
+      .add(Unit.LITER_PER_100KILOMETERS, "1 / 100", Unit.LITER_PER_KILOMETER)
       ;
 
   public static final UnitFactorMap DIGITAL = new UnitFactorMap(UnitCategory.DIGITAL)
@@ -148,7 +144,7 @@ public class UnitFactors {
       ;
 
   public static final UnitFactorMap SPEED = new UnitFactorMap(UnitCategory.SPEED)
-      .add(Unit.KILOMETER_PER_HOUR, "3.6", Unit.METER_PER_SECOND)
+      .add(Unit.KILOMETER_PER_HOUR, "5 / 18", Unit.METER_PER_SECOND)
       .add(Unit.MILE_PER_HOUR, "1397 / 3125", Unit.METER_PER_SECOND)
       .add(Unit.KNOT, "463 / 900", Unit.METER_PER_SECOND)
       ;
@@ -173,6 +169,7 @@ public class UnitFactors {
       .add(Unit.CUBIC_INCH, "1 / 1728", Unit.CUBIC_FOOT)
 
       .add(Unit.ACRE_FOOT, "43560", Unit.CUBIC_FOOT)
+      .add(Unit.GALLON, "3.785411784", Unit.LITER)
       .add(Unit.GALLON_IMPERIAL, "4.54609", Unit.LITER)
 
       // To be correct, metric pint conversions would need to be localized.
@@ -204,11 +201,11 @@ public class UnitFactors {
     // Derive all 1:1 conversion factors from the existing factors.
     // We defer this since we made copies of some factor maps above to override
     // some factors based on US / UK region differences.
+
     ACCELERATION.complete();
     ANGLE.complete();
     AREA.complete();
     CONSUMPTION.complete();
-    CONSUMPTION_UK.complete();
     DIGITAL.complete();
     DIGITAL_DECIMAL.complete();
     DURATION.complete();

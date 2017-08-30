@@ -474,14 +474,14 @@ for (CLDR.Locale locale : new CLDR.Locale[] { CLDR.Locale.en_CA, CLDR.Locale.en_
     }
     length = converter.sequence(inches, lengthFactors);
 
-    buffer.append(locale).append("  ");
+    buffer.append(locale).append(' ');
     fmt.formatUnits(length, buffer, longOptions);
     buffer.append('\n');
 }
 ```
-> "en-CA  31 kilometers 358 meters 0.2 centimeters"
+> "en-CA 31 kilometers 358 meters 0.2 centimeters"
 
-> "en-US  19 miles 853 yards 1 foot 7 inches"
+> "en-US 19 miles 853 yards 1 foot 7 inches"
 
 
 ### Currency formatting

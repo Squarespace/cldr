@@ -18,6 +18,7 @@ public class BaseUnitConverter implements UnitConverter {
     put(UnitCategory.AREA, UnitFactors.AREA);
     put(UnitCategory.DIGITAL, UnitFactors.DIGITAL);
     put(UnitCategory.DURATION, UnitFactors.DURATION);
+    put(UnitCategory.ELECTRIC, UnitFactors.ELECTRIC);
     put(UnitCategory.ENERGY, UnitFactors.ENERGY);
     put(UnitCategory.FREQUENCY, UnitFactors.FREQUENCY);
     put(UnitCategory.LENGTH, UnitFactors.LENGTH);
@@ -55,7 +56,6 @@ public class BaseUnitConverter implements UnitConverter {
     Unit src = value.unit();
     switch (src.category()) {
       case CONCENTR:
-      case ELECTRIC:
       case LIGHT:
         // Not available
         break;
@@ -72,6 +72,8 @@ public class BaseUnitConverter implements UnitConverter {
         return convert(value, UnitFactorSets.DIGITAL_BYTES);
       case DURATION:
         return convert(value, UnitFactorSets.DURATION);
+      case ELECTRIC:
+        return convert(value, UnitFactorSets.ELECTRIC);
       case ENERGY:
         return convert(value, energyFactors());
       case FREQUENCY:
@@ -109,16 +111,12 @@ public class BaseUnitConverter implements UnitConverter {
     
     switch (category) {
       case CONCENTR:
-      case ELECTRIC:
       case LIGHT:
         // Not available
         break;
 
       case CONSUMPTION:
-        if (measurementSystem == MeasurementSystem.UK) {
-          return convert(value, target, UnitFactors.CONSUMPTION_UK);
-        }
-        return convert(value, target, UnitFactors.CONSUMPTION);
+        return consumption(value, target);
 
       case TEMPERATURE:
         return temperature(value, target);
@@ -143,9 +141,6 @@ public class BaseUnitConverter implements UnitConverter {
   public UnitFactorSet getFactorSet(UnitCategory category, Unit...units) {
     switch (category) {
       case CONSUMPTION:
-        if (measurementSystem == MeasurementSystem.UK) {
-          return new UnitFactorSet(UnitFactors.CONSUMPTION_UK, units);
-        }
         return new UnitFactorSet(UnitFactors.CONSUMPTION, units);
 
       case VOLUME:
@@ -302,6 +297,100 @@ public class BaseUnitConverter implements UnitConverter {
     return UnitFactorSets.VOLUME_LIQUID;
   }
 
+  private static final Rational ONE_HUNDRED = new Rational("100");
+  private static final Rational ONE_HUNDREDTH = ONE_HUNDRED.reciprocal();
+  private static final Rational USGAL_TO_LITER = UnitFactors.VOLUME.get(Unit.GALLON, Unit.LITER).rational();
+  private static final Rational UKGAL_TO_LITER = UnitFactors.VOLUME.get(Unit.GALLON_IMPERIAL, Unit.LITER).rational();
+  private static final Rational USGAL_PER_UKGAL = UnitFactors.VOLUME.get(Unit.GALLON, Unit.GALLON_IMPERIAL).rational();
+  private static final Rational UKGAL_PER_USGAL = USGAL_PER_UKGAL.reciprocal();
+  private static final Rational MILE_TO_KM = UnitFactors.LENGTH.get(Unit.MILE, Unit.KILOMETER).rational();
+  private static final Rational KM_TO_MILE = MILE_TO_KM.reciprocal();
+  private static final Rational USMPG_TO_L100KM = KM_TO_MILE.multiply(ONE_HUNDRED).multiply(USGAL_TO_LITER);
+  private static final Rational UKMPG_TO_L100KM = KM_TO_MILE.multiply(ONE_HUNDRED).multiply(UKGAL_TO_LITER);
+  
+  /**
+   * Convert between MPG and L/100KM.
+   */
+  private UnitValue consumption(UnitValue value, Unit target) {
+    BigDecimal amt = value.amount();
+    Unit unit = value.unit();
+    if (unit == target) {
+      return value;
+    }
+    
+    boolean uk = measurementSystem == MeasurementSystem.UK;
+    if (uk && unit == Unit.MILE_PER_GALLON && target == Unit.MILE_PER_GALLON_IMPERIAL) {
+      return value;
+    }
+    
+    BigDecimal result = null;
+
+    switch (unit) {
+      case MILE_PER_GALLON:
+      case MILE_PER_GALLON_IMPERIAL:
+        switch (target) {
+          case LITER_PER_KILOMETER:
+          case LITER_PER_100KILOMETERS:
+            result = litersToMpg(target, unit, amt);
+            break;
+          
+          case MILE_PER_GALLON:
+            result = USGAL_PER_UKGAL.multiply(new Rational(amt, BigDecimal.ONE)).compute();
+            break;
+            
+          case MILE_PER_GALLON_IMPERIAL:
+            result = UKGAL_PER_USGAL.multiply(new Rational(amt, BigDecimal.ONE)).compute();
+            break;
+            
+          default:
+            break;
+        }
+        break;
+        
+      case LITER_PER_KILOMETER:
+      case LITER_PER_100KILOMETERS:
+        switch (target) {
+          case MILE_PER_GALLON:
+          case MILE_PER_GALLON_IMPERIAL:
+            result = litersToMpg(unit, target, amt);
+            break;
+            
+          case LITER_PER_100KILOMETERS:
+            result = new Rational(amt, BigDecimal.ONE).multiply(ONE_HUNDRED).compute();
+            break;
+            
+          case LITER_PER_KILOMETER:
+            result = new Rational(amt, BigDecimal.ONE).multiply(ONE_HUNDREDTH).compute();
+            break;
+            
+          default:
+            break;
+        }
+        break;
+        
+      default:
+        break;
+    }
+    
+    if (result != null) {
+      return new UnitValue(result, target);
+    }
+    
+    return value;
+  }
+  
+  private BigDecimal litersToMpg(Unit from, Unit to, BigDecimal amount) {
+    Rational mpgFormula = UKMPG_TO_L100KM;
+    if (to == Unit.MILE_PER_GALLON) {
+      mpgFormula = measurementSystem == MeasurementSystem.UK ? UKMPG_TO_L100KM : USMPG_TO_L100KM;
+    }
+    Rational rational = mpgFormula.multiply(new Rational(BigDecimal.ONE, amount));
+    if (from == Unit.LITER_PER_KILOMETER) {
+      rational = rational.multiply(ONE_HUNDREDTH);
+    }
+    return rational.compute();
+  }
+  
   private static final BigDecimal THIRTY_TWO = new BigDecimal("32");
   private static final BigDecimal KELVIN_CELSIUS = new BigDecimal("273.15");
   private static final BigDecimal KELVIN_FAHRENHEIT = new BigDecimal("459.67");
@@ -311,7 +400,7 @@ public class BaseUnitConverter implements UnitConverter {
   /**
    * Temperature conversions.
    */
-  private UnitValue temperature(UnitValue value, Unit target) {
+  private static UnitValue temperature(UnitValue value, Unit target) {
     BigDecimal n = value.amount();
     if (target == Unit.TEMPERATURE_GENERIC) {
       return new UnitValue(n, Unit.TEMPERATURE_GENERIC);

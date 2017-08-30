@@ -51,6 +51,13 @@ public class Rational {
   }
 
   /**
+   * Divide and round using half-even.
+   */
+  public BigDecimal compute() {
+    return compute(RoundingMode.HALF_EVEN);
+  }
+
+  /**
    * Divide the numerator by the denominator and return the resulting
    * decimal number.
    */

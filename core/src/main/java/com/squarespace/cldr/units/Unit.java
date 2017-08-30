@@ -84,8 +84,8 @@ public enum Unit {
   WEEK(DURATION, "week", "weeks"),
   YEAR(DURATION, "year", "years"),
 
-  AMPERE(ELECTRIC, "ampere", "amperes"),
-  MILLIAMPERE(ELECTRIC, "milliampere", "milliamperes"),
+  AMPERE(ELECTRIC, "ampere", "amperes", "amp", "amps"),
+  MILLIAMPERE(ELECTRIC, "milliampere", "milliamperes", "milliamp", "milliamps"),
   OHM(ELECTRIC, "ohm", "ohms"),
   VOLT(ELECTRIC, "volt", "volts"),
 

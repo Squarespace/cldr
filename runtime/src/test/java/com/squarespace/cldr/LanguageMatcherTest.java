@@ -18,7 +18,10 @@ public class LanguageMatcherTest {
     assertMatch("en-US-u-cu-USD", "en");
 
     assertMatch("en-GB", "en-GB");
-    
+
+    assertMatch("es_419", "es-419");
+    assertMatch("es-Latn-419", "es-419");
+
     assertMatch("sr-Cyrl", "sr");
     assertMatch("sr-RS", "sr");
     assertMatch("sr-Cyrl-BA", "sr-BA");

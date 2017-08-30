@@ -1,9 +1,12 @@
 package com.squarespace.cldr.units;
 
 import static com.squarespace.cldr.CLDR.Locale.en;
+import static com.squarespace.cldr.CLDR.Locale.en_GB;
+import static com.squarespace.cldr.CLDR.Locale.en_US;
 import static org.testng.Assert.assertEquals;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.testng.annotations.Test;
 
@@ -13,6 +16,36 @@ import com.squarespace.cldr.numbers.NumberFormatterTestBase;
 
 public class UnitConverterTest extends NumberFormatterTestBase {
 
+  @Test
+  public void testArea() {
+    run(en_US, "1", Unit.SQUARE_CENTIMETER, "0.1550", Unit.SQUARE_INCH, 4);
+    run(en_US, "1", Unit.SQUARE_INCH, "6.4516", Unit.SQUARE_CENTIMETER, 4);
+    run(en_US, "1", Unit.SQUARE_MILE, "27878400", Unit.SQUARE_FOOT);
+    run(en_US, "479001600", Unit.SQUARE_METER, "184.9436", Unit.SQUARE_MILE, 4);
+    run(en_US, "479001600", Unit.SQUARE_METER, "5155930311.8606", Unit.SQUARE_FOOT, 4);
+    run(en_US, "1", Unit.HECTARE, "11959.9005", Unit.SQUARE_YARD, 4);
+  }
+  
+  @Test
+  public void testConsumption() {
+    run(en_US, "1", Unit.MILE_PER_GALLON, "235.2146", Unit.LITER_PER_100KILOMETERS, 4);
+    run(en_US, "1", Unit.LITER_PER_100KILOMETERS, "235.2146", Unit.MILE_PER_GALLON, 4);
+    run(en_US, "1", Unit.MILE_PER_GALLON, "2.352146", Unit.LITER_PER_KILOMETER, 6);
+    run(en_US, "1", Unit.LITER_PER_KILOMETER, "2.352146", Unit.MILE_PER_GALLON, 6);
+
+    run(en_US, "3", Unit.MILE_PER_GALLON, "78.4049", Unit.LITER_PER_100KILOMETERS, 4);
+    run(en_US, "3", Unit.LITER_PER_100KILOMETERS, "78.4049", Unit.MILE_PER_GALLON, 4);
+
+    run(en_GB, "1", Unit.MILE_PER_GALLON, "282.4809", Unit.LITER_PER_100KILOMETERS, 4);
+    run(en_GB, "1", Unit.LITER_PER_100KILOMETERS, "282.4809", Unit.MILE_PER_GALLON, 4);
+
+    run(en_GB, "3", Unit.MILE_PER_GALLON, "94.1603", Unit.LITER_PER_100KILOMETERS, 4);
+    run(en_GB, "3", Unit.LITER_PER_100KILOMETERS, "94.1603", Unit.MILE_PER_GALLON, 4);
+    
+    run(en_US, "1", Unit.MILE_PER_GALLON, "1.20095", Unit.MILE_PER_GALLON_IMPERIAL, 5);
+    run(en_US, "1", Unit.MILE_PER_GALLON_IMPERIAL, "0.83267", Unit.MILE_PER_GALLON, 5);
+  }
+  
   @Test
   public void testDigital() {
     run(en, "8", Unit.BIT, "1", Unit.BYTE);
@@ -27,6 +60,11 @@ public class UnitConverterTest extends NumberFormatterTestBase {
   public void testLength() {
     run(en, "12", Unit.INCH, "1", Unit.FOOT);
     run(en, "1", Unit.INCH, "2.54", Unit.CENTIMETER);
+  }
+  
+  @Test
+  public void testSpeed() {
+    run(en_US, "1", Unit.KILOMETER_PER_HOUR, "0.6214", Unit.MILE_PER_HOUR, 4);
   }
   
   @Test
@@ -79,14 +117,30 @@ public class UnitConverterTest extends NumberFormatterTestBase {
   public void testVolume() {
     run(en, "1", Unit.GALLON, "4", Unit.QUART);
     run(en, "1", Unit.QUART, "4", Unit.CUP);
+    
+    run(en_US, "1", Unit.GALLON, "0.83267", Unit.GALLON_IMPERIAL, 5);
+    run(en_US, "1", Unit.GALLON_IMPERIAL, "1.20095", Unit.GALLON, 5);
   }
   
   private static void run(CLDR.Locale locale, String n, Unit u, String nex, Unit uex) {
+    run(locale, n, u, nex, uex, null);
+  }
+
+  private static void run(CLDR.Locale locale, String n, Unit u, String nex, Unit uex, Integer scale) {
     UnitConverter converter = CLDR.get().getUnitConverter(locale);
     UnitValue input = value(n, u);
     UnitValue expected = value(nex, uex);
     UnitValue actual = converter.convert(input, uex);
-    assertEquals(actual, expected);
+    
+    if (scale != null) {
+      RoundingMode mode = RoundingMode.HALF_EVEN;
+      BigDecimal a = expected.amount().setScale(scale, mode);
+      BigDecimal b = actual.amount().setScale(scale, mode);
+      assertEquals(a.compareTo(b), 0, b.toPlainString() + " != " + a.toPlainString());
+      assertEquals(actual.unit(), expected.unit());
+    } else {
+      assertEquals(actual, expected);
+    }
   }
 
   private static UnitValue value(String n, Unit unit) {
