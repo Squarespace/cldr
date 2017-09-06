@@ -1,6 +1,15 @@
 package com.squarespace.cldr;
 
+import static com.squarespace.cldr.parse.LanguageTagGrammar.P_LANGUAGE;
+import static com.squarespace.cldr.parse.LanguageTagGrammar.P_SCRIPT;
+import static com.squarespace.cldr.parse.LanguageTagGrammar.P_TERRITORY;
+import static com.squarespace.cldr.parse.LanguageTagGrammar.P_VARIANT;
+
 import java.util.Arrays;
+
+import com.squarespace.compiler.common.Maybe;
+import com.squarespace.compiler.parse.Pair;
+import com.squarespace.compiler.parse.Parser;
 
 
 /**
@@ -9,13 +18,20 @@ import java.util.Arrays;
  * 
  * Null is used to represent the undefined value for a field:
  * 
- *   languag    "und"
+ *   language   "und"
  *   script     "Zzzz"
  *   territory  "ZZ"
  *   variant    ""
  */
-class MetaLocale implements CLDR.Locale {
+class MetaLocale implements CLDR.Locale, Comparable<MetaLocale> {
 
+  private static Parser<MetaLocale> P_LANGUAGE_TAG =
+      P_LANGUAGE.flatMap(l -> 
+        P_SCRIPT.orDefault("").flatMap(s -> 
+          P_TERRITORY.orDefault("").flatMap(t -> 
+            P_VARIANT.orDefault("").map(v -> 
+              new MetaLocale(l.toString(), s.toString(), t.toString(), v.toString())))));
+  
   private static final char SEP = '-';
 
   private static final String UNDEF_LANGUAGE = "und";
@@ -29,7 +45,6 @@ class MetaLocale implements CLDR.Locale {
   protected static final int VARIANT = 3;
 
   protected final String[] fields = new String[] { null, null, null, null };
-  private int hashCode = 0;
 
   public MetaLocale() {
   }
@@ -50,7 +65,6 @@ class MetaLocale implements CLDR.Locale {
    */
   protected MetaLocale(MetaLocale other) {
     System.arraycopy(other.fields, 0, fields, 0, fields.length);
-    hashCode = 0;
   }
 
   /**
@@ -82,6 +96,22 @@ class MetaLocale implements CLDR.Locale {
   }
 
   /**
+   * Internal method for parsing well-formed language tags.
+   */
+  protected static MetaLocale parse(String tag) {
+    if (tag.indexOf('_') != -1) {
+      tag = tag.replace('_', SEP);
+    }
+    Maybe<Pair<MetaLocale, CharSequence>> result = P_LANGUAGE_TAG.parse(tag);
+    // This parser is for internal use only during code generation, so we blow up
+    // severely if a language tag fails to parse..
+    if (result.isNothing()) {
+      throw new RuntimeException("Failed to parse language tag: '" + tag + "'");
+    }
+    return result.get()._1;
+  }
+  
+  /**
    * Constructs a MetaLocale from a language tag string.
    */
   public static MetaLocale fromLanguageTag(String tag) {
@@ -95,7 +125,24 @@ class MetaLocale implements CLDR.Locale {
    * Constructs a MetaLocale from a Java Locale object.
    */
   public static MetaLocale fromJavaLocale(java.util.Locale java) {
-   return new MetaLocale(java.getLanguage(), java.getScript(), java.getCountry(), java.getVariant());
+    // Some confusing cases can arise here based on the getLanguage() method
+    // returning the deprecated language codes in a handful of cases. See
+    // MetaLocaleTest for test cases for these examples.
+    String language = java.getLanguage();
+    switch (language) {
+      case "iw":
+        language = "he";
+        break;
+        
+      case "in":
+        language = "id";
+        break;
+        
+      case "ji":
+        language = "yi";
+        break;
+    }
+   return new MetaLocale(language, java.getScript(), java.getCountry(), java.getVariant());
   }
 
   /**
@@ -111,16 +158,38 @@ class MetaLocale implements CLDR.Locale {
   public String compact() {
     return render(false);
   }
+
+  @Override
+  public int compareTo(MetaLocale o) {
+    int r = compare(fields[LANGUAGE], o.fields[LANGUAGE]);
+    if (r == 0) {
+      r = compare(fields[SCRIPT], o.fields[SCRIPT]);
+    }
+    if (r == 0) {
+      r = compare(fields[TERRITORY], o.fields[TERRITORY]);
+    }
+    if (r == 0) {
+      r = compare(fields[VARIANT], o.fields[VARIANT]);
+    }
+    return r;
+  }
+  
+  private int compare(String a, String b) {
+    if (a != null && b != null) {
+      return a.compareTo(b);
+    }
+    if (a == null) {
+      if (b == null) {
+        return 0;
+      }
+      return -1;
+    }
+    return 1;
+  }
   
   @Override
   public int hashCode() {
-    if (hashCode == 0) {
-      hashCode = Arrays.hashCode(fields);
-      if (hashCode == 0) {
-        hashCode = 1;
-      }
-    }
-    return hashCode;
+    return Arrays.hashCode(fields);
   }
 
   @Override
@@ -179,6 +248,13 @@ class MetaLocale implements CLDR.Locale {
   }
 
   /**
+   * Return the variant or null if none defined.
+   */
+  protected String _variant() {
+    return fields[VARIANT];
+  }
+  
+  /**
    * Fast-set the language field.
    */
   protected void setLanguage(String value) {
@@ -206,6 +282,10 @@ class MetaLocale implements CLDR.Locale {
     setFieldRaw(VARIANT, value);
   }
 
+  protected boolean isRoot() {
+    return !hasLanguage() && !hasScript() && !hasTerritory();
+  }
+  
   protected boolean hasLanguage() {
     return fields[LANGUAGE] != null;
   }
@@ -216,6 +296,10 @@ class MetaLocale implements CLDR.Locale {
 
   protected boolean hasTerritory() {
     return fields[TERRITORY] != null;
+  }
+  
+  protected boolean hasVariant() {
+    return fields[VARIANT] != null;
   }
 
   protected boolean hasAll() {
@@ -230,7 +314,6 @@ class MetaLocale implements CLDR.Locale {
     fields[SCRIPT] = null;
     fields[TERRITORY] = null;
     fields[VARIANT] = null;
-    hashCode = 0;
   }
 
   /**
@@ -282,7 +365,6 @@ class MetaLocale implements CLDR.Locale {
         this.fields[key] = value.equals("") || value.equals(undef) ? null : value;
       }
     }
-    hashCode = 0;
   }
 
   /**
@@ -290,6 +372,5 @@ class MetaLocale implements CLDR.Locale {
    */
   private void setFieldRaw(int key, String value) {
     this.fields[key] = value;
-    hashCode = 0;
   }
 }

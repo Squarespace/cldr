@@ -74,7 +74,6 @@ public class CodeGenerator {
         .build();
 
     FieldSpec instance = FieldSpec.builder(CLDR, "instance", PRIVATE, STATIC, FINAL)
-        .initializer("new $T()", CLDR)
         .build();
 
     MethodSpec getter = MethodSpec.methodBuilder("get")
@@ -109,7 +108,8 @@ public class CodeGenerator {
       .addStatement("registerNumbers()")
       .addStatement("registerDefaultContent()")
       .addStatement("registerLanguageAliases()")
-      .addStatement("registerLikelySubtags()").build());
+      .addStatement("registerLikelySubtags()")
+      .addStatement("instance = new CLDR()").build());
     
     type.addField(instance);
 
@@ -200,13 +200,13 @@ public class CodeGenerator {
             .returns(String.class).build());
     
     List<LocaleID> localeFields = new ArrayList<>();
-    
-    int localeCount = 0;
     List<String> allLocales = new ArrayList<>();
+    List<String> bundles = new ArrayList<>();
+    
     for (LocaleID locale : available) {
       localeFields.add(locale);
       allLocales.add(locale.safe);
-      localeCount++;
+      bundles.add(locale.safe);
     }
     
     MethodSpec.Builder method = MethodSpec.methodBuilder("registerDefaultContent")
@@ -217,8 +217,7 @@ public class CodeGenerator {
       if (available.contains(dest)) {
         localeFields.add(locale);
         allLocales.add(locale.safe);
-        localeCount++;
-        method.addStatement("defaultContent.put(Locale.$L, Locale.$L)",
+        method.addStatement("DEFAULT_CONTENT.put(Locale.$L, Locale.$L)",
             locale.safe,
             dest.safe);
       }
@@ -231,7 +230,7 @@ public class CodeGenerator {
     }
 
     StringBuilder buf = new StringBuilder("$T.unmodifiableList($T.asList(\n");
-    for (int i = 0; i < localeCount; i++) {
+    for (int i = 0; i < allLocales.size(); i++) {
       if (i > 0) {
         buf.append(",\n");
       }
@@ -250,12 +249,39 @@ public class CodeGenerator {
     field.initializer(buf.toString(), arguments.toArray());
     type.addField(field.build());
     
+    buf = new StringBuilder("$T.unmodifiableList($T.asList(\n");
+    for (int i = 0; i < bundles.size(); i++) {
+      if (i > 0) {
+        buf.append(",\n");
+      }
+      buf.append("  Locale.$L");
+    }
+    buf.append("))");
+    
+    Collections.sort(bundles);
+    arguments = new ArrayList<>();
+    arguments.add(Collections.class);
+    arguments.add(Arrays.class);
+    arguments.addAll(bundles);
+    
+    field = FieldSpec.builder(LIST_CLDR_LOCALE_IF, "AVAILABLE_BUNDLES", PRIVATE, STATIC, FINAL);
+    field.initializer(buf.toString(), arguments.toArray());
+    type.addField(field.build());
+    
     method = MethodSpec.methodBuilder("availableLocales")
         .addModifiers(PUBLIC, FINAL)
         .returns(LIST_CLDR_LOCALE_IF)
         .addStatement("return AVAILABLE_LOCALES");
     
     type.addMethod(method.build());
+    
+    method = MethodSpec.methodBuilder("availableBundles")
+        .addModifiers(PUBLIC, FINAL)
+        .returns(LIST_CLDR_LOCALE_IF)
+        .addStatement("return AVAILABLE_BUNDLES");
+    
+    type.addMethod(method.build());
+
     type.addType(localeInterface.build());
   }
 
@@ -281,8 +307,7 @@ public class CodeGenerator {
         .addModifiers(PRIVATE, STATIC);
     
     for (Map.Entry<String, String> entry : languageAliases.entrySet()) {
-      method.addStatement("languageAliasMap.put($T.fromLanguageTag($S), $T.fromLanguageTag($S))",
-          META_LOCALE, entry.getKey(), META_LOCALE, entry.getValue());
+      method.addStatement("LANGUAGE_ALIAS_MAP.put($S, $S)", entry.getKey(), entry.getValue());
     }
     
     type.addMethod(method.build());
@@ -296,7 +321,7 @@ public class CodeGenerator {
         .addModifiers(PRIVATE, STATIC);
     
     for (Map.Entry<String, String> entry : likelySubtags.entrySet()) {
-      method.addStatement("likelySubtagsMap.put($T.fromLanguageTag($S), $T.fromLanguageTag($S))",
+      method.addStatement("LIKELY_SUBTAGS_MAP.put($T.parse($S), $T.parse($S))",
           META_LOCALE, entry.getKey(), META_LOCALE, entry.getValue());
     }
     

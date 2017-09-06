@@ -36,7 +36,7 @@ abstract class NumberFormatterBase implements NumberFormatter {
   protected static final NumberFormatterParams GENERIC_PARAMS = new NumberFormatterParams();
   private static final char NBSP = '\u00a0';
 
-  protected final CLDR.Locale locale;
+  protected final CLDR.Locale bundleId;
   protected final NumberFormatterParams params;
   protected final NumberPattern[] decimalStandard;
   protected final NumberPattern[] percentStandard;
@@ -45,7 +45,7 @@ abstract class NumberFormatterBase implements NumberFormatter {
   protected final NumberPattern[] unitStandard;
   
   protected NumberFormatterBase(
-      CLDR.Locale locale,
+      CLDR.Locale bundleId,
       NumberFormatterParams params,
       NumberPattern[] decimalStandard,
       NumberPattern[] percentStandard,
@@ -53,7 +53,7 @@ abstract class NumberFormatterBase implements NumberFormatter {
       NumberPattern[] currencyAccounting,
       NumberPattern[] unitStandard) {
 
-    this.locale = locale;
+    this.bundleId = bundleId;
     this.params = params;
     this.decimalStandard = decimalStandard;
     this.percentStandard = percentStandard;
@@ -83,10 +83,10 @@ abstract class NumberFormatterBase implements NumberFormatter {
   public abstract int getCurrencyDigits(CLDR.Currency code);
   
   /**
-   * Return the locale associated with this number formatter.
+   * Return the bundle identifier associated with this number formatter.
    */
-  public CLDR.Locale locale() {
-    return locale;
+  public CLDR.Locale bundleId() {
+    return bundleId;
   }
   
   /**
@@ -114,7 +114,7 @@ abstract class NumberFormatterBase implements NumberFormatter {
 
     BigDecimal q = ctx.adjust(n);
     NumberOperands operands = new NumberOperands(q.toPlainString());
-    PluralCategory category = PLURAL_RULES.evalCardinal(locale.language(), operands);
+    PluralCategory category = PLURAL_RULES.evalCardinal(bundleId.language(), operands);
     
     Unit unit = value.unit();
     List<FieldPattern.Node> unitPattern = null;
@@ -240,7 +240,7 @@ abstract class NumberFormatterBase implements NumberFormatter {
 
         // Compute the plural category.
         NumberOperands operands = new NumberOperands(q2.toPlainString());
-        PluralCategory category = PLURAL_RULES.evalCardinal(locale.language(), operands);
+        PluralCategory category = PLURAL_RULES.evalCardinal(bundleId.language(), operands);
 
         // Select the final pluralized pattern.
         if (style == DecimalFormatStyle.LONG) {
@@ -343,7 +343,7 @@ abstract class NumberFormatterBase implements NumberFormatter {
 
         // Compute the plural category.
         NumberOperands operands = new NumberOperands(q2.toPlainString());
-        PluralCategory category = PLURAL_RULES.evalCardinal(locale.language(), operands);
+        PluralCategory category = PLURAL_RULES.evalCardinal(bundleId.language(), operands);
 
         // Select the final pluralized pattern.
         pattern = select(n, getPattern_CURRENCY_SHORT(nDigits, category));
@@ -372,7 +372,7 @@ abstract class NumberFormatterBase implements NumberFormatter {
         
         // Set the operands and get the plural category.
         NumberOperands operands = new NumberOperands(number);
-        PluralCategory category = PLURAL_RULES.evalCardinal(locale.language(), operands);
+        PluralCategory category = PLURAL_RULES.evalCardinal(bundleId.language(), operands);
         number.reset();
 
         // Format the number

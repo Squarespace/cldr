@@ -13,86 +13,91 @@ License: [Apache 2.0](LICENSE)
 ### Resolving Locales
 
 ```java
-CLDR.Locale locale = CLDR.get().get("zh-Hant-CN");
+CLDR.Locale locale = CLDR.get().resolve("zh-CN");
 System.out.println(locale);
 ```
 
-> "zh"
+> "zh-Hant-CN"
 
 ```java
-locale = CLDR.get().get("zh-Hant-HK");
+locale = CLDR.get().resolve("zh-HK");
 System.out.println(locale);
 System.out.printf("%s / %s / %s\n", locale.language(), locale.script(), locale.territory());
 ```
-
 > "zh-Hant-HK"
 
 > "zh / Hant / HK"
 
 ```java
-locale = CLDR.get().get("sr-RU");
+locale = CLDR.get().resolve("sr");
 System.out.println(locale);
 ```
 
-> "sr"
+> "sr-Cyrl-RS"
 
 ```java
-locale = CLDR.get().get(java.util.Locale.CANADA_FRENCH);
+locale = CLDR.get().resolve(java.util.Locale.CANADA_FRENCH);
 System.out.println(locale);
 ```
 
-> "fr-CA"
+> fr-Latn-CA
 
 ```java
-locale = CLDR.get().get("en_XY");
+locale = CLDR.get().resolve(java.util.Locale.JAPANESE);
 System.out.println(locale);
 ```
 
-> "en"
+> ja-Jpan-JP
 
 ```java
-locale = CLDR.get().get("und-Zzzz-ZZ");
+locale = CLDR.get().resolve("en_XY");
 System.out.println(locale);
 ```
-
-> "en-US"
+> "en-Latn-XY"
 
 ```java
-locale = CLDR.get().get(java.util.Locale.JAPANESE);
+locale = CLDR.get().resolve("und-Zzzz-ZZ");
 System.out.println(locale);
 ```
-
-> "ja-JP"
+> "en-Latn-US"
 
 ### Accessing Formatters
 
-For testing you can use a known locale using a pre-defined field:
+Below are some examples of resolving a locale to get a reference to a
+formatter.  Formatters are identified by their bundle identifier.
+
+You can use a pre-defined locale directly:
+
 ```java
 NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
-System.out.println(f.locale());
+System.out.println(f.bundleId());
 ```
 > "en"
 
-.. or using a Java format locale string:
+.. or resolve a Java format locale string:
 ```java
-f = CLDR.get().getNumberFormatter("en_US");
-System.out.println(f.locale());
+CLDR.Locale locale = CLDR.get().resolve("en_US");
+f = CLDR.get().getNumberFormatter(locale);
+System.out.println(f.bundleId());
 ```
 > "en"
 
-.. or using a BCP 47 language tag:
+.. or resolve a Java locale object:
 ```java
-f = CLDR.get().getNumberFormatter("en-Latn-US");
-System.out.println(f.locale());
+locale = CLDR.get().resolve(java.util.Locale.US);
+f = CLDR.get().getNumberFormatter(locale);
+System.out.println(f.bundleId());
 ```
 > "en"
 
-.. or using a Java locale object:
+.. or resolve a BCP 47 language tag:
 ```java
-f = CLDR.get().getNumberFormatter(java.util.Locale.US);
-System.out.println(f.locale());
+locale = CLDR.get().resolve("en-Latn-US");
+f = CLDR.get().getNumberFormatter(locale);
+System.out.println(f.bundleId());
 ```
 > "en"
+
 
 ### Date and Time formatting
 

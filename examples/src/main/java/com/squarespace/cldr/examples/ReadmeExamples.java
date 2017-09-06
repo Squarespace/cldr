@@ -36,7 +36,7 @@ public class ReadmeExamples {
 
   public static void main(String[] args) {
     locales();
-    access();
+    bundle();
     datetime();
     datetimeIntervals();
     numbers();
@@ -47,52 +47,55 @@ public class ReadmeExamples {
   }
   
   private static void locales() {
-    CLDR.Locale locale = CLDR.get().get("zh-Hant-CN");
+    CLDR.Locale locale = CLDR.get().resolve("zh-CN");
     System.out.println(locale);
-    // zh
+    // zh-Hant-CN
 
-    locale = CLDR.get().get("zh-Hant-HK");
+    locale = CLDR.get().resolve("zh-HK");
     System.out.println(locale);
     System.out.printf("%s / %s / %s\n", locale.language(), locale.script(), locale.territory());
     // zh-Hant-HK
     // zh / Hant / HK
     
-    locale = CLDR.get().get("sr-RU");
+    locale = CLDR.get().resolve("sr");
     System.out.println(locale);
-    // sr
+    // sr-Cyrl-RS
     
-    locale = CLDR.get().get(java.util.Locale.CANADA_FRENCH);
+    locale = CLDR.get().resolve(java.util.Locale.CANADA_FRENCH);
     System.out.println(locale);
-    // fr-CA
+    // fr-Latn-CA
+
+    locale = CLDR.get().resolve(java.util.Locale.JAPANESE);
+    System.out.println(locale);
+    // ja-Jpan-JP
+
+    locale = CLDR.get().resolve("en_XY");
+    System.out.println(locale);
+    // en-Latn-XY
     
-    locale = CLDR.get().get("en_XY");
+    locale = CLDR.get().resolve("und-Zzzz-ZZ");
     System.out.println(locale);
-    // en
-    
-    locale = CLDR.get().get("und-Zzzz-ZZ");
-    System.out.println(locale);
-    // en-US
-    
-    locale = CLDR.get().get(java.util.Locale.JAPANESE);
-    System.out.println(locale);
-    // ja-JP
+    // en-Latn-US
   }
   
-  private static void access() {
+  private static void bundle() {
     NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
-    System.out.println(f.locale());
+    System.out.println(f.bundleId());
     // "en"
 
-    f = CLDR.get().getNumberFormatter("en_US");
-    System.out.println(f.locale());
+    CLDR.Locale locale = CLDR.get().resolve("en_US");
+    f = CLDR.get().getNumberFormatter(locale);
+    System.out.println(f.bundleId());
     // "en"
-    
-    f = CLDR.get().getNumberFormatter("en-Latn-US");
-    System.out.println(f.locale());
+
+    locale = CLDR.get().resolve(java.util.Locale.US);
+    f = CLDR.get().getNumberFormatter(locale);
+    System.out.println(f.bundleId());
     // "en"
-    
-    f = CLDR.get().getNumberFormatter(java.util.Locale.US);
-    System.out.println(f.locale());
+
+    locale = CLDR.get().resolve("en-Latn-US");
+    f = CLDR.get().getNumberFormatter(locale);
+    System.out.println(f.bundleId());
     // "en"
   }
 

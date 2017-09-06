@@ -24,7 +24,7 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   // TODO: fuzzy skeleton matching (needed?)
 
   // Locale-specific data populated through code generation of the subclasses.
-  protected CLDR.Locale locale;
+  protected CLDR.Locale bundleId;
   protected int firstDay;
   protected int minDays;
   protected FieldVariants eras;
@@ -41,8 +41,8 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
   protected Map<String, TimeZoneNames> timezoneNames;
   protected Map<String, TimeZoneNames> metazoneNames;
   
-  public CLDR.Locale locale() {
-    return locale;
+  public CLDR.Locale bundleId() {
+    return bundleId;
   }
   
   /**

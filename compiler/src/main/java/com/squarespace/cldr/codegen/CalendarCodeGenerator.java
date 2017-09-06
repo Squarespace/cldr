@@ -1,6 +1,14 @@
 package com.squarespace.cldr.codegen;
 
-import static com.squarespace.cldr.codegen.Types.*;
+import static com.squarespace.cldr.codegen.Types.CALENDAR_FORMAT;
+import static com.squarespace.cldr.codegen.Types.CALENDAR_FORMATTER;
+import static com.squarespace.cldr.codegen.Types.CLDR_LOCALE_IF;
+import static com.squarespace.cldr.codegen.Types.FIELD_VARIANTS;
+import static com.squarespace.cldr.codegen.Types.HASHMAP;
+import static com.squarespace.cldr.codegen.Types.MAP;
+import static com.squarespace.cldr.codegen.Types.SKELETON;
+import static com.squarespace.cldr.codegen.Types.STRING;
+import static com.squarespace.cldr.codegen.Types.TIMEZONE_NAMES;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PROTECTED;
 import static javax.lang.model.element.Modifier.PUBLIC;
@@ -18,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.google.common.base.Splitter;
 import com.squarespace.cldr.codegen.reader.DataReader;
@@ -66,7 +75,7 @@ public class CalendarCodeGenerator {
   public Map<LocaleID, ClassName> generate(Path outputDir, DataReader reader)
       throws IOException {
 
-    Map<LocaleID, ClassName> dateClasses = new LinkedHashMap<>();
+    Map<LocaleID, ClassName> dateClasses = new TreeMap<>();
     List<DateTimeData> dateTimeDataList = new ArrayList<>();
 
     for (Map.Entry<LocaleID, DateTimeData> entry : reader.calendars().entrySet()) {
@@ -198,7 +207,7 @@ public class CalendarCodeGenerator {
     MethodSpec.Builder constructor = MethodSpec.constructorBuilder()
         .addModifiers(PUBLIC);
 
-    constructor.addStatement("this.locale = $T.$L", CLDR_LOCALE_IF, id.safe);
+    constructor.addStatement("this.bundleId = $T.$L", CLDR_LOCALE_IF, id.safe);
     constructor.addStatement("this.firstDay = $L", dateTimeData.firstDay);
     constructor.addStatement("this.minDays = $L", dateTimeData.minDays);
 

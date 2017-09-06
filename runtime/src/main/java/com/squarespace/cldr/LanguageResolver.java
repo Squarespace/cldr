@@ -6,15 +6,16 @@ import java.util.Map;
 
 
 /**
- * Language matching. This attempts to produce a best guess at the minimum
- * language ID for a given language tag or Java locale. 
- * 
- * This is a separate process from bundle matching which, given a MetaLocale,
- * will attempt to find the best match amongst those implemented in the 
- * application. This can be expanded to match using weighted user language
- * preferences as found in the HTTP Accept-Language header.
+ * Language resolution is defined here as taking a potentially-incomplete locale
+ * object and finding the best, fully-expanded CLDR locale by adding likely
+ * subtags to "fill in the blanks". 
+ *  
+ * For example, the resolved locale for "en" is "en-Latn-US".  Note that the 
+ * resolved locale for "en-XY" is "en-Latn-XY" since resolution does not
+ * correct bad field values, it only fills in the most likely values for 
+ * missing fields.
  */
-class LanguageMatcher {
+class LanguageResolver {
 
   protected static final int LANGUAGE = 1;
   protected static final int SCRIPT = 2;
@@ -30,7 +31,7 @@ class LanguageMatcher {
 
   private final Map<MetaLocale, MetaLocale> likelySubtagsMap;
 
-  public LanguageMatcher(Map<MetaLocale, MetaLocale> likelySubtagsMap) {
+  public LanguageResolver(Map<MetaLocale, MetaLocale> likelySubtagsMap) {
     this.likelySubtagsMap = likelySubtagsMap;
   }
 
@@ -43,8 +44,7 @@ class LanguageMatcher {
   }
   
   protected CLDR.Locale match(MetaLocale locale) {
-    MetaLocale maxBundleId = addLikelySubtags(locale);
-    return removeLikelySubtags(maxBundleId);
+    return addLikelySubtags(locale);
   }
   
   /**

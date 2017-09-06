@@ -16,91 +16,67 @@ import com.squarespace.cldr.units.UnitConverters;
  */
 abstract class CLDRBase {
 
-  protected static final Map<MetaLocale, MetaLocale> languageAliasMap = new HashMap<>();
-  protected static final Map<MetaLocale, MetaLocale> likelySubtagsMap = new HashMap<>();
-  protected static final Map<CLDR.Locale, CLDR.Locale> defaultContent = new HashMap<>();
+  protected static final Map<String, String> LANGUAGE_ALIAS_MAP = new HashMap<>();
+  protected static final Map<MetaLocale, MetaLocale> LIKELY_SUBTAGS_MAP = new HashMap<>();
+  protected static final Map<CLDR.Locale, CLDR.Locale> DEFAULT_CONTENT = new HashMap<>();
   
-  protected static final LazyLoader<CLDR.Locale, CalendarFormatter> calendarFormatters = new LazyLoader<>();
-  protected static final LazyLoader<CLDR.Locale, NumberFormatter> numberFormatters = new LazyLoader<>();
+  protected static final LazyLoader<CLDR.Locale, CalendarFormatter> CALENDAR_FORMATTERS = new LazyLoader<>();
+  protected static final LazyLoader<CLDR.Locale, NumberFormatter> NUMBER_FORMATTERS = new LazyLoader<>();
   
-  protected final LanguageMatcher languageMatcher;
+  protected final LanguageResolver languageResolver;
   protected final BundleMatcher bundleMatcher;
   
   public CLDRBase() {
-    languageMatcher = new LanguageMatcher(likelySubtagsMap);
-    bundleMatcher = new BundleMatcher(languageMatcher, availableLocales());
+    languageResolver = new LanguageResolver(LIKELY_SUBTAGS_MAP);
+    bundleMatcher = new BundleMatcher(languageResolver, availableBundles());
   }
 
   public abstract List<CLDR.Locale> availableLocales();
+  protected abstract List<CLDR.Locale> availableBundles();
   
   /**
-   * Map a language tag to the best available CLDR locale.
+   * Resolve a, possibly incomplete, language tag into an expanded
+   * CLDR locale. This performs the "add likely subtags" operation.
+   * http://www.unicode.org/reports/tr35/tr35.html#Likely_Subtags
    */
-  public CLDR.Locale get(String languageTag) {
-    return bundleMatcher.match(languageTag);
+  public CLDR.Locale resolve(String languageTag) {
+    MetaLocale meta = MetaLocale.fromLanguageTag(languageTag);
+    return languageResolver.addLikelySubtags(meta);
   }
   
-  // TODO: support weighted string language resolving, e.g. Accept-Language header
-  // public CLDR.Locale get(List<LanguagePreference> preferences);
-  
   /**
-   * Map a Java locale to the corresponding CLDR locale.
+   * Resolve a (possibly incomplete) Java locale into an expanded
+   * CLDR locale. This performs the "add likely subtags" operation.
+   * http://www.unicode.org/reports/tr35/tr35.html#Likely_Subtags
    */
-  public CLDR.Locale get(java.util.Locale javaLocale) {
-    return bundleMatcher.match(javaLocale);
+  public CLDR.Locale resolve(java.util.Locale javaLocale) {
+    MetaLocale meta = MetaLocale.fromJavaLocale(javaLocale);
+    return languageResolver.addLikelySubtags(meta);
   }
 
-  /**
-   * Get the bundle identifier for a given locale.
-   */
-  public CLDR.Locale get(CLDR.Locale locale) {
-    return defaultContent.getOrDefault(locale, locale);
-  }
-
-  /**
-   * Returns a best match calendar formatter for the given language tag string.
-   */
-  public CalendarFormatter getCalendarFormatter(String languageTag) {
-    return getCalendarFormatter(get(languageTag));
-  }
-
-  /**
-   * Returns a best match calendar formatter for the given Java locale.
-   */
-  public CalendarFormatter getCalendarFormatter(java.util.Locale locale) {
-    return getCalendarFormatter(get(locale));
-  }
-  
-  /**
-   * Returns a best match number formatter for the given language tag string.
-   */
-  public NumberFormatter getNumberFormatter(String languageTag) {
-    return getNumberFormatter(get(languageTag));
-  }
-  
-  /**
-   * Returns a best match number formatter for the given Java locale.
-   */
-  public NumberFormatter getNumberFormatter(java.util.Locale locale) {
-    return getNumberFormatter(get(locale));
-  }
-  
   /**
    * Returns a calendar formatter for the given locale, translating it before lookup.
    */
   public CalendarFormatter getCalendarFormatter(CLDR.Locale locale) {
-    CalendarFormatter formatter = calendarFormatters.get(get(locale));
-    return formatter == null ? calendarFormatters.get(CLDR.Locale.en_US) : formatter;
+    locale = bundleMatch(locale);
+    CalendarFormatter formatter = CALENDAR_FORMATTERS.get(locale);
+    return formatter == null ? CALENDAR_FORMATTERS.get(CLDR.Locale.en_US) : formatter;
   }
 
   /**
    * Returns a number formatter for the given locale, translating it before lookup.
    */
   public NumberFormatter getNumberFormatter(CLDR.Locale locale) {
-    NumberFormatter formatter = numberFormatters.get(get(locale));
-    return formatter == null ? numberFormatters.get(CLDR.Locale.en_US) : formatter;
+    locale = bundleMatch(locale);
+    NumberFormatter formatter = NUMBER_FORMATTERS.get(locale);
+    return formatter == null ? NUMBER_FORMATTERS.get(CLDR.Locale.en_US) : formatter;
   }
 
+  /**
+   * Returns a unit converter for the given resolved locale. Note that the
+   * resolved (expanded) locale is expected to have a populated and valid region field.
+   * Otherwise this will default to the METRIC converter.
+   */
   public UnitConverter getUnitConverter(CLDR.Locale locale) {
     return UnitConverters.get(locale);
   }
@@ -110,8 +86,20 @@ abstract class CLDRBase {
    */
   public abstract PluralRules getPluralRules();
   
-  protected LanguageMatcher getLanguageMatcher() {
-    return languageMatcher;
+  /**
+   * Locate the correct bundle identifier for the given resolved locale. Note that
+   * the bundle identifier is not terribly useful outside of the CLDR library, since
+   * it may in many cases carry incomplete information for the intended public locale.
+   * For example, the bundle used for "en-Latn-US" is "en" which is missing critical
+   * subtags and as such should not be used to identify the "en-Latn-US" locale.
+   */
+  protected CLDR.Locale bundleMatch(CLDR.Locale locale) {
+    locale = DEFAULT_CONTENT.getOrDefault(locale, locale);
+    return bundleMatcher.match((MetaLocale)locale);
+  }
+
+  protected LanguageResolver getLanguageResolver() {
+    return languageResolver;
   }
   
   protected BundleMatcher getBundleMatcher() {
@@ -119,11 +107,11 @@ abstract class CLDRBase {
   }
   
   protected static void registerCalendarFormatter(CLDR.Locale locale, Class<? extends CalendarFormatter> cls) {
-    calendarFormatters.put(locale, cls);
+    CALENDAR_FORMATTERS.put(locale, cls);
   }
   
   protected static void registerNumberFormatter(CLDR.Locale locale, Class<? extends NumberFormatter> cls) {
-    numberFormatters.put(locale, cls);
+    NUMBER_FORMATTERS.put(locale, cls);
   }
   
 }

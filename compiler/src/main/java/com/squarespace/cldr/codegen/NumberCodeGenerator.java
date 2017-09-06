@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.lang.model.element.Modifier;
@@ -68,7 +69,7 @@ public class NumberCodeGenerator {
    * Generate all number formatting classes.
    */
   public Map<LocaleID, ClassName> generate(Path outputDir, DataReader reader) throws IOException {
-    Map<LocaleID, ClassName> numberClasses = new LinkedHashMap<>();
+    Map<LocaleID, ClassName> numberClasses = new TreeMap<>();
     
     Map<LocaleID, UnitData> unitMap = reader.units();
     

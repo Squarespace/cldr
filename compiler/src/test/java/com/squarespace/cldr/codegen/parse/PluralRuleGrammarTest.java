@@ -189,7 +189,7 @@ public class PluralRuleGrammarTest {
             atom(SAMPLE, "@integer 1, 21, 31, 41, 51, 61, 71, 81, 101, 1001, …")));
   }
 
-  private static <T> void assertParse(Parser<T> parser, String input, T expected) {
+  public static <T> void assertParse(Parser<T> parser, String input, T expected) {
     Maybe<Pair<T, CharSequence>> result = parser.parse(input);
     assertTrue(result.isJust(), failed(input));
     assertEquals(result.get()._1, expected);

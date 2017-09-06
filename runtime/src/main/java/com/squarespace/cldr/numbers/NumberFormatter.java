@@ -14,9 +14,9 @@ import com.squarespace.cldr.units.UnitValue;
 public interface NumberFormatter {
 
   /**
-   * Returns the locale associated with this formatter.
+   * Returns the bundle identifier associated with this formatter.
    */
-  CLDR.Locale locale();
+  CLDR.Locale bundleId();
 
   /**
    * Format the number as a decimal, using the options, and write it to the buffer.

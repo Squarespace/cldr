@@ -495,8 +495,8 @@ public class DataReader {
     JsonObject node = resolve(root, "main", code, "identity");
     return new LocaleID(
         string(node, "language"),
-        string(node, "territory"),
         string(node, "script"),
+        string(node, "territory"),
         string(node, "variant"));
   }
 

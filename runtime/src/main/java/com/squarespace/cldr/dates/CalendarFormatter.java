@@ -11,9 +11,9 @@ import com.squarespace.cldr.CLDR;
 public interface CalendarFormatter {
 
   /**
-   * Returns the locale associated with this formatter.
+   * Returns the bundle identifier associated with this formatter.
    */
-  CLDR.Locale locale();
+  CLDR.Locale bundleId();
 
   /**
    * Format a date time with the given options, writing the output to the buffer.
