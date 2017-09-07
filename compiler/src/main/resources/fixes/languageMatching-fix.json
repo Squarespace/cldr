@@ -1,737 +1,757 @@
 {
   "supplemental": {
     "languageMatching": {
-      "written": {
-        "gu": {
-          "supported": "hi", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "mfe": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ach": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "gd": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ga": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "gn": {
-          "supported": "es", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "gl": {
-          "supported": "es", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "lg": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "*_*_*": {
-          "supported": "*_*_*", 
-          "percent": "96"
-        }, 
-        "lb": {
-          "supported": "de", 
-          "percent": "96", 
-          "oneway": 1
-        }, 
-        "la": {
-          "supported": "it", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ln": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "lo": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "tt": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "tn": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "to": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "tk": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "pcm": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "tg": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "lo_Laoo": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "te": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "*_*": {
-          "supported": "*_*", 
-          "percent": "60"
-        }, 
-        "haw": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "yi": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ssy": {
-          "supported": "aa", 
-          "percent": "96"
-        }, 
-        "ceb": {
-          "supported": "fil", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "yo": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "da": {
-          "supported": "nb", 
-          "percent": "92"
-        }, 
-        "is": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "crs": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "qu": {
-          "supported": "es", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "uz_Latn": {
-          "supported": "ru_Cyrl", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "uz": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "en_*_001": {
-          "supported": "en_*_*", 
-          "percent": "96"
-        }, 
-        "or_Orya": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "pt_*_US": {
-          "supported": "pt_*_*", 
-          "percent": "92"
-        }, 
-        "eo": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "en_*_*": {
-          "supported": "en_*_*", 
-          "percent": "95"
-        }, 
-        "ee": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "zh_Hans": {
-          "supported": "zh_Hant", 
-          "percent": "85", 
-          "oneway": 1
-        }, 
-        "zh_Hant": {
-          "supported": "zh_Hans", 
-          "percent": "81", 
-          "oneway": 1
-        }, 
-        "eu": {
-          "supported": "es", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "et": {
-          "supported": "fi", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "rw": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ti_Ethi": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ne_Deva": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "lua": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "rm": {
-          "supported": "de", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "rn": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "bn": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "be": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "wo": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "jv": {
-          "supported": "id", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "tum": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "br": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "zh_Hant_HK": {
-          "supported": "zh_Hant_MO", 
-          "percent": "97"
-        }, 
-        "om": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "kn_Knda": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "oc": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "kri": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "tlh": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "or": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "sr_Latn": {
-          "supported": "sr_Cyrl", 
-          "percent": "95"
-        }, 
-        "pa_Guru": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "xh": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "*": {
-          "supported": "*", 
-          "percent": "20"
-        }, 
-        "co": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "nso": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "tk_Latn": {
-          "supported": "ru_Cyrl", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "cy": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "sd_Arab": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "az_Latn": {
-          "supported": "ru_Cyrl", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ps": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "km_Khmr": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "es_*_ES": {
-          "supported": "es_*_*", 
-          "percent": "92"
-        }, 
-        "si_Sinh": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ur_Arab": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "am_*_*": {
-          "supported": "en_*_GB", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "chr": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "pa": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "hy_Armn": {
-          "supported": "ru_Cyrl", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "loz": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "en_*_US": {
-          "supported": "en_*_*", 
-          "percent": "94"
-        }, 
-        "ak": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "es_*_419": {
-          "supported": "es_*_*", 
-          "percent": "96"
-        }, 
-        "hy": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "hr": {
-          "supported": "bs", 
-          "percent": "96"
-        }, 
-        "ti": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ht": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "es_*_*": {
-          "supported": "es_*_*", 
-          "percent": "95"
-        }, 
-        "ha": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "gaa": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ka_Geor": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "mg": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "te_Telu": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "pt_*_BR": {
-          "supported": "pt_*_*", 
-          "percent": "92"
-        }, 
-        "bem": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ml": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "mn": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "mi": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "mk": {
-          "supported": "bg", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ur": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "mt": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ms": {
-          "supported": "id", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "mr": {
-          "supported": "hi", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ug": {
-          "supported": "zh", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ta": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "my": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "pt_*_*": {
-          "supported": "pt_*_*", 
-          "percent": "96"
-        }, 
-        "ab": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "yi_Hebr": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "bho": {
-          "supported": "hi", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "af": {
-          "supported": "nl", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "bn_Beng": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ta_Taml": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ia": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "su": {
-          "supported": "id", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "zu": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ay": {
-          "supported": "es", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "az": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ig": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "nn": {
-          "supported": "no", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "no": {
-          "supported": "nb", 
-          "percent": "99"
-        }, 
-        "ml_Mlym": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ne": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ny": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "nyn": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "sn": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "fy": {
-          "supported": "nl", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "en_*_GB": {
-          "supported": "en_*_*", 
-          "percent": "96"
-        }, 
-        "sa": {
-          "supported": "hi", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "fo": {
-          "supported": "da", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ka": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "kg": {
-          "supported": "fr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "my_Mymr": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "gsw": {
-          "supported": "de", 
-          "percent": "96", 
-          "oneway": 1
-        }, 
-        "ckb": {
-          "supported": "ar", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "kk": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "sq": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "sw": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "kn": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "km": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "st": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "si": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "sh": {
-          "supported": "sr", 
-          "percent": "96"
-        }, 
-        "so": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ps_Arab": {
-          "supported": "en_Latn", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ku": {
-          "supported": "tr", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "ky": {
-          "supported": "ru", 
-          "percent": "90", 
-          "oneway": 1
-        }, 
-        "sd": {
-          "supported": "en", 
-          "percent": "90", 
-          "oneway": 1
-        }
+      "written_new": {
+        "languageMatch": {
+          "no": {
+            "distance": "1", 
+            "supported": "nb"
+          }, 
+          "hr": {
+            "distance": "4", 
+            "supported": "bs"
+          }, 
+          "sh": {
+            "distance": "4", 
+            "supported": "sr"
+          }, 
+          "ssy": {
+            "distance": "4", 
+            "supported": "aa"
+          }, 
+          "gsw": {
+            "distance": "4", 
+            "supported": "de", 
+            "oneway": "1"
+          }, 
+          "lb": {
+            "distance": "4", 
+            "supported": "de", 
+            "oneway": "1"
+          }, 
+          "da": {
+            "distance": "8", 
+            "supported": "nb"
+          }, 
+          "ab": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "ach": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "af": {
+            "distance": "10", 
+            "supported": "nl", 
+            "oneway": "1"
+          }, 
+          "ak": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ay": {
+            "distance": "10", 
+            "supported": "es", 
+            "oneway": "1"
+          }, 
+          "az": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "be": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "bem": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "bh": {
+            "distance": "10", 
+            "supported": "hi", 
+            "oneway": "1"
+          }, 
+          "bn": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "br": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "ceb": {
+            "distance": "10", 
+            "supported": "fil", 
+            "oneway": "1"
+          }, 
+          "chr": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ckb": {
+            "distance": "10", 
+            "supported": "ar", 
+            "oneway": "1"
+          }, 
+          "co": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "crs": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "cy": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ee": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "eo": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "et": {
+            "distance": "10", 
+            "supported": "fi", 
+            "oneway": "1"
+          }, 
+          "eu": {
+            "distance": "10", 
+            "supported": "es", 
+            "oneway": "1"
+          }, 
+          "fo": {
+            "distance": "10", 
+            "supported": "da", 
+            "oneway": "1"
+          }, 
+          "fy": {
+            "distance": "10", 
+            "supported": "nl", 
+            "oneway": "1"
+          }, 
+          "ga": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "gaa": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "gd": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "gl": {
+            "distance": "10", 
+            "supported": "es", 
+            "oneway": "1"
+          }, 
+          "gn": {
+            "distance": "10", 
+            "supported": "es", 
+            "oneway": "1"
+          }, 
+          "gu": {
+            "distance": "10", 
+            "supported": "hi", 
+            "oneway": "1"
+          }, 
+          "ha": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "haw": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ht": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "hy": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "ia": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ig": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "is": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "jv": {
+            "distance": "10", 
+            "supported": "id", 
+            "oneway": "1"
+          }, 
+          "ka": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "kg": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "kk": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "km": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "kn": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "kri": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ku": {
+            "distance": "10", 
+            "supported": "tr", 
+            "oneway": "1"
+          }, 
+          "ky": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "la": {
+            "distance": "10", 
+            "supported": "it", 
+            "oneway": "1"
+          }, 
+          "lg": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ln": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "lo": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "loz": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "lua": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "mfe": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "mg": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "mi": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "mk": {
+            "distance": "10", 
+            "supported": "bg", 
+            "oneway": "1"
+          }, 
+          "ml": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "mn": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "mr": {
+            "distance": "10", 
+            "supported": "hi", 
+            "oneway": "1"
+          }, 
+          "ms": {
+            "distance": "10", 
+            "supported": "id", 
+            "oneway": "1"
+          }, 
+          "mt": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "my": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ne": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "nn": {
+            "distance": "10", 
+            "supported": "no", 
+            "oneway": "1"
+          }, 
+          "nso": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ny": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "nyn": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "oc": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "om": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "or": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "pa": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "pcm": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ps": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "qu": {
+            "distance": "10", 
+            "supported": "es", 
+            "oneway": "1"
+          }, 
+          "rm": {
+            "distance": "10", 
+            "supported": "de", 
+            "oneway": "1"
+          }, 
+          "rn": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "rw": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "sa": {
+            "distance": "10", 
+            "supported": "hi", 
+            "oneway": "1"
+          }, 
+          "sd": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "si": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "sn": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "so": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "sq": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "st": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "su": {
+            "distance": "10", 
+            "supported": "id", 
+            "oneway": "1"
+          }, 
+          "sw": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ta": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "te": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "tg": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "ti": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "tk": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "tlh": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "tn": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "to": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "tt": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "tum": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "ug": {
+            "distance": "10", 
+            "supported": "zh", 
+            "oneway": "1"
+          }, 
+          "ur": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "uz": {
+            "distance": "10", 
+            "supported": "ru", 
+            "oneway": "1"
+          }, 
+          "wo": {
+            "distance": "10", 
+            "supported": "fr", 
+            "oneway": "1"
+          }, 
+          "xh": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "yi": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "yo": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "zu": {
+            "distance": "10", 
+            "supported": "en", 
+            "oneway": "1"
+          }, 
+          "*": {
+            "distance": "80", 
+            "supported": "*"
+          }, 
+          "az_Latn": {
+            "distance": "10", 
+            "supported": "ru_Cyrl", 
+            "oneway": "1"
+          }, 
+          "bn_Beng": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "hy_Armn": {
+            "distance": "10", 
+            "supported": "ru_Cyrl", 
+            "oneway": "1"
+          }, 
+          "ka_Geor": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "km_Khmr": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "kn_Knda": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "lo_Laoo": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "ml_Mlym": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "my_Mymr": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "ne_Deva": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "or_Orya": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "pa_Guru": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "ps_Arab": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "sd_Arab": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "si_Sinh": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "ta_Taml": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "te_Telu": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "ti_Ethi": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "tk_Latn": {
+            "distance": "10", 
+            "supported": "ru_Cyrl", 
+            "oneway": "1"
+          }, 
+          "ur_Arab": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "uz_Latn": {
+            "distance": "10", 
+            "supported": "ru_Cyrl", 
+            "oneway": "1"
+          }, 
+          "yi_Hebr": {
+            "distance": "10", 
+            "supported": "en_Latn", 
+            "oneway": "1"
+          }, 
+          "sr_Latn": {
+            "distance": "5", 
+            "supported": "sr_Cyrl"
+          }, 
+          "zh_Hans": {
+            "distance": "15", 
+            "supported": "zh_Hant", 
+            "oneway": "1"
+          }, 
+          "zh_Hant": {
+            "distance": "19", 
+            "supported": "zh_Hans", 
+            "oneway": "1"
+          }, 
+          "*_*": {
+            "distance": "50", 
+            "supported": "*_*"
+          }, 
+          "ar_*_$maghreb": {
+            "distance": "4", 
+            "supported": "ar_*_$maghreb"
+          }, 
+          "ar_*_$!maghreb": {
+            "distance": "4", 
+            "supported": "ar_*_$!maghreb"
+          }, 
+          "ar_*_*": {
+            "distance": "5", 
+            "supported": "ar_*_*"
+          }, 
+          "en_*_$enUS": {
+            "distance": "4", 
+            "supported": "en_*_$enUS"
+          }, 
+          "en_*_$!enUS": {
+            "distance": "4", 
+            "supported": "en_*_$!enUS"
+          }, 
+          "en_*_*": {
+            "distance": "5", 
+            "supported": "en_*_*"
+          }, 
+          "es_*_$americas": {
+            "distance": "4", 
+            "supported": "es_*_$americas"
+          }, 
+          "es_*_$!americas": {
+            "distance": "4", 
+            "supported": "es_*_$!americas"
+          }, 
+          "es_*_*": {
+            "distance": "5", 
+            "supported": "es_*_*"
+          }, 
+          "pt_*_$americas": {
+            "distance": "4", 
+            "supported": "pt_*_$americas"
+          }, 
+          "pt_*_$!americas": {
+            "distance": "4", 
+            "supported": "pt_*_$!americas"
+          }, 
+          "pt_*_*": {
+            "distance": "5", 
+            "supported": "pt_*_*"
+          }, 
+          "zh_Hant_$cnsar": {
+            "distance": "4", 
+            "supported": "zh_Hant_$cnsar"
+          }, 
+          "zh_Hant_$!cnsar": {
+            "distance": "4", 
+            "supported": "zh_Hant_$!cnsar"
+          }, 
+          "zh_Hant_*": {
+            "distance": "5", 
+            "supported": "zh_Hant_*"
+          }, 
+          "*_*_*": {
+            "distance": "4", 
+            "supported": "*_*_*"
+          }
+        }, 
+        "matchVariable": {
+          "$enUS": "AS+GU+MH+MP+PR+UM+US+VI", 
+          "$cnsar": "HK+MO", 
+          "$americas": "019", 
+          "$maghreb": "MA+DZ+TN+LY+MR+EH"
+        }, 
+        "paradigmLocales": "en en-GB es es-419 pt-BR pt-PT"
       }
     }
   }

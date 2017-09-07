@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,7 @@ import com.squarespace.cldr.codegen.parse.PluralType;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Format;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Skeleton;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Variants;
+import com.squarespace.cldr.codegen.reader.LanguageMatchingData.LanguageMatch;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZone;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneEntry;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneInfo;
@@ -72,6 +74,7 @@ public class DataReader {
       "numbers.json",
       "ordinals.json",
       "plurals.json",
+      "territoryContainment.json",
       "timeZoneNames.json",
       "units.json",
       "weekData.json",
@@ -137,7 +140,9 @@ public class DataReader {
   private final Map<LocaleID, UnitData> units = new HashMap<>();
   private final Map<String, String> languageAliases = new LinkedHashMap<>();
   private final Map<String, String> likelySubtags = new LinkedHashMap<>();
-
+  private final Map<String, List<RegionData>> territoryContainment = new TreeMap<>();
+  private final LanguageMatchingData languageMatching = new LanguageMatchingData();
+  
   private final NumberPatternParser numberPatternParser = new NumberPatternParser();
 
   private final DateTimeFormatter metazoneFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
@@ -249,6 +254,20 @@ public class DataReader {
   public Map<LocaleID, UnitData> units() {
     return units;
   }
+
+  /**
+   * Data showing containment between regions and countries.
+   */
+  public Map<String, List<RegionData>> territoryContainment() {
+    return territoryContainment;
+  }
+  
+  /**
+   * Data for enhanced language matching.
+   */
+  public LanguageMatchingData languageMatching() {
+    return languageMatching;
+  }
   
   /**
    * Initialize the global DataReader instance.
@@ -312,10 +331,9 @@ public class DataReader {
           parseDefaultContent(root);
           break;
           
-        // Fix language matching to include both desired and supported.
         case "languageMatching-fix.json":
         {
-          // TODO:
+          parseLanguageMatchingFix(root);
           break;
         }
         
@@ -347,6 +365,12 @@ public class DataReader {
           parsePlurals(root, "plurals-type-cardinal", cardinals);
           break;
 
+        case "territoryContainment.json":
+        {
+          parseTerritoryContainment(root);
+          break;
+        }
+          
         case "timeZoneNames.json":
         {
           String code = localeCode(root);
@@ -518,6 +542,61 @@ public class DataReader {
     JsonObject node = resolve(root, "supplemental", "likelySubtags");
     for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
       likelySubtags.put(entry.getKey(), entry.getValue().getAsString());
+    }
+  }
+  
+  /**
+   * Parse enhanced language matching fix tree.
+   */
+  private void parseLanguageMatchingFix(JsonObject root) {
+    JsonObject node = resolve(root, "supplemental", "languageMatching", "written_new");
+    JsonObject matches = resolve(node, "languageMatch");
+    for (Map.Entry<String, JsonElement> entry : matches.entrySet()) {
+      String desired = entry.getKey();
+      JsonObject value = entry.getValue().getAsJsonObject();
+      String supported = string(value, "supported");
+      Integer distance = Integer.parseInt(string(value, "distance"));
+      boolean oneway = string(value, "oneway") != null;
+      
+      LanguageMatch match = new LanguageMatch(desired, supported, distance, oneway);
+      languageMatching.languageMatches.add(match);
+    }
+    
+    JsonObject variables = resolve(node, "matchVariable");
+    for (Map.Entry<String, JsonElement> entry : variables.entrySet()) {
+      String value = entry.getValue().getAsString();
+      languageMatching.matchVariables.add(Pair.pair(entry.getKey(), value));
+    }
+    
+    for (String code : string(node, "paradigmLocales").split("\\s+")) {
+      languageMatching.paradigmLocales.add(code);
+    }
+  }
+  
+  /**
+   * Parse territory containment tree.
+   */
+  private void parseTerritoryContainment(JsonObject root) {
+    JsonObject node = resolve(root, "supplemental", "territoryContainment");
+    for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
+      String parentCode = entry.getKey();
+      if (parentCode.contains("-")) {
+        continue;
+      }
+
+      JsonObject value = entry.getValue().getAsJsonObject();
+      JsonArray elements = (JsonArray) value.get("_contains");
+      if (elements == null) {
+        throw new RuntimeException("Unexpected object structure: " + value);
+      }
+
+      List<RegionData> children = new ArrayList<>();
+      for (JsonElement element : elements) {
+        String code = element.getAsString();
+        boolean isRegion = Character.isDigit(code.charAt(0));
+        children.add(new RegionData(isRegion, code));
+      }
+      territoryContainment.put(parentCode, children);
     }
   }
 
