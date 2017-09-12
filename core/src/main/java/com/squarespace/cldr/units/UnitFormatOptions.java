@@ -27,4 +27,29 @@ public class UnitFormatOptions extends NumberFormatOptions<UnitFormatOptions> {
     return this;
   }
 
+  /**
+   * Reset the options to their defaults.
+   */
+  public void reset() {
+    this.format = DEFAULT_FORMAT;
+    super.reset();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder();
+    buf.append("UnitFormatOptions(");
+    repr(buf, ", ");
+    buf.append(')');
+    return buf.toString();
+  }
+
+  /**
+   * Format this object's properties using the given separator.
+   */
+  public void repr(StringBuilder buf, String sep) {
+    buf.append("format=").append(format);
+    super.repr(buf, sep);
+  }
+
 }

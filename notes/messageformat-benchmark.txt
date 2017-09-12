@@ -1,0 +1,8 @@
+Benchmark                                   Mode  Cnt        Score       Error  Units
+MessageFormatBenchmark.formatCurrency      thrpt    5   626681.354 ± 21877.872  ops/s
+MessageFormatBenchmark.formatDatetime      thrpt    5   928732.662 ± 22692.646  ops/s
+MessageFormatBenchmark.formatFull          thrpt    5    72496.569 ± 17072.864  ops/s
+MessageFormatBenchmark.formatPlural        thrpt    5  1801550.373 ± 41769.962  ops/s
+MessageFormatBenchmark.formatSingular      thrpt    5  2235756.628 ± 77281.012  ops/s
+MessageFormatBenchmark.formatUnit          thrpt    5   599134.088 ± 14849.830  ops/s
+MessageFormatBenchmark.formatUnitSequence  thrpt    5   264288.160 ± 52437.807  ops/s

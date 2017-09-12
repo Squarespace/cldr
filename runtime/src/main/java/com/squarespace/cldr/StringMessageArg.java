@@ -8,12 +8,10 @@ import java.math.BigDecimal;
  * so we attempt to force-cast to BigDecimal when needed. Returns a null
  * currency by default.
  */
-public class StringMessageArg extends MessageArg {
+public class StringMessageArg implements MessageArg {
 
   private final String value;
-
   private BigDecimal decimalValue;
-
   private String currency;
 
   public StringMessageArg(String value) {
@@ -34,6 +32,11 @@ public class StringMessageArg extends MessageArg {
   @Override
   public String asString() {
     return value;
+  }
+  
+  @Override
+  public long asLong() {
+    return value == null ? 0 : MessageFormat.toLong(value, 0, value.length());
   }
 
   @Override

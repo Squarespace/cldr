@@ -16,19 +16,24 @@ import static com.squarespace.compiler.text.DefaultCharClassifier.LOWERCASE;
 import static com.squarespace.compiler.text.DefaultCharClassifier.UNDERSCORE;
 import static com.squarespace.compiler.text.DefaultCharClassifier.UPPERCASE;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.squarespace.cldr.dates.CalendarFormat;
-import com.squarespace.cldr.dates.CalendarFormatOptions;
 import com.squarespace.cldr.dates.CalendarFormatter;
-import com.squarespace.cldr.dates.CalendarSkeleton;
+import com.squarespace.cldr.dates.DateTimeIntervalSkeleton;
+import com.squarespace.cldr.numbers.NumberFormatter;
 import com.squarespace.cldr.numbers.NumberOperands;
 import com.squarespace.cldr.plurals.PluralCategory;
 import com.squarespace.cldr.plurals.PluralRules;
+import com.squarespace.cldr.units.Unit;
+import com.squarespace.cldr.units.UnitCategory;
+import com.squarespace.cldr.units.UnitConverter;
+import com.squarespace.cldr.units.UnitFactorSet;
+import com.squarespace.cldr.units.UnitValue;
 import com.squarespace.compiler.match.Recognizers.Recognizer;
 import com.squarespace.compiler.text.CharClassifier;
 import com.squarespace.compiler.text.Chars;
@@ -81,29 +86,38 @@ import com.squarespace.compiler.text.Scanner.Stream;
  */
 public class MessageFormat {
 
+  private static final CLDR CLDR_INSTANCE = CLDR.get();
   private static final int DEFAULT_MAXDEPTH = 4;
-  private static final ZoneId DEFAULT_ZONEID = ZoneId.of("America/New_York");
-
+  
   // Names of tag types.
   private static final String PLURAL = "plural";
   private static final String SELECTORDINAL = "selectordinal";
+  private static final String DECIMAL = "decimal";
   private static final String DATETIME = "datetime";
+  private static final String DATETIME_INTERVAL = "datetime-interval";
   private static final String CURRENCY = "currency";
+  private static final String MONEY = "money";
   private static final String NUMBER = "number";
+  private static final String UNIT = "unit";
 
-  private static final PluralRules PLURAL_RULES = CLDR.get().getPluralRules();
+  private static final PluralRules PLURAL_RULES = CLDR_INSTANCE.getPluralRules();
   
   // Pattern to match a valid tag type.
   private static final Recognizer FORMATTER = choice(
       literal(PLURAL),
       literal(SELECTORDINAL),
       literal(DATETIME),
+      literal(DATETIME_INTERVAL),
       literal(CURRENCY),
-      literal(NUMBER));
+      literal(MONEY),
+      literal(NUMBER),
+      literal(DECIMAL),
+      literal(UNIT));
 
   // Pattern matchers for syntax fragments
   private static final CharClassifier CLASSIFIER = new DefaultCharClassifier();
   private static final Recognizer COMMA_WS = oneOrMore(choice(characters(','), whitespace()));
+  private static final Recognizer SEMICOLON = characters(';');
   private static final Recognizer DIGITS = digits();
   private static final Recognizer PLURAL_EXPLICIT = sequence(characters('='), digits());
   private static final Recognizer PLURAL_OFFSET = sequence(
@@ -111,6 +125,8 @@ public class MessageFormat {
   private static final Recognizer IDENTIFIER = sequence(
       charClass(UPPERCASE | LOWERCASE | DASH | UNDERSCORE, CLASSIFIER),
       zeroOrMore(charClass(UPPERCASE | LOWERCASE | DASH | UNDERSCORE | DIGIT, CLASSIFIER)));
+  private static final Recognizer SKELETON = oneOrMore(
+      charClass(UPPERCASE | LOWERCASE, CLASSIFIER));
   private static final Recognizer ARG_SEP = characters(':');
   private static final Recognizer ARG_VAL = oneOrMore(notWhitespace());
 
@@ -126,12 +142,12 @@ public class MessageFormat {
 
   private final NumberOperands operands = new NumberOperands("0");
 
-// TODO: implement
-//  private final DecimalFormatOptions decimalOptions = new DecimalFormatOptions();
-//  private final CurrencyFormatOptions currencyOptions = new CurrencyFormatOptions();
+  // Typed argument parsers initialized on first use
+  private MessageArgsCalendarParser calendarArgsParser;
+  private MessageArgsCurrencyParser currencyArgsParser;
+  private MessageArgsDecimalParser decimalArgsParser;
+  private MessageArgsUnitParser unitArgsParser;
   
-  private final CalendarFormatOptions calendarOptions = new CalendarFormatOptions();
-
   // Locale, currency and time zone defaults.
   private CLDR.Locale locale = CLDR.Locale.en_US;
   private ZoneId timeZone;
@@ -144,8 +160,9 @@ public class MessageFormat {
   private Stream tag;
   private Stream choice;
 
-  // These fields are overwritten on each format() call.
   private String format;
+
+  // These fields are overwritten on each format() call.
   private MessageArgs args;
   private StringBuilder buf;
 
@@ -243,7 +260,7 @@ public class MessageFormat {
       // found a possibly incomplete tag and cannot correctly recover.
       if (outer.seekBounds(tag, '{', '}')) {
         prev = tag.end;
-        evaluateTag(buf, args);
+        evaluateTag(buf);
       } else {
         return;
       }
@@ -286,31 +303,17 @@ public class MessageFormat {
   /**
    * Parse and evaluate a tag.
    */
-  private void evaluateTag(StringBuilder buf, MessageArgs args) {
+  private void evaluateTag(StringBuilder buf) {
     // Trim the '{' and '}' bounding characters.
     tag.pos++;
     tag.end--;
 
-    MessageArg arg = null;
-
-    // Arguments can be referenced with an integer index or name.
-    if (tag.seek(DIGITS, choice)) {
-      int index = (int)toLong(format, choice.pos, choice.end);
-      arg = args.get(index);
-
-    } else if (tag.seek(IDENTIFIER, choice)) {
-      String key = choice.token().toString();
-      arg = args.get(key);
-    }
-
-    // If no argument is present, bail out.
-    if (arg == null) {
+    List<MessageArg> args = getArgs();
+    if (args == null || args.size() == 0) {
       return;
     }
 
-    // Jump over the index value.
-    tag.jump(choice);
-    tag.skip(COMMA_WS);
+    MessageArg arg = args.get(0);
 
     // Process a short tag like "{1}" by just appending the argument value.
     if (tag.peek() == Chars.EOF) {
@@ -334,20 +337,65 @@ public class MessageFormat {
           break;
 
         case CURRENCY:
+        case MONEY:
           evalCurrency(arg);
           break;
 
         case DATETIME:
           evalDateTime(arg);
           break;
+          
+        case DATETIME_INTERVAL:
+          evalDateTimeInterval(args);
+          break;
 
+        case DECIMAL:
         case NUMBER:
           evalNumber(arg);
+          break;
+          
+        case UNIT:
+          evalUnit(arg);
           break;
       }
     }
   }
 
+  private List<MessageArg> getArgs() {
+    List<MessageArg> tuple = new ArrayList<>(2);
+    MessageArg arg = null;
+    
+    do {
+      // Arguments can be referenced with an integer index or name.
+      if (tag.seek(DIGITS, choice)) {
+        int index = (int)toLong(format, choice.pos, choice.end);
+        arg = args.get(index);
+  
+      } else if (tag.seek(IDENTIFIER, choice)) {
+        String key = choice.token().toString();
+        arg = args.get(key);
+      }
+  
+      // If no argument is present, bail out.
+      if (arg == null) {
+        return tuple;
+      }
+      
+      tuple.add(arg);
+      
+      // Jump over the index value.
+      tag.jump(choice);
+      tag.skip(COMMA_WS);
+      
+      if (!tag.seek(SEMICOLON, choice)) {
+        return tuple;
+      }
+      tag.jump(choice);
+      arg = null;
+      
+    } while (true);
+  }
+  
   /**
    * PLURAL - Evaluate the argument as a plural, either cardinal or ordinal.
    */
@@ -429,14 +477,33 @@ public class MessageFormat {
    * NUMBER - Evaluate the argument as a number, with options specified as key=value.
    */
   private void evalNumber(MessageArg arg) {
-//    Map<String, String> args = parseArgs();
+    initDecimalArgsParser();
+    parseArgs(decimalArgsParser);
+    
+    BigDecimal number = arg.asBigDecimal();
+    NumberFormatter formatter = CLDR_INSTANCE.getNumberFormatter(locale);
+    formatter.formatDecimal(number, buf, decimalArgsParser.options());
   }
 
   /**
    * CURRENCY - Evaluate the argument as a currency, with options specified as key=value.
    */
   private void evalCurrency(MessageArg arg) {
-//    Map<String, String> args = parseArgs();
+    String currencyCode = arg.currency();
+    if (currencyCode == null) {
+      return;
+    }
+    CLDR.Currency currency = CLDR.Currency.fromString(currencyCode);
+    if (currency == null) {
+      return;
+    }
+    
+    initCurrencyArgsParser();
+    parseArgs(currencyArgsParser);
+    
+    BigDecimal number = arg.asBigDecimal();
+    NumberFormatter formatter = CLDR_INSTANCE.getNumberFormatter(locale);
+    formatter.formatCurrency(number, currency, buf, currencyArgsParser.options());
   }
 
   /**
@@ -446,36 +513,216 @@ public class MessageFormat {
     if (!arg.resolve()) {
       return;
     }
-    String value = arg.asString();
     
-    Map<String, String> args = parseArgs();
-    setCalendarOption(args);
+    initCalendarArgsParser();
+    parseArgs(calendarArgsParser);
+    
+    ZonedDateTime datetime = parseDateTime(arg);
+    CalendarFormatter formatter = CLDR_INSTANCE.getCalendarFormatter(locale);
+    formatter.format(datetime, calendarArgsParser.options(), buf);
+  }
+  
+  /**
+   * DATETIME-INTERVAL - Evaluate the argument as a date-time interval with an
+   * optional skeleton argument.
+   */
+  private void evalDateTimeInterval(List<MessageArg> args) {
+    int size = args.size();
+    if (size != 2) {
+      return;
+    }
+    for (int i = 0; i < size; i++) {
+      if (!args.get(i).resolve()) {
+        return;
+      }
+    }
 
-    // TODO: timezone support, which has to be passed to the formatter separately
+    ZonedDateTime start = parseDateTime(args.get(0));
+    ZonedDateTime end = parseDateTime(args.get(1));
+    
+    // Parse optional skeleton argument
+    DateTimeIntervalSkeleton skeleton = null;
+    tag.skip(COMMA_WS);
+    if (tag.seek(SKELETON, choice)) {
+      String skel = choice.toString();
+      tag.jump(choice);
+      skeleton = DateTimeIntervalSkeleton.fromString(skel);
+    }
+    
+    CalendarFormatter formatter = CLDR_INSTANCE.getCalendarFormatter(locale);
+    formatter.format(start, end, skeleton, buf);
+  }
+  
+  /**
+   * UNIT - Conversion and formatting of units and unit sequences. 
+   */
+  private void evalUnit(MessageArg arg) {
+    // TODO: format unit ranges
+    if (!arg.resolve()) {
+      return;
+    }
+    
+    initUnitArgsParser();
+    parseArgs(unitArgsParser);
 
-    long instant = toLong(value, 0, value.length());
-    ZonedDateTime datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(instant), DEFAULT_ZONEID);
-    CalendarFormatter formatter = CLDR.get().getCalendarFormatter(locale);
-    formatter.format(datetime, calendarOptions, buf);
+    BigDecimal amount = arg.asBigDecimal();
+
+    // TODO: For future refactoring:
+    // This method closely follows the template compiler's UnitFormatter which
+    // was written first. It is relatively complex. In the near future, generalize the individual
+    // typed formatters to be reusable, and rewrite UnitFormatter and MessageFormat to depend on them.
+    
+    MessageArgsUnitParser opts = unitArgsParser;
+    Unit inputUnit = opts.inputUnit;
+    Unit exactUnit = opts.exactUnit;
+    Unit[] exactUnits = opts.exactUnits;
+    String compact = opts.compact;
+    Unit[] sequence = opts.sequence;
+
+    // == FALLBACK ==
+    
+    // If no arguments were set, we don't know the unit type. Format as plain number and bail out.
+    if (inputUnit == null && exactUnit == null && exactUnits == null && compact == null && sequence == null) {
+      UnitValue value = new UnitValue(amount, null);
+      NumberFormatter formatter = CLDR_INSTANCE.getNumberFormatter(locale);
+      formatter.formatUnit(value, buf, unitArgsParser.options());
+      return;
+    }
+
+    // At least one argument was provided. We will try to infer the others where possible.
+    UnitConverter converter = CLDR_INSTANCE.getUnitConverter(locale);
+    UnitFactorSet factorSet = null;
+
+    // == INTERPRET ARGUMENTS ==
+
+    if (compact != null) {
+      // First see if compact format matches a direct unit conversion (e.g. temperature, speed)
+      Unit unit = MessageArgsUnitParser.selectExactUnit(compact, converter);
+      if (unit != null) {
+        exactUnit = unit;
+      } else if (opts.factorSet != null) {
+        // Compact format might correspond to a factor set (e.g. digital bits, bytes).
+        factorSet = opts.factorSet;
+      } else {
+        factorSet = MessageArgsUnitParser.selectFactorSet(compact, converter);
+        opts.factorSet = factorSet;
+      }
+
+    } else if (exactUnits != null && exactUnits.length > 0) {
+      if (opts.factorSet != null) {
+        factorSet = opts.factorSet;
+      } else {
+        UnitCategory category = exactUnits[0].category();
+        factorSet = converter.getFactorSet(category, exactUnits);
+        opts.factorSet = factorSet;
+      }
+
+    } else if (sequence != null && sequence.length > 0) {
+      if (opts.factorSet != null) {
+        factorSet = opts.factorSet;
+      } else {
+        UnitCategory category = sequence[0].category();
+        factorSet = converter.getFactorSet(category, sequence);
+        opts.factorSet = factorSet;
+      }
+    }
+
+    // Make sure we know what the input units are.
+    if (inputUnit == null) {
+      if (exactUnit != null) {
+        inputUnit = MessageArgsUnitParser.inputFromExactUnit(exactUnit, converter);
+      } else if (exactUnits != null) {
+        inputUnit = MessageArgsUnitParser.inputFromExactUnit(exactUnits[0], converter);
+      } else if (factorSet != null) {
+        inputUnit = factorSet.base();
+      }
+    }
+    
+    // == CONVERSION ==
+
+    UnitValue value = new UnitValue(amount, inputUnit);
+
+    // In sequence mode this will get set below.
+    List<UnitValue> values = null;
+
+    if (exactUnit != null) {
+      // Convert to exact units using the requested unit.
+      value = converter.convert(value, exactUnit);
+
+    } else if (factorSet == null) {
+        // Convert directly to "best" unit using the default built-in factor sets.
+        value = converter.convert(value);
+
+    } else if (compact != null || exactUnits != null) {
+        // Use the factor set to build a compact form.
+        value = converter.convert(value, factorSet);
+
+    } else if (sequence != null) {
+      // Use the factor set to produce a sequence.
+      values = converter.sequence(value, factorSet);
+    }
+
+    // == FORMATTING ==
+
+    NumberFormatter formatter = CLDR_INSTANCE.getNumberFormatter(locale);
+    if (values == null) {
+      formatter.formatUnit(value, buf, opts.options());
+    } else {
+      formatter.formatUnits(values, buf, opts.options());
+    }
+  }
+  
+  /**
+   * Parse the argument as a date-time with the format-wide time zone.
+   */
+  private ZonedDateTime parseDateTime(MessageArg arg) {
+    long instant = arg.asLong();
+    return ZonedDateTime.ofInstant(Instant.ofEpochMilli(instant), timeZone);
+  }
+  
+  private void initDecimalArgsParser() {
+    if (decimalArgsParser == null) {
+      decimalArgsParser = new MessageArgsDecimalParser();
+    } else {
+      decimalArgsParser.reset();
+    }
+  }
+  
+  private void initCurrencyArgsParser() {
+    if (currencyArgsParser == null) {
+      currencyArgsParser = new MessageArgsCurrencyParser();
+    } else {
+      currencyArgsParser.reset();
+    }
+  }
+  
+  private void initCalendarArgsParser() {
+    if (calendarArgsParser == null) {
+      calendarArgsParser = new MessageArgsCalendarParser();
+    } else {
+      calendarArgsParser.reset();
+    }
+  }
+  
+  private void initUnitArgsParser() {
+    if (unitArgsParser == null) {
+      unitArgsParser = new MessageArgsUnitParser();
+    } else {
+      unitArgsParser.reset();
+    }
   }
 
   /**
    * Parse a list of zero or more arguments of the form:  <key>:<value>.  The ":<value>" is
    * optional and will set the key = null.  If no arguments are present this returns null.
    */
-  private Map<String, String> parseArgs() {
-    Map<String, String> result = null;
+  private void parseArgs(MessageArgsParser parser) {
     while (tag.peek() != Chars.EOF) {
       tag.skip(COMMA_WS);
 
       // Look for the argument key
       if (!tag.seek(IDENTIFIER, choice)) {
-        return result;
-      }
-
-      // Once we have at least one argument, initialize the container.
-      if (result == null) {
-        result = new HashMap<>();
+        return;
       }
 
       // Parse the <key>(:<value>)? sequence
@@ -485,18 +732,17 @@ public class MessageFormat {
         tag.jump(choice);
         if (tag.seek(ARG_VAL, choice)) {
           tag.jump(choice);
-          result.put(key, choice.toString());
+          parser.set(key, choice.toString());
         } else {
-          result.put(key, "");
+          parser.set(key, "");
         }
       } else {
-        result.put(key, null);
+        parser.set(key, "");
         if (!tag.seek(COMMA_WS, choice)) {
-          return result;
+          return;
         }
       }
     }
-    return result;
   }
 
   /**
@@ -533,65 +779,4 @@ public class MessageFormat {
     return n;
   }
 
-  private void setCalendarOption(Map<String, String> args) {
-    calendarOptions.reset();
-
-    for (Map.Entry<String, String> entry : args.entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-      
-      switch (key) {
-        case "date":
-        {
-          CalendarFormat format = calendarFormat(value);
-          if (format == null) {
-            calendarOptions.setDateSkeleton(CalendarSkeleton.fromString(value));
-          } else {
-            calendarOptions.setDateFormat(format);
-          }
-          break;
-        }
-          
-        case "time":
-        {
-          CalendarFormat format = calendarFormat(value);
-          if (format == null) {
-            calendarOptions.setTimeSkeleton(CalendarSkeleton.fromString(value));
-          } else {
-            calendarOptions.setTimeFormat(calendarFormat(value));
-          }
-          break;
-        }
-        
-        case "datetime":
-        case "wrap":
-        case "wrapper":
-          calendarOptions.setWrapperFormat(calendarFormat(value));
-          break;
-      }
-    }
-  }
-  
-  private CalendarFormat calendarFormat(String arg) {
-    if (arg == null) {
-      return null;
-    }
-    switch (arg) {
-      case "short":
-        return CalendarFormat.SHORT;
-        
-      case "medium":
-        return CalendarFormat.MEDIUM;
-        
-      case "long":
-        return CalendarFormat.LONG;
-        
-      case "full":
-        return CalendarFormat.FULL;
-        
-      default:
-        return null;
-    }
-  }
-  
 }

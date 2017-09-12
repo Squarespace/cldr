@@ -12,7 +12,6 @@ import java.util.Map;
 public class MessageArgs {
 
   private final List<MessageArg> args = new ArrayList<>();
-
   private Map<String, MessageArg> map;
 
   /**

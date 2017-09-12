@@ -7,6 +7,7 @@ import static com.squarespace.cldr.codegen.Types.LIST_CLDR_LOCALE_IF;
 import static com.squarespace.cldr.codegen.Types.META_LOCALE;
 import static com.squarespace.cldr.codegen.Types.PACKAGE_CLDR;
 import static com.squarespace.cldr.codegen.Types.PLURAL_RULES;
+import static com.squarespace.cldr.codegen.Types.STRING;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
@@ -352,6 +353,24 @@ public class CodeGenerator {
       buf.append("  Currency.$L");
     }
     buf.append("))");
+    
+    // Add a safe string mapping that returns null instead of throwing.
+    MethodSpec.Builder method = MethodSpec.methodBuilder("fromString")
+        .addModifiers(PUBLIC, STATIC)
+        .addParameter(STRING, "code")
+        .returns(Types.CLDR_CURRENCY_ENUM);
+
+    method.beginControlFlow("if (code != null)");
+    method.beginControlFlow("switch (code)");
+    for (int i = 0; i < codes.size(); i++) {
+      method.addStatement("case $S: return $L", codes.get(i), codes.get(i));
+    }
+    method.addStatement("default: break");
+    method.endControlFlow();
+    method.endControlFlow();
+    method.addStatement("return null");
+    
+    currencyType.addMethod(method.build());
     
     type.addType(currencyType.build());
 

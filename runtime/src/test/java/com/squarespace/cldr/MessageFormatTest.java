@@ -1,6 +1,7 @@
 package com.squarespace.cldr;
 
 import static com.squarespace.cldr.CLDR.Locale.en_US;
+import static com.squarespace.cldr.CLDR.Locale.fr_FR;
 import static com.squarespace.cldr.CLDR.Locale.pl;
 import static org.testng.Assert.assertEquals;
 
@@ -11,10 +12,8 @@ import org.testng.annotations.Test;
 
 public class MessageFormatTest {
 
-//  private static String EUR = "EUR";
-//  private static String USD = "USD";
-
   private static final ZoneId NY_ZONE = ZoneId.of("America/New_York");
+  private static final ZoneId PARIS_ZONE = ZoneId.of("Europe/Paris");
 
   // For tags to be parsed and evaluated, sequences of '{' and '}' delimiters
   // must be balanced. Otherwise the entire section must be ignored. Extraneous
@@ -102,21 +101,73 @@ public class MessageFormatTest {
     assertEquals(format(msg, args("5", "1498583746000")), "5 actions starting on June 27, 2017");
   }
 
-// TODO: implement
-//  @Test
-//  public void testCurrency() {
-//    String format = "{0 currency style:name min-fractional-digits:2}";
-//    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
-//    assertEquals(format(msg, args(money("10.25", "USD"))), "$10.25");
-//  }
+  @Test
+  public void testUnits() {
+    String format = "{0 unit format:long compact:duration in:seconds}";
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("123456")), "1.4 days");
+    
+    format = "{0 unit format:long sequence:day,hour in:seconds maxfrac:0}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("123456")), "1 day 10 hours");
+    
+    msg = new MessageFormat(fr_FR, PARIS_ZONE, format);
+    assertEquals(format(msg, args("123456")), "1 jour 10 heures");
 
-//TODO: implement
-//  @Test
-//  public void testNumber() {
-//    String format = "{0 number max-frac:2}";
-//    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
-//    assertEquals(format(msg, args("3.141592653589793")), "3.14");
-//  }
+    format = "Transmission of {0 unit compact:bytes} " +
+        "took {1 unit in:second sequence:hour,minute,second format:long}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("12345678900", "12345")), 
+        "Transmission of 11.5GB took 3 hours 25 minutes 45 seconds");
+
+    msg = new MessageFormat(fr_FR, PARIS_ZONE, format);
+    assertEquals(format(msg, args("12345678900", "12345")), 
+        "Transmission of 11,5 Go took 3 heures 25 minutes 45 secondes");
+    
+    format = "{0 unit in:inches sequence:mile,foot,inch group}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("123456789")), "1,948mi 2,625′ 9″");
+    
+    format = "{0 unit in:centimeter sequence:kilometer,meter,centimeter group}";
+    msg = new MessageFormat(fr_FR, PARIS_ZONE, format);
+    assertEquals(format(msg, args("123456789")), "1 234km 567m 89cm");
+  }
+  
+  @Test
+  public void testCurrency() {
+    String format = "{0 currency style:name}";
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args(money("10.25", "USD"))), "10.25 US dollars");
+    assertEquals(format(msg, args(money("10.25", "EUR"))), "10.25 euros");
+    
+    msg = new MessageFormat(fr_FR, PARIS_ZONE, format);
+    assertEquals(format(msg, args(money("10.25", "USD"))), "10,25 dollars des États-Unis");
+    assertEquals(format(msg, args(money("10.25", "EUR"))), "10,25 euros");
+
+    format = "{0 currency style:short}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args(money("1234", "USD"))), "$1.2K");
+    assertEquals(format(msg, args(money("999990", "USD"))), "$1M");
+
+    format = "{0 currency style:short mode:significant-maxfrac maxsig:5 minfrac:2}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args(money("1234", "USD"))), "$1.23K");
+    assertEquals(format(msg, args(money("999990", "USD"))), "$999.99K");
+    
+    // Invalid currency
+    assertEquals(format(msg, args(money("1234", "XYZ"))), "");
+  }
+
+  @Test
+  public void testNumber() {
+    String format = "{0 number maxfrac:2}";
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("3.141592653589793")), "3.14");
+    
+    format = "{0 number mode:significant maxsig:6}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("3.141592653589793")), "3.14159");
+  }
 
   @Test
   public void testDateTime() {
@@ -125,25 +176,48 @@ public class MessageFormatTest {
     assertEquals(format(msg, args("1498583746000")), "June 27, 2017 at 1:15:46 PM");
   }
 
+  @Test
+  public void testDateTimeInterval() {
+    String format = "{0;1 datetime-interval}";
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("1509647217000", "1510641417000")), "Nov 2 – 14, 2017");
+    assertEquals(format(msg, args("1502298000000", "1502305200000")), "1:00 – 3:00 PM ET");
+
+    msg = new MessageFormat(fr_FR, PARIS_ZONE, format);
+    assertEquals(format(msg, args("1509647217000", "1510641417000")), "2–14 nov. 2017");
+    assertEquals(format(msg, args("1502298000000", "1502305200000")), "7:00 – 9:00 PM UTC+2");
+   
+    // Invalid, only start argument referenced
+    format = "{0 datetime-interval}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("1509647217000", "1510641417000")), "");
+    
+    // Forcing the skeleton
+    format = "{0;1 datetime-interval yMMMd}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args("1509647217000", "1510641417000")), "Nov 2 – 14, 2017");
+    assertEquals(format(msg, args("1502298000000", "1502305200000")), "Aug 9, 2017 – Aug 9, 2017");
+  }
+  
   private String format(MessageFormat msg, MessageArgs args) {
     StringBuilder buf = new StringBuilder();
     msg.format(args, buf);
     return buf.toString();
   }
 
-//  private static MessageArg money(String value, String currency) {
-//    StringMessageArg arg = new StringMessageArg(value);
-//    arg.setCurrency(currency);
-//    return arg;
-//  }
+  private static MessageArg money(String value, String currency) {
+    StringMessageArg arg = new StringMessageArg(value);
+    arg.setCurrency(currency);
+    return arg;
+  }
 
-//  private static MessageArgs args(MessageArg... args) {
-//    MessageArgs.Builder result = MessageArgs.newBuilder();
-//    for (MessageArg arg : args) {
-//      result.add(arg);
-//    }
-//    return result.build();
-//  }
+  private static MessageArgs args(MessageArg... args) {
+    MessageArgs.Builder result = MessageArgs.newBuilder();
+    for (MessageArg arg : args) {
+      result.add(arg);
+    }
+    return result.build();
+  }
 
   private static MessageArgs args(String... value) {
     MessageArgs.Builder args = MessageArgs.newBuilder();
