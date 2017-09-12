@@ -17,17 +17,17 @@ def read(path):
 def main():
     tree = read(sys.argv[1])
 
-    rules = OrderedDict()
+    rules = []
     for n in tree.xpath(ROOT + '/languageMatch'):
         desired = n.attrib.get('desired')
-        rec = dict()
+        rec = dict(desired=desired)
         for k in ('supported', 'distance', 'oneway'):
             v = n.attrib.get(k)
             if v is not None:
                 if k == 'oneway':
                     v = '1'
                 rec[k] = v
-        rules[desired] = rec
+        rules.append(rec)
 
     node = tree.xpath(ROOT + '/paradigmLocales')[0]
     locales = node.attrib.get('locales')

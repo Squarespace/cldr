@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +33,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.squarespace.cldr.LanguageMatch;
 import com.squarespace.cldr.codegen.LocaleID;
 import com.squarespace.cldr.codegen.Utils;
 import com.squarespace.cldr.codegen.parse.PluralRuleGrammar;
@@ -39,7 +41,6 @@ import com.squarespace.cldr.codegen.parse.PluralType;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Format;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Skeleton;
 import com.squarespace.cldr.codegen.reader.DateTimeData.Variants;
-import com.squarespace.cldr.codegen.reader.LanguageMatchingData.LanguageMatch;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZone;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneEntry;
 import com.squarespace.cldr.codegen.reader.TimeZoneData.MetaZoneInfo;
@@ -139,8 +140,9 @@ public class DataReader {
   private final Map<String, PluralData> cardinals = new HashMap<>();
   private final Map<LocaleID, UnitData> units = new HashMap<>();
   private final Map<String, String> languageAliases = new LinkedHashMap<>();
+  private final Map<String, String> territoryAliases = new LinkedHashMap<>();
   private final Map<String, String> likelySubtags = new LinkedHashMap<>();
-  private final Map<String, List<RegionData>> territoryContainment = new TreeMap<>();
+  private final Map<String, Set<String>> territoryContainment = new TreeMap<>();
   private final LanguageMatchingData languageMatching = new LanguageMatchingData();
   
   private final NumberPatternParser numberPatternParser = new NumberPatternParser();
@@ -185,6 +187,10 @@ public class DataReader {
     return languageAliases;
   }
 
+  public Map<String, String> territoryAliases() {
+    return territoryAliases;
+  }
+  
   /**
    * List of likely subtags, to assist with language matching.
    */
@@ -258,7 +264,7 @@ public class DataReader {
   /**
    * Data showing containment between regions and countries.
    */
-  public Map<String, List<RegionData>> territoryContainment() {
+  public Map<String, Set<String>> territoryContainment() {
     return territoryContainment;
   }
   
@@ -293,6 +299,7 @@ public class DataReader {
         {
           parseTimeZoneAliases(root);
           parseLanguageAliases(root);
+          parseTerritoryAliases(root);
           break;
         }
         
@@ -550,13 +557,13 @@ public class DataReader {
    */
   private void parseLanguageMatchingFix(JsonObject root) {
     JsonObject node = resolve(root, "supplemental", "languageMatching", "written_new");
-    JsonObject matches = resolve(node, "languageMatch");
-    for (Map.Entry<String, JsonElement> entry : matches.entrySet()) {
-      String desired = entry.getKey();
-      JsonObject value = entry.getValue().getAsJsonObject();
+    JsonArray matches = node.getAsJsonArray("languageMatch");
+    for (JsonElement element : matches) {
+      JsonObject value = (JsonObject) element;
+      String desired = string(value, "desired");
       String supported = string(value, "supported");
       Integer distance = Integer.parseInt(string(value, "distance"));
-      boolean oneway = string(value, "oneway") != null;
+      boolean oneway = string(value, "oneway", null) != null;
       
       LanguageMatch match = new LanguageMatch(desired, supported, distance, oneway);
       languageMatching.languageMatches.add(match);
@@ -581,22 +588,30 @@ public class DataReader {
     for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
       String parentCode = entry.getKey();
       if (parentCode.contains("-")) {
-        continue;
+        if (!parentCode.endsWith("-status-grouping")) {
+          continue;
+        }
+        parentCode = parentCode.split("-")[0];
       }
-
+      
       JsonObject value = entry.getValue().getAsJsonObject();
       JsonArray elements = (JsonArray) value.get("_contains");
       if (elements == null) {
         throw new RuntimeException("Unexpected object structure: " + value);
       }
 
-      List<RegionData> children = new ArrayList<>();
+      List<String> children = new ArrayList<>();
       for (JsonElement element : elements) {
         String code = element.getAsString();
-        boolean isRegion = Character.isDigit(code.charAt(0));
-        children.add(new RegionData(isRegion, code));
+        children.add(code);
       }
-      territoryContainment.put(parentCode, children);
+      
+      Set<String> regions = territoryContainment.get(parentCode);
+      if (regions == null) {
+        regions = new TreeSet<>();
+        territoryContainment.put(parentCode, regions);
+      }
+      regions.addAll(children);
     }
   }
 
@@ -1140,6 +1155,18 @@ public class DataReader {
       JsonObject value = node.getAsJsonObject(tag);
       String replacement = string(value, "_replacement");
       languageAliases.put(tag, replacement);
+    }
+  }
+  
+  /**
+   * Parse the supplemental territory aliases map.
+   */
+  private void parseTerritoryAliases(JsonObject root) {
+    JsonObject node = resolve(root, "supplemental", "metadata", "alias", "territoryAlias");
+    for (String tag : objectKeys(node)) {
+      JsonObject value = node.getAsJsonObject(tag);
+      String replacement = string(value, "_replacement");
+      territoryAliases.put(tag, replacement);
     }
   }
   

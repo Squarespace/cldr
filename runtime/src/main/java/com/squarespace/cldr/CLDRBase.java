@@ -1,14 +1,19 @@
 package com.squarespace.cldr;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.squarespace.cldr.dates.CalendarFormatter;
 import com.squarespace.cldr.numbers.NumberFormatter;
 import com.squarespace.cldr.plurals.PluralRules;
 import com.squarespace.cldr.units.UnitConverter;
 import com.squarespace.cldr.units.UnitConverters;
+import com.squarespace.compiler.parse.Pair;
 
 
 /**
@@ -16,7 +21,8 @@ import com.squarespace.cldr.units.UnitConverters;
  */
 abstract class CLDRBase {
 
-  protected static final Map<String, String> LANGUAGE_ALIAS_MAP = new HashMap<>();
+  protected static final Map<String, List<Pair<LanguageAlias, LanguageAlias>>> LANGUAGE_ALIAS_MAP = new HashMap<>();
+  protected static final Map<String, Set<String>> TERRITORY_ALIAS_MAP = new HashMap<>();
   protected static final Map<MetaLocale, MetaLocale> LIKELY_SUBTAGS_MAP = new HashMap<>();
   protected static final Map<CLDR.Locale, CLDR.Locale> DEFAULT_CONTENT = new HashMap<>();
   
@@ -41,7 +47,7 @@ abstract class CLDRBase {
    */
   public CLDR.Locale resolve(String languageTag) {
     MetaLocale meta = MetaLocale.fromLanguageTag(languageTag);
-    return languageResolver.addLikelySubtags(meta);
+    return resolve(meta);
   }
   
   /**
@@ -51,9 +57,16 @@ abstract class CLDRBase {
    */
   public CLDR.Locale resolve(java.util.Locale javaLocale) {
     MetaLocale meta = MetaLocale.fromJavaLocale(javaLocale);
-    return languageResolver.addLikelySubtags(meta);
+    return resolve(meta);
   }
-
+  
+  /**
+   * Produce the minimal representation of this locale by removing likely subtags.
+   */
+  public CLDR.Locale minimize(CLDR.Locale locale) {
+    return languageResolver.removeLikelySubtags((MetaLocale)locale);
+  }
+  
   /**
    * Returns a calendar formatter for the given locale, translating it before lookup.
    */
@@ -85,6 +98,84 @@ abstract class CLDRBase {
    * Returns a class for evaluating plural rules for a given language.
    */
   public abstract PluralRules getPluralRules();
+
+  protected CLDR.Locale resolve(MetaLocale meta) {
+    meta = substituteLanguageAliases(meta);
+    meta = substituteTerritoryAliases(meta);
+    return languageResolver.addLikelySubtags(meta);
+  }
+
+  protected static MetaLocale substituteLanguageAliases(MetaLocale meta) {
+    List<Pair<LanguageAlias, LanguageAlias>> aliases = LANGUAGE_ALIAS_MAP.get(meta.language());
+    if (aliases == null) {
+      return meta;
+    }
+    meta = meta.copy();
+    for (Pair<LanguageAlias, LanguageAlias> pair : aliases) {
+      LanguageAlias type = pair._1;
+      LanguageAlias repl = pair._2;
+      
+      if (type.count() == 1 || type.equals(meta)) {
+        meta.setLanguage(repl._language());
+        if (!meta.hasScript()) {
+          meta.setScript(repl._script());
+        }
+        if (!meta.hasTerritory()) {
+          meta.setTerritory(repl._territory());
+        }
+        break;
+      }
+    }
+    return meta;
+  }
+  
+  protected static MetaLocale substituteTerritoryAliases(MetaLocale meta) {
+    String territory = meta.territory();
+    Set<String> replacement = TERRITORY_ALIAS_MAP.get(territory);
+    if (replacement == null) {
+      return meta;
+    }
+
+    meta = meta.copy();
+
+    // HACK: for now, just use the first in the list.
+    meta.setTerritory(replacement.iterator().next());
+    return meta;
+    
+// TODO: Get best regions for this language and optional script combination.
+// If one is in the replacement set, use it. Complete the code below.
+// 
+//    String language = meta.language();
+//    
+//    if (replacement.size() == 1) {
+//      meta.setTerritory(replacement.iterator().next());
+//      return meta;
+//    }
+//
+//    meta.setTerritory(first);
+//    return meta;
+  }
+
+  /**
+   * Add a language alias entry.
+   */
+  protected static void addLanguageAlias(String rawType, String rawReplacement) {
+    LanguageAlias type = LanguageAlias.parse(rawType);
+    LanguageAlias replacement = LanguageAlias.parse(rawReplacement);
+    String language = type.language();
+    List<Pair<LanguageAlias, LanguageAlias>> aliases = LANGUAGE_ALIAS_MAP.get(language);
+    if (aliases == null) {
+      aliases = new ArrayList<>();
+      LANGUAGE_ALIAS_MAP.put(language, aliases);
+    }
+    aliases.add(Pair.pair(type, replacement));
+  }
+  
+  protected static void addTerritoryAlias(String type, String rawReplacement) {
+    String[] parts = rawReplacement.split("\\s+");
+    Set<String> replacement = new LinkedHashSet<>(Arrays.asList(parts));
+    TERRITORY_ALIAS_MAP.put(type, replacement);
+  }
   
   /**
    * Locate the correct bundle identifier for the given resolved locale. Note that

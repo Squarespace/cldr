@@ -46,7 +46,7 @@ public class LocaleID implements Comparable<LocaleID> {
     if (result.isNothing()) {
       // This class is only used during code generation, parsing language tags
       // that are well-formed, so blow up immediately.
-      throw new RuntimeException("Failed to parse language tag: '" + languageTag + "'");
+      throw new IllegalArgumentException("Failed to parse language tag: '" + languageTag + "'");
     }
     return result.get()._1;
   }

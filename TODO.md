@@ -1,23 +1,21 @@
 
 # TODO
 
+### Complete enhanced language matching and related todos
+
+* Support new !enUS / GB distance, matching a partition to a region.
+* Finish territory aliases substitution
+* Add more test cases from ICU, other places
+
+
 ### Expose methods to retrieve names for stuff.
 
 Currencies are already available, just need to expose methods on
 NumberFormatter.
 
-
 ### Apply list patterns to unit sequences
 
 Need to add cldr-misc-modern submodule.
-
-
-### Enhanced language matching
-
-Given a list of supported bundles and a list of desired locales (sorted from
-most- to least-desired) find the best bundle match.
-
-See: http://www.unicode.org/reports/tr35/tr35.html#EnhancedLanguageMatching
 
 
 ### Intern strings and duplicate constants to reduce jar size

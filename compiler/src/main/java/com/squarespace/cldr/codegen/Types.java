@@ -19,17 +19,23 @@ public class Types {
   public static final ClassName STRING = get("java.lang", "String");
   public static final ClassName LIST = get("java.util", "List");
   public static final ClassName MAP = get("java.util", "Map");
+  public static final ClassName SET = get("java.util", "Set");
   public static final ClassName HASHMAP = get("java.util", "HashMap");
+  public static final ClassName HASHSET = get("java.util", "HashSet");
   public static final ClassName ENUM_MAP = get("java.util", "EnumMap");
   
   public static final TypeName LIST_STRING = ParameterizedTypeName.get(LIST, STRING);
-
+  public static final TypeName SET_STRING = ParameterizedTypeName.get(SET, STRING);
+  
   public static final ClassName CLDR = get(PACKAGE_CLDR, "CLDR");
   public static final ClassName CLDR_BASE = get(PACKAGE_CLDR, "CLDRBase");
   public static final ClassName CLDR_LOCALE_IF = get(PACKAGE_CLDR, "CLDR", "Locale");
   public static final ClassName CLDR_CURRENCY_ENUM = get(PACKAGE_CLDR, "CLDR", "Currency");
   public static final ClassName META_LOCALE = get(PACKAGE_CLDR, "MetaLocale");
-
+  public static final ClassName LANGUAGE_MATCH = get(PACKAGE_CLDR, "LanguageMatch");
+  
+  public static final TypeName LIST_LANGUAGE_MATCH = ParameterizedTypeName.get(LIST, LANGUAGE_MATCH);
+  
   public static final ClassName PLURAL_RULES = get(PACKAGE_CLDR_PLURALS, "_PluralRules");
 
   public static final TypeName LIST_CLDR_LOCALE_IF = ParameterizedTypeName.get(LIST, CLDR_LOCALE_IF);

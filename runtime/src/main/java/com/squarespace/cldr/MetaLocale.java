@@ -106,7 +106,7 @@ class MetaLocale implements CLDR.Locale, Comparable<MetaLocale> {
     // This parser is for internal use only during code generation, so we blow up
     // severely if a language tag fails to parse..
     if (result.isNothing()) {
-      throw new RuntimeException("Failed to parse language tag: '" + tag + "'");
+      throw new IllegalArgumentException("Failed to parse language tag: '" + tag + "'");
     }
     return result.get()._1;
   }

@@ -67,6 +67,9 @@ public class CodeGenerator {
     NumberCodeGenerator numberGenerator = new NumberCodeGenerator();
     Map<LocaleID, ClassName> numberClasses = numberGenerator.generate(outputDir, reader);
     
+    LanguageCodeGenerator languageGenerator = new LanguageCodeGenerator();
+    languageGenerator.generate(outputDir, reader);
+    
     MethodSpec registerCalendars = indexFormatters("registerCalendars", "registerCalendarFormatter", dateClasses);
     MethodSpec registerNumbers = indexFormatters("registerNumbers", "registerNumberFormatter", numberClasses);
     
@@ -98,6 +101,7 @@ public class CodeGenerator {
     
     createLocales(type, reader.defaultContent(), availableLocales);
     createLanguageAliases(type, reader.languageAliases());
+    createTerritoryAliases(type, reader.territoryAliases());
     createLikelySubtags(type, reader.likelySubtags());
     createCurrencies(type, numberGenerator.getCurrencies(reader));
     
@@ -109,6 +113,7 @@ public class CodeGenerator {
       .addStatement("registerNumbers()")
       .addStatement("registerDefaultContent()")
       .addStatement("registerLanguageAliases()")
+      .addStatement("registerTerritoryAliases()")
       .addStatement("registerLikelySubtags()")
       .addStatement("instance = new CLDR()").build());
     
@@ -301,14 +306,27 @@ public class CodeGenerator {
   }
   
   /**
-   * Create locale alias mapping.
+   * Create language alias mapping.
    */
   private static void createLanguageAliases(TypeSpec.Builder type, Map<String, String> languageAliases) {
     MethodSpec.Builder method = MethodSpec.methodBuilder("registerLanguageAliases")
         .addModifiers(PRIVATE, STATIC);
     
     for (Map.Entry<String, String> entry : languageAliases.entrySet()) {
-      method.addStatement("LANGUAGE_ALIAS_MAP.put($S, $S)", entry.getKey(), entry.getValue());
+      method.addStatement("addLanguageAlias($S, $S)", 
+          entry.getKey(), entry.getValue());
+    }
+    
+    type.addMethod(method.build());
+  }
+  
+  private static void createTerritoryAliases(TypeSpec.Builder type, Map<String, String> territoryAliases) {
+    MethodSpec.Builder method = MethodSpec.methodBuilder("registerTerritoryAliases")
+        .addModifiers(PRIVATE, STATIC);
+    
+    for (Map.Entry<String, String> entry : territoryAliases.entrySet()) {
+      method.addStatement("addTerritoryAlias($S, $S)", 
+          entry.getKey(), entry.getValue());
     }
     
     type.addMethod(method.build());

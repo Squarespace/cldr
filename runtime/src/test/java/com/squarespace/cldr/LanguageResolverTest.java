@@ -8,6 +8,22 @@ import org.testng.annotations.Test;
 public class LanguageResolverTest {
 
   @Test
+  public void testLanguageAliases() {
+    assertMatch("no", "nb-Latn-NO");
+    assertMatch("no-DE", "nb-Latn-DE");
+    assertMatch("tha", "th-Thai-TH");
+    assertMatch("src", "sc-Latn-IT");
+  }
+  
+  @Test
+  public void testTerritoryAliases() {
+    assertMatch("en-810", "en-Latn-RU");
+    assertMatch("en-862", "en-Latn-VE");
+    assertMatch("en-CT", "en-Latn-KI");
+    assertMatch("en-MI", "en-Latn-UM");
+  }
+  
+  @Test
   public void testAddLikelySubtags() {
     assertMatch("en", "en-Latn-US");
     assertMatch("und-US", "en-Latn-US");
@@ -90,7 +106,7 @@ public class LanguageResolverTest {
     assertMatch("en-IE", "en-Latn-IE");
     assertMatch("en-IN", "en-Latn-IN");
     assertMatch("en-NZ", "en-Latn-NZ");
-    assertMatch("en-UK", "en-Latn-UK");
+    assertMatch("en-UK", "en-Latn-GB");
     assertMatch("en-US", "en-Latn-US");
     assertMatch("en-ZA", "en-Latn-ZA");
     assertMatch("es-AR", "es-Latn-AR");
@@ -141,7 +157,7 @@ public class LanguageResolverTest {
         
     assertMatch("nl-BE", "nl-Latn-BE");
     assertMatch("nl-NL", "nl-Latn-NL");
-    assertMatch("no-NO", "no-Latn-NO");
+    assertMatch("no-NO", "nb-Latn-NO");
     
     assertMatch("pl-PL", "pl-Latn-PL");
     assertMatch("pt-BR", "pt-Latn-BR");
@@ -150,11 +166,11 @@ public class LanguageResolverTest {
     assertMatch("ro-RO", "ro-Latn-RO");
     assertMatch("ru-RU", "ru-Cyrl-RU");
 
-    assertMatch("sh-YU", "sh-Latn-YU");
+    assertMatch("sh-YU", "sr-Latn-RS");
     assertMatch("sk-SK", "sk-Latn-SK");
     assertMatch("sl-SI", "sl-Latn-SI");
     assertMatch("sq-AL", "sq-Latn-AL");
-    assertMatch("sr-YU", "sr-Cyrl-YU");
+    assertMatch("sr-YU", "sr-Cyrl-RS");
     assertMatch("sv-SE", "sv-Latn-SE");
 
     assertMatch("th-TH", "th-Thai-TH");
@@ -165,10 +181,9 @@ public class LanguageResolverTest {
     assertMatch("zh-CN", "zh-Hans-CN");
     assertMatch("zh-HK", "zh-Hant-HK");
   }
-
+  
   private void assertMatch(String inputTag, String expectedTag) {
-    LanguageResolver matcher = CLDR.get().getLanguageResolver();
-    CLDR.Locale actual = matcher.matchLanguageTag(inputTag);
+    CLDR.Locale actual = CLDR.get().resolve(inputTag);
     CLDR.Locale expected = MetaLocale.fromLanguageTag(expectedTag);
     assertEquals(actual, expected);
   }
