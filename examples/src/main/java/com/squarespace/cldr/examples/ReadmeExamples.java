@@ -7,6 +7,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.squarespace.cldr.CLDR;
+import com.squarespace.cldr.MessageArgs;
+import com.squarespace.cldr.MessageFormat;
+import com.squarespace.cldr.StringMessageArg;
 import com.squarespace.cldr.dates.CalendarFormat;
 import com.squarespace.cldr.dates.CalendarFormatOptions;
 import com.squarespace.cldr.dates.CalendarFormatter;
@@ -39,6 +42,7 @@ public class ReadmeExamples {
     bundle();
     datetime();
     datetimeIntervals();
+    messages();
     numbers();
     numbersCompact();
     currencies();
@@ -97,6 +101,81 @@ public class ReadmeExamples {
     f = CLDR.get().getNumberFormatter(locale);
     System.out.println(f.bundleId());
     // "en"
+  }
+  
+  private static void messages() {
+    String format = "Transmission of {0 unit compact:bytes} "
+        + "took {1 unit in:second sequence:hour,minute,second format:long}";
+    ZoneId tzNewYork = ZoneId.of("America/New_York");
+    MessageFormat msg = new MessageFormat(CLDR.Locale.en_US, tzNewYork, format);
+    MessageArgs args = MessageArgs.newBuilder().add("1234567890").add("12345").build();
+    StringBuilder buf = new StringBuilder();
+    msg.format(args, buf);
+    System.out.println(buf);
+    // "Transmission of 1.1GB took 3 hours 25 minutes 45 seconds"
+
+    buf.setLength(0);
+    ZoneId tzParis = ZoneId.of("Europe/Paris");
+    msg = new MessageFormat(CLDR.Locale.fr_FR, tzParis, format);
+    msg.format(args, buf);
+    System.out.println(buf);
+    // "Transmission of 1,1 Go took 3 heures 25 minutes 45 secondes"
+
+    buf.setLength(0);
+    format = "The total for the {count plural one{product} other{# products}} "
+        + "you ordered is {amount currency} "
+        + "on {2 datetime wrap:full}.";
+    
+    msg = new MessageFormat(CLDR.Locale.en_US, tzNewYork, format);
+    StringMessageArg amount = new StringMessageArg("1234.56");
+    amount.setCurrency("USD");
+    args = MessageArgs.newBuilder()
+        .add("count", "1")
+        .add("amount", amount)
+        .add("1498584124000")
+        .build();
+    
+    msg.format(args, buf);
+    System.out.println(buf);
+    // The total for the product you ordered is $1,234.56 on
+    // Tuesday, June 27, 2017 at 1:22:04 PM Eastern Daylight Time.
+
+    buf.setLength(0);
+    msg = new MessageFormat(CLDR.Locale.en_US, tzNewYork, format);
+    args = MessageArgs.newBuilder()
+        .add("count", "23")
+        .add("amount", amount)
+        .add("1498584124000")
+        .build();
+    msg.format(args, buf);
+    System.out.println(buf);
+    // The total for the 23 products you ordered is $1,234.56 on 
+    // Tuesday, June 27, 2017 at 1:22:04 PM Eastern Daylight Time.
+    
+    buf.setLength(0);
+    format = "The event takes place from {0;1 datetime-interval MMMd} and we hope to "
+        + "raise {2 currency style:short} for our foundation.";
+    msg = new MessageFormat(CLDR.Locale.en_US, tzNewYork, format);
+    amount = new StringMessageArg("999990");
+    amount.setCurrency("EUR");
+    args = MessageArgs.newBuilder()
+        .add("1509647217000")
+        .add("1509819011000")
+        .add(amount)
+        .build();
+    msg.format(args, buf);
+    System.out.println(buf);
+    // The event takes place from Nov 2 – 4 and we hope to raise $1M for our foundation.
+    
+    buf.setLength(0);
+    format = "Congratulations, you came in {0 selectordinal one{#st} two{#nd} few{#rd} other{#th}} place, "
+        + "up from {1 selectordinal one{#st} two{#nd} few{#rd} other{#th}}, "
+        + "that's quite an improvement!";
+    msg = new MessageFormat(CLDR.Locale.en_US, tzNewYork, format);
+    args = MessageArgs.newBuilder().add("3").add("27").build();
+    msg.format(args, buf);
+    System.out.println(buf);
+    // Congratulations, you came in 3rd place, up from 27th, that's quite an improvement!
   }
 
   private static void numbers() {
