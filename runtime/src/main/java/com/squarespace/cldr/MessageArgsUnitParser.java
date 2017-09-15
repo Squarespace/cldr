@@ -134,6 +134,8 @@ class MessageArgsUnitParser implements MessageArgsParser {
           return UnitFactorSets.DURATION_LARGE;
         case "duration-small":
           return UnitFactorSets.DURATION_SMALL;
+        case "electric":
+          return UnitFactorSets.ELECTRIC;
         case "energy":
           return UnitFactorSets.ENERGY;
         case "frequency":
@@ -183,6 +185,8 @@ class MessageArgsUnitParser implements MessageArgsParser {
     switch (category) {
       case CONSUMPTION:
         return converter.consumptionUnit();
+      case ELECTRIC:
+        return Unit.AMPERE;
       case FREQUENCY:
         return Unit.HERTZ;
       case LIGHT:
@@ -216,6 +220,8 @@ class MessageArgsUnitParser implements MessageArgsParser {
         return converter.areaFactors();
       case DURATION:
         return UnitFactorSets.DURATION;
+      case ELECTRIC:
+        return UnitFactorSets.ELECTRIC;
       case ENERGY:
         return converter.energyFactors();
       case FREQUENCY:

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -1146,6 +1147,8 @@ public class DataReader {
     node.remove("per");
     node.remove("coordinateUnit");
     
+    Set<PluralCategory> categories = new HashSet<>();
+    
     result.unitPatterns = new EnumMap<Unit, UnitData.UnitPattern>(Unit.class);
     for (String unitKey : objectKeys(node)) {
       JsonObject obj = node.get(unitKey).getAsJsonObject();
@@ -1173,10 +1176,22 @@ public class DataReader {
         }
         String value = string(obj, patternKey);
         PluralCategory category = PluralCategory.fromString(patternKey.split("-")[2]);
+        categories.add(category);
         pattern.patterns.put(category, value);
       }
       
       result.unitPatterns.put(unit, pattern);
+    }
+    
+    // Fill in default of OTHER where necessary
+    for (Unit unit : Unit.values()) {
+      UnitPattern pattern = result.unitPatterns.get(unit);
+      String other = pattern.patterns.get(PluralCategory.OTHER);
+      for (PluralCategory category : categories) {
+        if (pattern.patterns.get(category) == null) {
+          pattern.patterns.put(category, other);
+        }
+      }
     }
     
     return result;

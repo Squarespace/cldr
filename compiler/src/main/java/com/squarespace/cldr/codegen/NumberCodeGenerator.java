@@ -34,7 +34,6 @@ import com.squarespace.cldr.codegen.reader.CurrencyData;
 import com.squarespace.cldr.codegen.reader.DataReader;
 import com.squarespace.cldr.codegen.reader.NumberData;
 import com.squarespace.cldr.codegen.reader.UnitData;
-import com.squarespace.cldr.codegen.reader.UnitData.UnitPattern;
 import com.squarespace.cldr.codegen.reader.UnitData.UnitPatterns;
 import com.squarespace.cldr.numbers.DigitBuffer;
 import com.squarespace.cldr.numbers.NumberFormatterParams;
@@ -70,13 +69,12 @@ public class NumberCodeGenerator {
    */
   public Map<LocaleID, ClassName> generate(Path outputDir, DataReader reader) throws IOException {
     Map<LocaleID, ClassName> numberClasses = new TreeMap<>();
-    
     Map<LocaleID, UnitData> unitMap = reader.units();
-    
     for (Map.Entry<LocaleID, NumberData> entry : reader.numbers().entrySet()) {
+      
       NumberData data = entry.getValue();
       LocaleID localeId = entry.getKey();
-
+      
       String className = "_NumberFormatter_" + localeId.safe;
       UnitData unitData = unitMap.get(localeId);
       
@@ -370,21 +368,21 @@ public class NumberCodeGenerator {
     Set<PluralCategory> categories = new LinkedHashSet<>();
     for (PluralCategory category : PluralCategory.values()) {
       boolean found = false;
-      
+
       // Add fields holding the units for this plural category.
       String fieldName = String.format("%s_%s", name, category.name());
       FieldSpec.Builder field = FieldSpec.builder(MAP_UNIT_LIST_UNITPATTERN, fieldName, STATIC, FINAL, PROTECTED);
       CodeBlock.Builder code = CodeBlock.builder();
       code.add("new $T<$T, $T>($T.class) {{\n", Types.ENUM_MAP, Types.UNIT, Types.LIST_UNITPATTERN, Types.UNIT);
-      for (Map.Entry<Unit, UnitPattern> entry : unitPatterns.unitPatterns.entrySet()) {
-        String pattern = entry.getValue().patterns.get(category);
+
+      for (Unit unit : Unit.values()) {
+        String pattern = unitPatterns.unitPatterns.get(unit).patterns.get(category);
         if (pattern == null) {
           break;
         }
         
         found = true;
         categories.add(category);
-        Unit unit = entry.getKey();
         code.addStatement("  put($T.$L, unitPattern($S))", Types.UNIT, unit, pattern);
       }
       
