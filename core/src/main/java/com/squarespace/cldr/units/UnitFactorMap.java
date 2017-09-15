@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,7 +128,7 @@ public class UnitFactorMap {
    * not already exist.
    */
   protected UnitFactorMap complete() {
-    Set<Unit> units = new HashSet<>();
+    Set<Unit> units = new LinkedHashSet<>();
 
     // Add reverse mappings for all populated units.
     for (Unit from : factors.keySet()) {
@@ -321,7 +322,7 @@ public class UnitFactorMap {
   /**
    * Debugging..
    */
-  public void dump() {
+  public String dump() {
     StringBuilder buf = new StringBuilder();
     for (Unit unit : factors.keySet()) {
       buf.append(unit).append(":\n");
@@ -331,13 +332,13 @@ public class UnitFactorMap {
         buf.append("  ").append(factor).append('\n');
       }
     }
-    System.out.println(buf);
+    return buf.toString();
   }
 
   /**
    * Debugging..
    */
-  public void dump(Unit unit) {
+  public String dump(Unit unit) {
     StringBuilder buf = new StringBuilder();
     buf.append(unit).append(":\n");
     Map<Unit, UnitFactor> map = factors.get(unit);
@@ -346,7 +347,7 @@ public class UnitFactorMap {
       buf.append("  ").append(factor).append("  ");
       buf.append(factor.rational().compute(RoundingMode.HALF_EVEN).toPlainString()).append('\n');
     }
-    System.out.println(buf);
+    return buf.toString();
   }
 
   /**

@@ -25,7 +25,7 @@ public class MessageFormatBenchmark {
 
   private static final String FULL = "The total for the {0, plural, one{product} other{# products}} "
       + "you ordered is {1 currency style:name minfrac:2} on {2 datetime wrap:full}. "
-      + "The transfer of {3 unit compact:bytes} took "
+      + "The transfer of {3 unit in:byte compact:bytes} took "
       + "{4 unit in:second sequence:hour,minute,second format:long}.";
 
   private static final String PLURAL = "{0, plural, one{product} other{# products}}";

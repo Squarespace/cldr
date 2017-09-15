@@ -114,7 +114,7 @@ public class MessageFormatTest {
     msg = new MessageFormat(fr_FR, PARIS_ZONE, format);
     assertEquals(format(msg, args("123456")), "1 jour 10 heures");
 
-    format = "Transmission of {0 unit compact:bytes} " +
+    format = "Transmission of {0 unit in:bytes compact:bytes} " +
         "took {1 unit in:second sequence:hour,minute,second format:long}";
     msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args("12345678900", "12345")), 

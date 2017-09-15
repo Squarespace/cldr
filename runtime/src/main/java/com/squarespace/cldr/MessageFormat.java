@@ -582,7 +582,7 @@ public class MessageFormat {
     // == FALLBACK ==
     
     // If no arguments were set, we don't know the unit type. Format as plain number and bail out.
-    if (inputUnit == null && exactUnit == null && exactUnits == null && compact == null && sequence == null) {
+    if (inputUnit == null && exactUnit == null) {
       UnitValue value = new UnitValue(amount, null);
       NumberFormatter formatter = CLDR_INSTANCE.getNumberFormatter(locale);
       formatter.formatUnit(value, buf, unitArgsParser.options());
@@ -629,13 +629,7 @@ public class MessageFormat {
 
     // Make sure we know what the input units are.
     if (inputUnit == null) {
-      if (exactUnit != null) {
-        inputUnit = MessageArgsUnitParser.inputFromExactUnit(exactUnit, converter);
-      } else if (exactUnits != null) {
-        inputUnit = MessageArgsUnitParser.inputFromExactUnit(exactUnits[0], converter);
-      } else if (factorSet != null) {
-        inputUnit = factorSet.base();
-      }
+      inputUnit = MessageArgsUnitParser.inputFromExactUnit(exactUnit, converter);
     }
     
     // == CONVERSION ==
