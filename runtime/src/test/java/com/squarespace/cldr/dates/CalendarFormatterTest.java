@@ -6,8 +6,16 @@ import static com.squarespace.cldr.CLDR.Locale.de;
 import static com.squarespace.cldr.CLDR.Locale.en;
 import static com.squarespace.cldr.CLDR.Locale.en_GB;
 import static com.squarespace.cldr.CLDR.Locale.fr;
+import static org.testng.Assert.assertEquals;
+
+import java.time.DayOfWeek;
+import java.time.Month;
 
 import org.testng.annotations.Test;
+
+import com.squarespace.cldr.CLDR;
+import com.squarespace.cldr.CLDR.Locale;
+import com.squarespace.cldr.dates.CalendarFormatter.FieldWidth;
 
 
 /**
@@ -15,6 +23,48 @@ import org.testng.annotations.Test;
  */
 public class CalendarFormatterTest extends CalendarFormatterTestBase {
 
+  @Test
+  public void testWeekdays() {
+    CalendarFormatter formatter = CLDR.get().getCalendarFormatter(Locale.en_US);
+    assertEquals(formatter.getWeekdayName(DayOfWeek.THURSDAY, FieldWidth.WIDE), "Thursday");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.THURSDAY, FieldWidth.SHORT), "Th");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.SATURDAY, FieldWidth.WIDE), "Saturday");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.SATURDAY, FieldWidth.SHORT), "Sa");
+
+    formatter = CLDR.get().getCalendarFormatter(Locale.de_DE);
+    assertEquals(formatter.getWeekdayName(DayOfWeek.THURSDAY, FieldWidth.WIDE), "Donnerstag");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.THURSDAY, FieldWidth.SHORT), "Do.");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.SATURDAY, FieldWidth.WIDE), "Samstag");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.SATURDAY, FieldWidth.SHORT), "Sa.");
+
+    formatter = CLDR.get().getCalendarFormatter(Locale.ja_JP);
+    assertEquals(formatter.getWeekdayName(DayOfWeek.THURSDAY, FieldWidth.WIDE), "木曜日");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.THURSDAY, FieldWidth.SHORT), "木");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.SATURDAY, FieldWidth.WIDE), "土曜日");
+    assertEquals(formatter.getWeekdayName(DayOfWeek.SATURDAY, FieldWidth.SHORT), "土");
+  }
+  
+  @Test
+  public void testMonths() {
+    CalendarFormatter formatter = CLDR.get().getCalendarFormatter(Locale.en_US);
+    assertEquals(formatter.getMonthName(Month.AUGUST, FieldWidth.WIDE), "August");
+    assertEquals(formatter.getMonthName(Month.AUGUST, FieldWidth.SHORT), "Aug");
+    assertEquals(formatter.getMonthName(Month.OCTOBER, FieldWidth.WIDE), "October");
+    assertEquals(formatter.getMonthName(Month.OCTOBER, FieldWidth.SHORT), "Oct");
+
+    formatter = CLDR.get().getCalendarFormatter(Locale.de_DE);
+    assertEquals(formatter.getMonthName(Month.AUGUST, FieldWidth.WIDE), "August");
+    assertEquals(formatter.getMonthName(Month.AUGUST, FieldWidth.SHORT), "Aug");
+    assertEquals(formatter.getMonthName(Month.OCTOBER, FieldWidth.WIDE), "Oktober");
+    assertEquals(formatter.getMonthName(Month.OCTOBER, FieldWidth.SHORT), "Okt");
+
+    formatter = CLDR.get().getCalendarFormatter(Locale.ja_JP);
+    assertEquals(formatter.getMonthName(Month.AUGUST, FieldWidth.WIDE), "8月");
+    assertEquals(formatter.getMonthName(Month.AUGUST, FieldWidth.SHORT), "8月");
+    assertEquals(formatter.getMonthName(Month.OCTOBER, FieldWidth.WIDE), "10月");
+    assertEquals(formatter.getMonthName(Month.OCTOBER, FieldWidth.SHORT), "10月");
+  }
+  
   @Test
   public void testEra() {
     Datetime dt = may_1_2017();

@@ -1,5 +1,7 @@
 package com.squarespace.cldr.dates;
 
+import java.time.DayOfWeek;
+import java.time.Month;
 import java.time.ZonedDateTime;
 
 import com.squarespace.cldr.CLDR;
@@ -9,12 +11,29 @@ import com.squarespace.cldr.CLDR;
  * Common interface for date time formatters.
  */
 public interface CalendarFormatter {
-
+  
+  enum FieldWidth {
+    ABBREVIATED,
+    SHORT,
+    NARROW,
+    WIDE
+  }
+  
   /**
    * Returns the bundle identifier associated with this formatter.
    */
   CLDR.Locale bundleId();
 
+  /**
+   * Fetch the localized name of the week.
+   */
+  String getWeekdayName(DayOfWeek dayOfWeek, FieldWidth width);
+  
+  /**
+   * Fetch the localized name of the month.
+   */
+  String getMonthName(Month month, FieldWidth width);
+  
   /**
    * Format a date time with the given options, writing the output to the buffer.
    */
