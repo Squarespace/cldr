@@ -19,6 +19,21 @@ public interface NumberFormatter {
   CLDR.Locale bundleId();
 
   /**
+   * Return the symbol for a currency.
+   */
+  String getCurrencySymbol(CLDR.Currency code);
+
+  /**
+   * Return the localized narrow symbol for a currency.
+   */
+  String getNarrowCurrencySymbol(CLDR.Currency code);
+  
+  /**
+   * Return the localized display name for a currency.
+   */
+  String getCurrencyDisplayName(CLDR.Currency code);
+  
+  /**
    * Format the number as a decimal, using the options, and write it to the buffer.
    */
   void formatDecimal(BigDecimal n, StringBuilder buf, DecimalFormatOptions options);
