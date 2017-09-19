@@ -38,7 +38,7 @@ public class DecimalFormatOptions extends NumberFormatOptions<DecimalFormatOptio
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder();
-    buf.append("CurrencyFormatOptions(");
+    buf.append("DecimalFormatOptions(");
     repr(buf, ", ");
     buf.append(')');
     return buf.toString();

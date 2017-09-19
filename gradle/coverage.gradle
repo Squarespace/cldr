@@ -31,6 +31,9 @@ task rootCoverageReport(type: JacocoReport) {
       fileTree(
         dir: it,
         exclude: [
+          // exclude code generator and usage examples
+          'com/squarespace/cldr/codegen/*',
+          'com/squarespace/cldr/examples/*',
           // too much generated code to test for coverage
           'com/squarespace/cldr/dates/_*',
           'com/squarespace/cldr/numbers/_*',
@@ -38,16 +41,6 @@ task rootCoverageReport(type: JacocoReport) {
         ]
       )
     })
-
-    /*.plus(files(classDirectories.files.collect {
-      fileTree(
-        dir: it,
-        include: [
-          'com/squarespace/cldr/numbers/_NumberFormatter_en.class'
-        ]
-      )
-    }))*/
-
   }
 }
 

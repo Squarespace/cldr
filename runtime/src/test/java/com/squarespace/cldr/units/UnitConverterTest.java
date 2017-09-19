@@ -17,6 +17,12 @@ import com.squarespace.cldr.numbers.NumberFormatterTestBase;
 public class UnitConverterTest extends NumberFormatterTestBase {
 
   @Test
+  public void testAcceleration() {
+    run(en_US, "1", Unit.G_FORCE, "9.806650", Unit.METER_PER_SECOND_SQUARED, 6);
+    run(en_US, "5", Unit.G_FORCE, "49.03325", Unit.METER_PER_SECOND_SQUARED, 6);
+  }
+  
+  @Test
   public void testArea() {
     run(en_US, "1", Unit.SQUARE_CENTIMETER, "0.1550", Unit.SQUARE_INCH, 4);
     run(en_US, "1", Unit.SQUARE_INCH, "6.4516", Unit.SQUARE_CENTIMETER, 4);
@@ -125,7 +131,7 @@ public class UnitConverterTest extends NumberFormatterTestBase {
   private static void run(CLDR.Locale locale, String n, Unit u, String nex, Unit uex) {
     run(locale, n, u, nex, uex, null);
   }
-
+  
   private static void run(CLDR.Locale locale, String n, Unit u, String nex, Unit uex, Integer scale) {
     UnitConverter converter = CLDR.get().getUnitConverter(locale);
     UnitValue input = value(n, u);

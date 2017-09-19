@@ -1,6 +1,7 @@
 package com.squarespace.cldr.units;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * Multiplication factor to convert from one unit to another.
@@ -29,6 +30,20 @@ public class UnitFactor {
 
   public Unit unit() {
     return unit;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof UnitFactor) {
+      UnitFactor other = (UnitFactor) obj;
+      return unit == other.unit && Objects.equals(rational, rational);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    throw new UnsupportedOperationException("hashCode() not supported");
   }
 
   @Override

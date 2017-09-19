@@ -59,9 +59,6 @@ public class UnitFactorMap {
 
   public UnitValue convert(UnitValue value, RoundingMode mode, Unit to) {
     UnitFactor factor = resolve(value.unit(), to);
-    if (factor == null) {
-      return value;
-    }
     BigDecimal amt = factor.rational().compute(mode).multiply(value.amount());
     return new UnitValue(amt, to);
   }
@@ -155,18 +152,15 @@ public class UnitFactorMap {
           continue;
         }
 
-        // Resolve the conversion factor using the best path.
-        factor = resolve(from, to);
-        if (factor == null) {
-          throw new IllegalStateException("Failed to find a conversion path between " + from + " and " + to);
-        }
-
         // Get or create the mapping.
         Map<Unit, UnitFactor> map = factors.get(from);
         if (map == null) {
           map = new EnumMap<>(Unit.class);
           factors.put(from, map);
         }
+
+        // Resolve the conversion factor using the best path.
+        factor = resolve(from, to);
 
         // If a factor exists we overwrite it if we can set a factor with a lower total precision.
         UnitFactor old = map.get(from);
@@ -183,12 +177,12 @@ public class UnitFactorMap {
     // Finally, sort the units from largest to smallest, where possible.
     List<Unit> unitList = new ArrayList<>(Unit.forCategory(category));
     unitList.sort((a, b) -> {
-      UnitFactor fa = get(a, b);
+      UnitFactor f = get(a, b);
       // Units in some categories cannot be compared so return an arbitrary order.
-      if (fa == null) {
+      if (f == null) {
         return -1;
       }
-      BigDecimal r = fa.rational().compute(RoundingMode.HALF_EVEN);
+      BigDecimal r = f.rational().compute(RoundingMode.HALF_EVEN);
       return BigDecimal.ONE.compareTo(r);
     });
 
@@ -320,23 +314,7 @@ public class UnitFactorMap {
   }
 
   /**
-   * Debugging..
-   */
-  public String dump() {
-    StringBuilder buf = new StringBuilder();
-    for (Unit unit : factors.keySet()) {
-      buf.append(unit).append(":\n");
-      Map<Unit, UnitFactor> map = factors.get(unit);
-      for (Unit base : map.keySet()) {
-        UnitFactor factor = map.get(base);
-        buf.append("  ").append(factor).append('\n');
-      }
-    }
-    return buf.toString();
-  }
-
-  /**
-   * Debugging..
+   * Debugging conversion factors.
    */
   public String dump(Unit unit) {
     StringBuilder buf = new StringBuilder();
