@@ -21,13 +21,12 @@ public class LanguageMatcherTest {
   
   private void run(String supported, String desired, String result) {
     LanguageMatcher matcher = new LanguageMatcher(supported);
-    CLDR.Locale expected = CLDR.get().resolve(result);
-    CLDR.Locale actual = matcher.match(desired);
-    String message = supported + "  ;  " + desired + "  ;  " + expected;
+    String actual = matcher.match(desired);
+    String message = supported + "  ;  " + desired + "  ;  " + result;
     if (DEBUG) {
       System.err.println(message + "   #  actual: " + actual);
     }
-    Assert.assertEquals(actual, expected, "Failed test case: " + message + ".");
+    Assert.assertEquals(actual, result, "Failed test case: " + message + ".");
   }
   
   private static List<Case> load() throws IOException {

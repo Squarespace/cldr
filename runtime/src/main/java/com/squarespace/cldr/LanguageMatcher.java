@@ -1,12 +1,9 @@
 package com.squarespace.cldr;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -25,22 +22,20 @@ public class LanguageMatcher {
   
   private static final DistanceTable DISTANCE_TABLE = DistanceTable.get();
   
-  private final Set<CLDR.Locale> exactMatch;
-  private final List<CLDR.Locale> supportedLocales; 
+  private final Map<String, Match> exactMatch = new HashMap<>();
+  private final List<Match> supportedLocales;
   
   public LanguageMatcher(String supportedLocales) {
     this(parse(supportedLocales));
   }
   
-  private LanguageMatcher(List<CLDR.Locale> supportedLocales) {
-    this.exactMatch = new HashSet<>(supportedLocales);
-    this.supportedLocales = new ArrayList<>(supportedLocales);
-    
+  private LanguageMatcher(List<Match> supportedLocales) {
+    this.supportedLocales = supportedLocales;
     if (supportedLocales.isEmpty()) {
       throw new IllegalArgumentException("You must provide at least one supported locale.");
     }
     
-    CLDR.Locale first = supportedLocales.get(0);
+    Match first = supportedLocales.get(0);
     
     this.supportedLocales.sort((a, b) -> {
       // Make sure we keep the first locale in position, since it also serves as the default.
@@ -52,8 +47,8 @@ public class LanguageMatcher {
       }
       
       // Sort all paradigm locales to the front.
-      Integer pa = PARADIGM_LOCALES.get(a);
-      Integer pb = PARADIGM_LOCALES.get(b);
+      Integer pa = PARADIGM_LOCALES.get(a.locale);
+      Integer pb = PARADIGM_LOCALES.get(b.locale);
       if (pa != null) {
         return pb == null ? -1 : Integer.compare(pa, pb);
       } else if (pb != null) {
@@ -65,33 +60,34 @@ public class LanguageMatcher {
     });
   }
 
-  public CLDR.Locale match(String desiredRaw) {
+  public String match(String desiredRaw) {
     return match(parse(desiredRaw));
   }
   
-  private CLDR.Locale match(List<CLDR.Locale> desiredLocales) {
+  private String match(List<Match> desiredLocales) {
     int bestDistance = 100;
-    CLDR.Locale bestMatch = null;
-    for (CLDR.Locale desired : desiredLocales) {
-      if (exactMatch.contains(desired)) {
-        return desired;
+    Match bestMatch = null;
+    for (Match desired : desiredLocales) {
+      Match exact = exactMatch.get(desired.bundleId);
+      if (exact != null) {
+        return exact.bundleId;
       }
-      for (CLDR.Locale supported : supportedLocales) {
-        int distance = DISTANCE_TABLE.distance(desired, supported);
+      for (Match supported : supportedLocales) {
+        int distance = DISTANCE_TABLE.distance(desired.locale, supported.locale);
         if (distance < bestDistance) {
           bestDistance = distance;
           bestMatch = supported;
         }
       }
     }
-    return bestMatch == null ? supportedLocales.get(0) : bestMatch;
+    return bestMatch == null ? supportedLocales.get(0).bundleId : bestMatch.bundleId;
   }
   
-  private static List<CLDR.Locale> parse(String locales) {
+  private static List<Match> parse(String locales) {
     return Arrays.stream(locales.split("(,|\\s+)"))
         .map(s -> s.trim())
         .filter(s -> !s.isEmpty())
-        .map(CLDR_INSTANCE::resolve)
+        .map(s -> new Match(s, CLDR_INSTANCE.resolve(s)))
         .collect(Collectors.toList());
   }
   
@@ -105,4 +101,16 @@ public class LanguageMatcher {
     return res;
   }
 
+  private static class Match {
+    
+    private final String bundleId;
+    private final CLDR.Locale locale;
+    
+    public Match(String bundleId, CLDR.Locale locale) {
+      this.bundleId = bundleId;
+      this.locale = locale;
+    }
+    
+  }
+  
 }

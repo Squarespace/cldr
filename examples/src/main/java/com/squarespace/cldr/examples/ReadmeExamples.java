@@ -54,7 +54,7 @@ public class ReadmeExamples {
 
   private static void matching() {
     LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
-    CLDR.Locale locale = matcher.match("es-AR");
+    String locale = matcher.match("es-AR");
     System.out.println(locale);
     // "es-Latn-419"
     
