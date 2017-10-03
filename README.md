@@ -61,6 +61,62 @@ System.out.println(locale);
 ```
 > "en-Latn-US"
 
+#### Minimize by removing likely subtags
+
+```java
+locale = CLDR.get().resolve("en");
+System.out.println(locale);
+```
+> "en-Latn-US"
+
+```java
+locale = CLDR.get().minimize(locale);
+System.out.println(locale);
+```
+> "en"
+
+### Enhanced Language Matching
+
+This implements [enhanced language matching](http://www.unicode.org/reports/tr35/tr35.html#EnhancedLanguageMatching) which, given a list of desired locales, tries to find the best match among the application's supported locales.
+
+```java
+LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
+CLDR.Locale locale = matcher.match("es-AR");
+System.out.println(locale);
+```
+> "es-Latn-419"
+
+```java
+locale = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
+```
+> "es-Latn-419"
+
+```java
+locale = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
+```
+> "es-Latn-ES"
+
+```java
+locale = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
+```
+> "es-Latn-PT"
+
+```java
+locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
+```
+> "en-Latn-US"
+
+```java
+locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
+```
+> "en-Latn-GB"
+
+```java
+locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-ZA");
+```
+> "en-Latn-GB"
+
+
 ### Accessing Formatters
 
 Below are some examples of resolving a locale to get a reference to a

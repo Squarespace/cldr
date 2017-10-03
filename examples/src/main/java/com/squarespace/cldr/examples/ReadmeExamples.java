@@ -7,6 +7,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.squarespace.cldr.CLDR;
+import com.squarespace.cldr.LanguageMatcher;
 import com.squarespace.cldr.MessageArgs;
 import com.squarespace.cldr.MessageFormat;
 import com.squarespace.cldr.StringMessageArg;
@@ -38,6 +39,7 @@ import com.squarespace.cldr.units.UnitValue;
 public class ReadmeExamples {
 
   public static void main(String[] args) {
+    matching();
     locales();
     bundle();
     datetime();
@@ -48,6 +50,37 @@ public class ReadmeExamples {
     currencies();
     units();
     unitSequences();
+  }
+
+  private static void matching() {
+    LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
+    CLDR.Locale locale = matcher.match("es-AR");
+    System.out.println(locale);
+    // "es-Latn-419"
+    
+    locale = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
+    System.out.println(locale);
+    // "es-Latn-419"
+
+    locale = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
+    System.out.println(locale);
+    // "es-Latn-ES"
+
+    locale = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
+    System.out.println(locale);
+    // "es-Latn-PT"
+
+    locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
+    System.out.println(locale);
+    // "en-Latn-US"
+    
+    locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
+    System.out.println(locale);
+    // "en-Latn-GB"
+    
+    locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-ZA");
+    System.out.println(locale);
+    // "en-Latn-GB"
   }
   
   private static void locales() {
@@ -80,6 +113,16 @@ public class ReadmeExamples {
     locale = CLDR.get().resolve("und-Zzzz-ZZ");
     System.out.println(locale);
     // en-Latn-US
+    
+    // MINIMIZE
+    
+    locale = CLDR.get().resolve("en");
+    System.out.println(locale);
+    // "en-Latn-US"
+    
+    locale = CLDR.get().minimize(locale);
+    System.out.println(locale);
+    // "en"
   }
   
   private static void bundle() {
