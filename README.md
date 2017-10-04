@@ -12,6 +12,9 @@ License: [Apache 2.0](LICENSE)
 
 ### Resolving Locales
 
+Given an IETF BCP 47 language tag, Java locale string or object, the resolver substitutes language and territory
+aliases, and then adds likely subtags.
+
 ```java
 CLDR.Locale locale = CLDR.get().resolve("zh-CN");
 System.out.println(locale);
@@ -61,13 +64,14 @@ System.out.println(locale);
 ```
 > "en-Latn-US"
 
-#### Minimize by removing likely subtags
 
 ```java
 locale = CLDR.get().resolve("en");
 System.out.println(locale);
 ```
 > "en-Latn-US"
+
+#### Minimize by removing likely subtags
 
 ```java
 locale = CLDR.get().minimize(locale);
@@ -120,6 +124,12 @@ locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
 locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
 ```
 > "en-GB"
+
+```java
+locale = new LanguageMatcher("en_US, fr_FR, de_DE").match("fr");
+```
+> "fr_FR"
+
 
 ### Accessing Formatters
 

@@ -85,6 +85,10 @@ public class ReadmeExamples {
     locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
     System.out.println(locale);
     // "en-GB"
+    
+    locale = new LanguageMatcher("en_US, fr_FR, de_DE").match("fr");
+    System.out.println(locale);
+    // "fr_FR"
   }
   
   private static void locales() {
