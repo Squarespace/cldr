@@ -84,38 +84,42 @@ LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
 CLDR.Locale locale = matcher.match("es-AR");
 System.out.println(locale);
 ```
-> "es-Latn-419"
+> "es-419"
 
 ```java
 locale = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
 ```
-> "es-Latn-419"
+> "es-419"
 
 ```java
 locale = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
 ```
-> "es-Latn-ES"
+> "es"
 
 ```java
 locale = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
 ```
-> "es-Latn-PT"
+> "es-PT"
 
 ```java
 locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
 ```
-> "en-Latn-US"
+> "en"
 
 ```java
 locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
 ```
-> "en-Latn-GB"
+> "en-GB"
 
 ```java
-locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-ZA");
+locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
 ```
-> "en-Latn-GB"
+> "en-US"
 
+```java
+locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
+```
+> "en-GB"
 
 ### Accessing Formatters
 

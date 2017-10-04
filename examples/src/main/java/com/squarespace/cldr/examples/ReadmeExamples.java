@@ -56,31 +56,35 @@ public class ReadmeExamples {
     LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
     String locale = matcher.match("es-AR");
     System.out.println(locale);
-    // "es-Latn-419"
+    // "es-419"
     
     locale = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
     System.out.println(locale);
-    // "es-Latn-419"
+    // "es-419"
 
     locale = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
     System.out.println(locale);
-    // "es-Latn-ES"
+    // "es"
 
     locale = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
     System.out.println(locale);
-    // "es-Latn-PT"
+    // "es-PT"
 
     locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
     System.out.println(locale);
-    // "en-Latn-US"
+    // "en"
     
     locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
     System.out.println(locale);
-    // "en-Latn-GB"
+    // "en-GB"
     
-    locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-ZA");
+    locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
     System.out.println(locale);
-    // "en-Latn-GB"
+    // "en-US"
+    
+    locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
+    System.out.println(locale);
+    // "en-GB"
   }
   
   private static void locales() {
