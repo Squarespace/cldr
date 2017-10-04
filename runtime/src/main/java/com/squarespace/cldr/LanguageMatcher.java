@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
  */
 public class LanguageMatcher {
 
+  private static final Pattern COMMA_SPACE = Pattern.compile("[,\\s]+");
+  
   private static final CLDR CLDR_INSTANCE = CLDR.get();
   private static final Map<CLDR.Locale, Integer> PARADIGM_LOCALES = buildParadigmLocales();
   
@@ -27,11 +31,16 @@ public class LanguageMatcher {
   private final List<Match> supportedLocales;
   
   public LanguageMatcher(String supportedLocales) {
-    this(parse(supportedLocales));
+    this.supportedLocales = parse(supportedLocales);
+    init();
   }
   
-  private LanguageMatcher(List<Match> supportedLocales) {
-    this.supportedLocales = supportedLocales;
+  public LanguageMatcher(List<String> supportedLocales) {
+    this.supportedLocales = parse(supportedLocales);
+    init();
+  }
+  
+  private void init() {
     if (supportedLocales.isEmpty()) {
       throw new IllegalArgumentException("You must provide at least one supported locale.");
     }
@@ -71,10 +80,14 @@ public class LanguageMatcher {
   }
 
   public String match(String desiredRaw) {
-    return match(parse(desiredRaw));
+    return matchImpl(parse(desiredRaw));
   }
   
-  private String match(List<Match> desiredLocales) {
+  public String match(List<String> desired) {
+    return matchImpl(parse(desired));
+  }
+  
+  private String matchImpl(List<Match> desiredLocales) {
     int bestDistance = 100;
     Match bestMatch = null;
     for (Match desired : desiredLocales) {
@@ -94,8 +107,17 @@ public class LanguageMatcher {
   }
   
   private static List<Match> parse(String locales) {
-    return Arrays.stream(locales.split("(,|\\s+)"))
-        .map(s -> s.trim())
+    return convert(Arrays.stream(COMMA_SPACE.split(locales)));
+  }
+  
+  private static List<Match> parse(List<String> locales) {
+    Stream<String> stream = locales.stream()
+        .flatMap(COMMA_SPACE::splitAsStream);
+    return convert(stream);
+  }
+  
+  private static List<Match> convert(Stream<String> stream) {
+    return stream.map(s -> s.trim())
         .filter(s -> !s.isEmpty())
         .map(s -> new Match(s, CLDR_INSTANCE.resolve(s)))
         .collect(Collectors.toList());
@@ -121,6 +143,12 @@ public class LanguageMatcher {
       this.locale = locale;
     }
     
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder();
+      buf.append("Match(id=").append(bundleId).append(", max=").append(locale).append(')');
+      return buf.toString();
+    }
   }
   
 }

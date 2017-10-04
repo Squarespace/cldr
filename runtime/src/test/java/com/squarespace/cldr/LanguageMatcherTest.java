@@ -1,5 +1,7 @@
 package com.squarespace.cldr;
 
+import static java.util.Arrays.asList;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +17,33 @@ public class LanguageMatcherTest {
   @Test
   public void testCases() throws IOException {
     for (Case c : load()) {
-      run(c.supported, c.desired, c.result);
+      match(c.supported, c.desired, c.result);
     }
   }
   
-  private void run(String supported, String desired, String result) {
+  @Test
+  public void testBasic() {
+    match("en-US fr-FR de-DE es-ES", "zh ar de", "de-DE");
+  }
+  
+  @Test
+  public void testList() {
+    match(asList("en", "ar", "zh", "es"), asList("no", "he", "zh", "es"), "zh");
+    match(asList("en_US", "fr_FR", "und-DE"), asList("zh", "de"), "und-DE");
+    
+    // Test list where each element might contain multiple locales. These will
+    // be parsed and flat-mapped.
+    match(asList("en ar", "de es fr"), asList("no he", "es"), "es");
+  }
+  
+  private void match(List<String> supported, List<String> desired, String result) {
+    LanguageMatcher matcher = new LanguageMatcher(supported);
+    String actual = matcher.match(desired);
+    String message = supported + "  ;  " + desired + "  ;  " + result;
+    Assert.assertEquals(actual, result, message);
+  }
+  
+  private void match(String supported, String desired, String result) {
     LanguageMatcher matcher = new LanguageMatcher(supported);
     String actual = matcher.match(desired);
     String message = supported + "  ;  " + desired + "  ;  " + result;
