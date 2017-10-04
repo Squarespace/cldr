@@ -41,6 +41,15 @@ public class MessageFormatTest {
   }
 
   @Test
+  public void testSelect() {
+    String format = "{gender, select, male {MALE} female {FEMALE} other {OTHER}}";
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args().add("gender", "female").build()), "FEMALE");
+    assertEquals(format(msg, args().add("gender", "male").build()), "MALE");
+    assertEquals(format(msg, args().add("gender", "xyz").build()), "OTHER");
+  }
+  
+  @Test
   public void testPlural() {
     String format = "{0 plural =2{is two} one{# is one} few{# is few} many{# is many} other{# is other}}";
     MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
@@ -211,6 +220,10 @@ public class MessageFormatTest {
     return arg;
   }
 
+  private static MessageArgs.Builder args() {
+    return MessageArgs.newBuilder();
+  }
+  
   private static MessageArgs args(MessageArg... args) {
     MessageArgs.Builder result = MessageArgs.newBuilder();
     for (MessageArg arg : args) {

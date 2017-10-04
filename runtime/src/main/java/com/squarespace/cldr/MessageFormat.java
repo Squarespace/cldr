@@ -34,6 +34,7 @@ import com.squarespace.cldr.units.UnitCategory;
 import com.squarespace.cldr.units.UnitConverter;
 import com.squarespace.cldr.units.UnitFactorSet;
 import com.squarespace.cldr.units.UnitValue;
+import com.squarespace.compiler.match.Recognizers;
 import com.squarespace.compiler.match.Recognizers.Recognizer;
 import com.squarespace.compiler.text.CharClassifier;
 import com.squarespace.compiler.text.Chars;
@@ -91,6 +92,7 @@ public class MessageFormat {
   
   // Names of tag types.
   private static final String PLURAL = "plural";
+  private static final String SELECT = "select";
   private static final String SELECTORDINAL = "selectordinal";
   private static final String DECIMAL = "decimal";
   private static final String DATETIME = "datetime";
@@ -106,6 +108,7 @@ public class MessageFormat {
   private static final Recognizer FORMATTER = choice(
       literal(PLURAL),
       literal(SELECTORDINAL),
+      literal(SELECT),
       literal(DATETIME),
       literal(DATETIME_INTERVAL),
       literal(CURRENCY),
@@ -117,6 +120,7 @@ public class MessageFormat {
   // Pattern matchers for syntax fragments
   private static final CharClassifier CLASSIFIER = new DefaultCharClassifier();
   private static final Recognizer COMMA_WS = oneOrMore(choice(characters(','), whitespace()));
+  private static final Recognizer NON_WS = oneOrMore(Recognizers.notWhitespace());
   private static final Recognizer SEMICOLON = characters(';');
   private static final Recognizer DIGITS = digits();
   private static final Recognizer PLURAL_EXPLICIT = sequence(characters('='), digits());
@@ -336,6 +340,10 @@ public class MessageFormat {
           evalPlural(arg, false);
           break;
 
+        case SELECT:
+          evalSelect(arg);
+          break;
+          
         case CURRENCY:
         case MONEY:
           evalCurrency(arg);
@@ -473,6 +481,45 @@ public class MessageFormat {
     }
   }
 
+  /**
+   * SELECT - Evaluate the tag that matches the argument's value.
+   */
+  private void evalSelect(MessageArg arg) {
+    tag.skip(COMMA_WS);
+    int pos = -1;
+    int end = -1;
+    String value = arg.asString();
+    while (tag.peek() != Chars.EOF) {
+      if (!tag.seek(NON_WS, choice)) {
+        break;
+      }
+      
+      String token = choice.token().toString();
+      tag.jump(choice);
+      tag.skip(COMMA_WS);
+      if (!tag.seekBounds(choice, '{', '}')) {
+        break;
+      }
+      
+      if (token.equals(value)) {
+        recurse(choice, value);
+        return;
+      } else if (token.equals("other")) {
+        pos = choice.pos;
+        end = choice.end;
+      } else {
+        tag.jump(choice);
+        tag.skip(COMMA_WS);
+      }
+    }
+
+    // Evaluate the "other" tag if nothing matched.
+    if (pos != -1 && end != -1) {
+      choice.set(pos, end);
+      recurse(choice, value);
+    }
+  }
+  
   /**
    * NUMBER - Evaluate the argument as a number, with options specified as key=value.
    */
