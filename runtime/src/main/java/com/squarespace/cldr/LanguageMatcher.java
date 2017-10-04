@@ -1,5 +1,6 @@
 package com.squarespace.cldr;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +23,7 @@ public class LanguageMatcher {
   
   private static final DistanceTable DISTANCE_TABLE = DistanceTable.get();
   
-  private final Map<String, Match> exactMatch = new HashMap<>();
+  private final Map<CLDR.Locale, List<String>> exactMatch = new HashMap<>();
   private final List<Match> supportedLocales;
   
   public LanguageMatcher(String supportedLocales) {
@@ -58,6 +59,15 @@ public class LanguageMatcher {
       // Leave all other locales in their relative positions.
       return 0;
     });
+
+    for (Match match : supportedLocales) {
+      List<String> bundles = exactMatch.get(match.locale);
+      if (bundles == null) {
+        bundles = new ArrayList<>();
+        exactMatch.put(match.locale, bundles);
+      }
+      bundles.add(match.bundleId);
+    }
   }
 
   public String match(String desiredRaw) {
@@ -68,9 +78,9 @@ public class LanguageMatcher {
     int bestDistance = 100;
     Match bestMatch = null;
     for (Match desired : desiredLocales) {
-      Match exact = exactMatch.get(desired.bundleId);
+      List<String> exact = exactMatch.get(desired.locale);
       if (exact != null) {
-        return exact.bundleId;
+        return exact.get(0);
       }
       for (Match supported : supportedLocales) {
         int distance = DISTANCE_TABLE.distance(desired.locale, supported.locale);
