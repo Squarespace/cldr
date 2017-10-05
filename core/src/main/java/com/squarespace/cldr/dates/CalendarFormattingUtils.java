@@ -22,7 +22,7 @@ public class CalendarFormattingUtils {
     DateTimeField field = greatestDifference(d1, d2);
     return (field != YEAR && field != MONTH && field != DAY);
   }
-  
+
   /**
    * Return the field of greatest difference between the two date times.
    */
@@ -60,5 +60,8 @@ public class CalendarFormattingUtils {
     }
     return d2;
   }
-  
+
+  private CalendarFormattingUtils() {
+  }
+
 }

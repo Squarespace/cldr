@@ -20,6 +20,9 @@ import com.squarespace.compiler.text.CharClassifier;
 import com.squarespace.compiler.text.DefaultCharClassifier;
 
 
+/**
+ * Grammar to parse a language match rule. Used internally only.
+ */
 public class LanguageMatchGrammar {
 
   private static final CharClassifier CLASSIFIER = new DefaultCharClassifier();

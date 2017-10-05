@@ -33,7 +33,7 @@ public class TimeZoneAliases {
     put("Asia/Ashkhabad", "Asia/Ashgabat");
     put("Asia/Chungking", "Asia/Shanghai");
     put("Asia/Dacca", "Asia/Dhaka");
-    put("Asia/Famagusta", null); // TODO: new zone, not in cldr
+    put("Asia/Famagusta", "Etc/GMT3"); // TODO: new zone Famagusta, Northern Cyprus.
     put("Asia/Ho_Chi_Minh", "Asia/Saigon");
     put("Asia/Istanbul", "Europe/Istanbul");
     put("Asia/Kathmandu", "Asia/Katmandu");
@@ -60,11 +60,11 @@ public class TimeZoneAliases {
     put("Brazil/DeNoronha", "America/Noronha");
     put("Brazil/East", "America/Sao_Paulo");
     put("Brazil/West", "America/Manaus");
-    put("CET", null); // TODO: not in cldr
+    put("CET", "Etc/GMT1"); // TODO: not in cldr
     put("CST6CDT", "America/Chicago");
     put("Canada/Atlantic", "America/Halifax");
     put("Canada/Central", "America/Winnipeg");
-    put("Canada/East-Saskatchewan", "America/Regina"); 
+    put("Canada/East-Saskatchewan", "America/Regina");
     put("Canada/Eastern", "America/Regina");
     put("Canada/Mountain", "America/Edmonton");
     put("Canada/Newfoundland", "America/St_Johns");
@@ -74,7 +74,7 @@ public class TimeZoneAliases {
     put("Chile/Continental", "America/Santiago");
     put("Chile/EasterIsland", "Pacific/Easter");
     put("Cuba", "America/Havana");
-    put("EET", null); // TODO: not in cldr
+    put("EET", "Etc/GMT2"); // TODO: not in cldr
     put("EST5EDT", "America/New_York");
     put("Egypt", "Africa/Cairo");
     put("Eire", "Europe/Dublin");
@@ -112,7 +112,7 @@ public class TimeZoneAliases {
     put("Japan", "Asia/Tokyo");
     put("Kwajalein", "Pacific/Kwajalein");
     put("Libya", "Africa/Tripoli");
-    put("MET", null); // TODO: not in cldr
+    put("MET", "Etc/GMT1"); // TODO: not in cldr
     put("MST7MDT", "America/Denver");
     put("Mexico/BajaNorte", "America/Tijuana");
     put("Mexico/BajaSur", "America/Mazatlan");
@@ -147,10 +147,10 @@ public class TimeZoneAliases {
     put("UTC", "Etc/UTC");
     put("Universal", "Etc/UTC");
     put("W-SU", "Europe/Moscow");
-    put("WET", null); // TODO: not in cldr
+    put("WET", "Etc/UTC"); // TODO: not in cldr
     put("Zulu", "Etc/UTC");
   }};
-  
+
   public static String getAlias(String zone) {
     return ALIASES.get(zone);
   }

@@ -13,7 +13,7 @@ public class MessageFormatGarbageTest {
   private static final String[] VALID = new String[] {
       "{0 plural =1 {1} one {one} many {many} other {other}}",
       "{0 plural offset:1 =1 {1} other{other}}",
-      "{0 select male {male} female {female} other {other}}",
+      "{2 select male {male} female {female} other {other}}",
       "{0 datetime long}",
       "{0;1 datetime-interval yMMMd}",
       "{0 currency format:long}",
@@ -36,11 +36,12 @@ public class MessageFormatGarbageTest {
     MessageArgs args = MessageArgs.newBuilder()
         .add("x", arg1)
         .add("y", arg2)
+        .add("female")
         .build();
 
     double[] thresholds = new double[] { 0.03, 0.10 };
     StringBuilder buf = new StringBuilder();
-    for (int i = 0; i < 100000; i++) {
+    for (int i = 0; i < 250000; i++) {
       for (double threshold : thresholds) {
         String format = generate(threshold);
         MessageFormat message = new MessageFormat(CLDR.Locale.en_US, NY_ZONE, format);

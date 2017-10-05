@@ -36,18 +36,6 @@ public class BundleMatcherTest {
     assertMatch("zh-SG", "zh-Hans-SG");
   }
 
-// TODO: explore exposing bundle matcher for application uses. this would let an application
-// create a matcher populated with its available bundles. need to examine the enhanced
-// language matching, or other fallback mechanism for the test case below.
-//  @Test
-//  public void testCustomBundle() {
-//    List<CLDR.Locale> availableBundles = Arrays.asList(CLDR.Locale.es_419);
-//    BundleMatcher matcher = new BundleMatcher(CLDR.get().getLanguageResolver(), availableBundles);
-//    System.out.println(matcher.dump());
-//    assertMatch(matcher, "es", "es-419");
-//    assertMatch(matcher, "es-419", "es-419");
-//  }
-  
   private void assertMatch(String inputTag, String expectedTag) {
     BundleMatcher matcher = CLDR.get().getBundleMatcher();
     assertMatch(matcher, inputTag, expectedTag);

@@ -10,6 +10,9 @@ import com.squarespace.compiler.parse.Pair;
 import com.squarespace.compiler.parse.Parser;
 
 
+/**
+ * Parser for a language alias which may include invalid deprecated fields.
+ */
 public class LanguageAlias extends MetaLocale {
 
   private static Parser<LanguageAlias> P_LANGUAGE_ALIAS =

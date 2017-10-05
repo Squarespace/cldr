@@ -213,6 +213,9 @@ public abstract class CalendarFormatterBase implements CalendarFormatter {
     return exemplarCities.get(zoneId);
   }
   
+  /**
+   * Check if the zoneId has an alias in the CLDR data.
+   */
   public String resolveTimeZoneId(String zoneId) {
     String alias = _CalendarUtils.getTimeZoneAlias(zoneId);
     if (alias != null) {

@@ -5,7 +5,8 @@ import java.util.Map;
 
 
 /**
- * Date and time interval skeletons common to all 360 modern locales.
+ * Date and time interval skeletons. These skeletons are common to all
+ * 360 locales with modern coverage.
  */
 public enum DateTimeIntervalSkeleton {
 
@@ -41,9 +42,9 @@ public enum DateTimeIntervalSkeleton {
       strings.put(d.skeleton, d);
     }
   }
-  
+
   private final String skeleton;
-  
+
   private DateTimeIntervalSkeleton(String skeleton) {
     this.skeleton = skeleton;
   }
@@ -51,7 +52,7 @@ public enum DateTimeIntervalSkeleton {
   public String skeleton() {
     return skeleton;
   }
- 
+
   public static DateTimeIntervalSkeleton fromString(String string) {
     return strings.get(string);
   }

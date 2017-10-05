@@ -604,7 +604,7 @@ public class MessageFormat {
    * UNIT - Conversion and formatting of units and unit sequences. 
    */
   private void evalUnit(MessageArg arg) {
-    // TODO: format unit ranges
+    // TODO: format unit ranges, e.g. {0;1 unit in:seconds sequence:hour,minute}
     if (!arg.resolve()) {
       return;
     }
@@ -755,7 +755,7 @@ public class MessageFormat {
 
   /**
    * Parse a list of zero or more arguments of the form:  <key>:<value>.  The ":<value>" is
-   * optional and will set the key = null.  If no arguments are present this returns null.
+   * optional and will set the key = null.
    */
   private void parseArgs(MessageArgsParser parser) {
     while (tag.peek() != Chars.EOF) {

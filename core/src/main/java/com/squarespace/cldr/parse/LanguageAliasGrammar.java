@@ -13,6 +13,10 @@ import com.squarespace.compiler.match.Recognizers.Recognizer;
 import com.squarespace.compiler.parse.Parser;
 
 
+/**
+ * Grammar for a deprecated locale code that is to be replaced by an alias.
+ * This code may include invalid fields, like longer language subtag.
+ */
 public class LanguageAliasGrammar {
 
   private static final Recognizer R_LANG_SEGMENT =

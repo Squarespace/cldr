@@ -40,8 +40,10 @@ class DistanceTable {
         continue;
       }
       
+      // Index the matching rule.
       index(match.desired(), match.supported(), match.distance());
       if (!match.oneway()) {
+        // Distance is symmetrical so index the reverse.
         index(match.supported(), match.desired(), match.distance());
       }
     }

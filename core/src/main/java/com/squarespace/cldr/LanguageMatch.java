@@ -3,6 +3,10 @@ package com.squarespace.cldr;
 import com.squarespace.cldr.parse.LanguageMatchGrammar;
 
 
+/**
+ * Holds the raw attributes used by the runtime DistanceTable, PartitionTable and
+ * LanguageMatcher to construct their respective lookup tables.
+ */
 public class LanguageMatch {
 
   private static final String WILDCARD = "*";

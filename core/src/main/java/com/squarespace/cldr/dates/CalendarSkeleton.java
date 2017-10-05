@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Date and time skeletons common to all 360 modern locales.
+ * Date and time skeletons. These skeletons are common to all
+ * 360 locales with modern coverage.
  */
 public enum CalendarSkeleton {
 
@@ -50,25 +51,25 @@ public enum CalendarSkeleton {
   yQQQQ("yQQQQ"),
   yw_count_other("yw-count-other")
   ;
-  
+
   private static final Map<String, CalendarSkeleton> strings = new HashMap<>();
-  
+
   static {
     for (CalendarSkeleton c : CalendarSkeleton.values()) {
       strings.put(c.skeleton, c);
     }
   }
-  
+
   private final String skeleton;
-  
+
   private CalendarSkeleton(String skeleton) {
     this.skeleton = skeleton;
   }
-  
+
   public String skeleton() {
     return skeleton;
   }
-  
+
   public static CalendarSkeleton fromString(String string) {
     return strings.get(string);
   }

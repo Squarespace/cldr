@@ -32,7 +32,7 @@ abstract class CLDRBase {
   protected final LanguageResolver languageResolver;
   protected final BundleMatcher bundleMatcher;
   
-  public CLDRBase() {
+  protected CLDRBase() {
     languageResolver = new LanguageResolver(LIKELY_SUBTAGS_MAP);
     bundleMatcher = new BundleMatcher(languageResolver, availableBundles());
   }
