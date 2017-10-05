@@ -19,44 +19,44 @@ aliases, and then adds likely subtags.
 CLDR.Locale locale = CLDR.get().resolve("zh-CN");
 System.out.println(locale);
 
-//> "zh-Hant-CN"
+//>  "zh-Hant-CN"
 
 locale = CLDR.get().resolve("zh-HK");
 System.out.println(locale);
 System.out.printf("%s / %s / %s\n", locale.language(), locale.script(), locale.territory());
 
-//> "zh-Hant-HK"
-//> "zh / Hant / HK"
+//>  "zh-Hant-HK"
+//>  "zh / Hant / HK"
 
 locale = CLDR.get().resolve("sr");
 System.out.println(locale);
 
-//> "sr-Cyrl-RS"
+//>  "sr-Cyrl-RS"
 
 locale = CLDR.get().resolve(java.util.Locale.CANADA_FRENCH);
 System.out.println(locale);
 
-//> fr-Latn-CA
+//>  "fr-Latn-CA"
 
 locale = CLDR.get().resolve(java.util.Locale.JAPANESE);
 System.out.println(locale);
 
-//> ja-Jpan-JP
+//>  "ja-Jpan-JP"
 
 locale = CLDR.get().resolve("en_XY");
 System.out.println(locale);
 
-//> "en-Latn-XY"
+//>  "en-Latn-XY"
 
 locale = CLDR.get().resolve("und-Zzzz-ZZ");
 System.out.println(locale);
 
-//> "en-Latn-US"
+//>  "en-Latn-US"
 
 locale = CLDR.get().resolve("en");
 System.out.println(locale);
 
-//> "en-Latn-US"
+//>  "en-Latn-US"
 ```
 
 #### Minimize by removing likely subtags
@@ -65,7 +65,7 @@ System.out.println(locale);
 locale = CLDR.get().minimize(locale);
 System.out.println(locale);
 
-//> "en"
+//>  "en"
 ```
 
 ### Enhanced Language Matching
@@ -77,39 +77,39 @@ LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
 CLDR.Locale locale = matcher.match("es-AR");
 System.out.println(locale);
 
-//> "es-419"
+//>  "es-419"
 
 locale = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
 
-//> "es-419"
+//>  "es-419"
 
 locale = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
 
-//> "es"
+//>  "es"
 
 locale = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
 
-//> "es-PT"
+//>  "es-PT"
 
 locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
 
-//> "en"
+//>  "en"
 
 locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
 
-//> "en-GB"
+//>  "en-GB"
 
 locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
 
-//> "en-US"
+//>  "en-US"
 
 locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
 
-//> "en-GB"
+//>  "en-GB"
 
 locale = new LanguageMatcher("en_US, fr_FR, de_DE").match("fr");
 
-//> "fr_FR"
+//>  "fr_FR"
 ```
 
 ### Accessing Formatters
@@ -122,24 +122,28 @@ You can use a pre-defined locale directly:
 ```java
 NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
 System.out.println(f.bundleId());
-//> "en"
+
+//>  "en"
 ```
 
 .. or resolve a Java format locale string:
+
 ```java
 CLDR.Locale locale = CLDR.get().resolve("en_US");
 f = CLDR.get().getNumberFormatter(locale);
 System.out.println(f.bundleId());
-//> "en"
+
+//>  "en"
 ```
 
 .. or resolve a Java locale object:
+
 ```java
 locale = CLDR.get().resolve(java.util.Locale.US);
 f = CLDR.get().getNumberFormatter(locale);
 System.out.println(f.bundleId());
 
-//> "en"
+//>  "en"
 ```
 
 .. or resolve a BCP 47 language tag:
@@ -149,7 +153,7 @@ locale = CLDR.get().resolve("en-Latn-US");
 f = CLDR.get().getNumberFormatter(locale);
 System.out.println(f.bundleId());
 
-//> "en"
+//>  "en"
 ```
 
 ### Date and Time formatting
@@ -165,40 +169,40 @@ CalendarFormatOptions options = new CalendarFormatOptions();
 f.format(datetime, options, buffer);
 System.out.println(buffer);
 
-//> "11/1/2010"
+//>  "11/1/2010"
 
 options = new CalendarFormatOptions().setDateSkeleton(CalendarSkeleton.GyMMMd);
 f.format(datetime, options, buffer);
 
-//> "Nov 1, 2010 AD"
+//>  "Nov 1, 2010 AD"
 
 options = new CalendarFormatOptions().setDateFormat(CalendarFormat.MEDIUM);
 f.format(datetime, options, buffer);
 
-//> "Nov 1, 2010"
+//>  "Nov 1, 2010"
 
 options = new CalendarFormatOptions().setTimeFormat(CalendarFormat.MEDIUM);
 f.format(datetime, options, buffer);
 
-//> "5:55:00 PM"
+//>  "5:55:00 PM"
 
 options = new CalendarFormatOptions().setWrapperFormat(CalendarFormat.MEDIUM);
 f.format(datetime, options, buffer);
 
-//> "Nov 1, 2010, 5:55:00 PM"
+//>  "Nov 1, 2010, 5:55:00 PM"
 
 epoch = 1288598100000L;
 datetime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(epoch), zoneId);
 options = new CalendarFormatOptions().setWrapperFormat(CalendarFormat.FULL);
 f.format(datetime, options, buffer);
 
-//> "Monday, November 1, 2010 at 3:55:00 AM Eastern Daylight Time"
+//>  "Monday, November 1, 2010 at 3:55:00 AM Eastern Daylight Time"
 
 zoneId = ZoneId.of("America/Los_Angeles");
 datetime = datetime.withZoneSameInstant(zoneId);
 f.format(datetime, options, buffer);
 
-//> "Monday, November 1, 2010 at 12:55:00 AM Pacific Daylight Time"
+//>  "Monday, November 1, 2010 at 12:55:00 AM Pacific Daylight Time"
 ```
 
 #### Formatting individual date and time fields
@@ -206,11 +210,11 @@ f.format(datetime, options, buffer);
 ```java
 f.formatField(datetime, "EEEE", buffer);
 
-//> "Monday"
+//>  "Monday"
 
 f.formatField(datetime, "LLLL", buffer);
 
-//> "November"
+//>  "November"
 ```
 
 #### Formatting date time intervals
@@ -225,32 +229,32 @@ CalendarFormatter f = CLDR.get().getCalendarFormatter(CLDR.Locale.en_US);
 f.format(start, end, DateTimeIntervalSkeleton.y, buffer);
 System.out.println(buffer);
 
-//> "2010 – 2020"
+//>  "2010 – 2020"
 
 f.format(start, end, DateTimeIntervalSkeleton.yMMM, buffer);
 
-//> "Nov 2010 – Dec 2020"
+//>  "Nov 2010 – Dec 2020"
 
 end = start.withMonth(12);
 f.format(start, end, DateTimeIntervalSkeleton.yMMM, buffer);
 
-//> "Nov – Dec 2010"
+//>  "Nov – Dec 2010"
 
 end = start.withDayOfMonth(23);
 f.format(start, end, DateTimeIntervalSkeleton.yMMMd, buffer);
 
-//> "Nov 1 – 23, 2010"
+//>  "Nov 1 – 23, 2010"
 
 end = start.withHour(22);
 f.format(start, end, DateTimeIntervalSkeleton.hmv, buffer);
 
-//> "5:55 – 10:55 PM ET"
+//>  "5:55 – 10:55 PM ET"
 
 start = start.withMinute(1);
 end = start.withMinute(27);
 f.format(start, end, DateTimeIntervalSkeleton.Hm, buffer);
 
-//> "17:01 – 17:27"
+//>  "17:01 – 17:27"
 ```
 
 A helper method exists to find the field of greatest difference, which will help
@@ -261,7 +265,7 @@ end = start.withMonth(12);
 DateTimeField field = CalendarUtils.fieldOfGreatestDifference(start, end);
 System.out.println(field);
 
-//> MONTH
+//>  MONTH
 ```
 
 
@@ -275,29 +279,29 @@ DecimalFormatOptions options = new DecimalFormatOptions();
 f.formatDecimal(n, buffer, options);
 System.out.println(buffer);
 
-//> "3.142"
+//>  "3.142"
 
 options = new DecimalFormatOptions().setMaximumFractionDigits(5);
 f.formatDecimal(n, buffer, options);
 
-//> "3.14159"
+//>  "3.14159"
 
 options = new DecimalFormatOptions().setRoundMode(NumberRoundMode.FLOOR);
 f.formatDecimal(n, buffer, options);
 
-//> "3.141"
+//>  "3.141"
 
 n = new BigDecimal("10000");
 options = new DecimalFormatOptions().setMinimumFractionDigits(2).setGrouping(true);
 f.formatDecimal(n, buffer, options);
 
-//> "10,000.00"
+//>  "10,000.00"
 
 n = new BigDecimal("0.5");
 options = new DecimalFormatOptions().setStyle(DecimalFormatStyle.PERCENT);
 f.formatDecimal(n, buffer, options);
 
-//> "50%"
+//>  "50%"
 ```
 
 #### Compact forms
@@ -307,14 +311,14 @@ n = new BigDecimal("999.95");
 options = new DecimalFormatOptions(DecimalFormatStyle.LONG);
 f.formatDecimal(n, buffer, options);
 
-//> "1 thousand"
+//>  "1 thousand"
 
 CLDR.get().getNumberFormatter(CLDR.Locale.fr).formatDecimal(n, buffer, options);
 
-//> "1 millier"
+//>  "1 millier"
 ```
 
-Pattern is chosen using plural category of the visible number.
+Pattern is chosen using plural category of the formatted number, not the input.
 
 ```java
 for (String num : new String[] { "1000", "1200", "2000", "5000" }) {
@@ -322,10 +326,10 @@ for (String num : new String[] { "1000", "1200", "2000", "5000" }) {
     CLDR.get().getNumberFormatter(CLDR.Locale.pl).formatDecimal(n, buffer, options);
 }
 
-//> "1 tysiąc"
-//> "1,2 tysiąca"
-//> "2 tysiące"
-//> "5 tysięcy"
+//>  "1 tysiąc"
+//>  "1,2 tysiąca"
+//>  "2 tysiące"
+//>  "5 tysięcy"
 ```
 
 ### Unit formatting
@@ -338,17 +342,17 @@ NumberFormatter f = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
 UnitConverter converter = CLDR.get().getUnitConverter(CLDR.Locale.en_CA);
 System.out.println(converter.measurementSystem());
 
-//> METRIC
+//>  METRIC
 
 converter = CLDR.get().getUnitConverter(CLDR.Locale.en_GB);
 System.out.println(converter.measurementSystem());
 
-//> UK
+//>  UK
 
 converter = CLDR.get().getUnitConverter(CLDR.Locale.en_US);
 System.out.println(converter.measurementSystem());
 
-//> US
+//>  US
 
 UnitValue value = new UnitValue(("1234567", Unit.FOOT);
 UnitValue converted = converter.convert(value, Unit.KILOMETER);
@@ -356,34 +360,34 @@ f.formatUnit(converted, buffer, options);
 System.out.println(converted);
 System.out.println(buffer)
 
-//> UnitValue(376.2960216, KILOMETER)
-//> "376.3km"
+//>  UnitValue(376.2960216, KILOMETER)
+//>  "376.3km"
 
 value = new UnitValue("125.785", Unit.MEGABYTE);
 f.formatUnit(value, buffer, options);
 
-//> "125.8MB"
+//>  "125.8MB"
 
 converted = converter.convert(value, Unit.GIGABYTE);
 f.formatUnit(converted, buffer, options);
 System.out.println(converted);
 System.out.println(buffer);
 
-//> UnitValue(0.1228369140625, GIGABYTE)
-//> "0.1GB"
+//>  UnitValue(0.1228369140625, GIGABYTE)
+//>  "0.1GB"
 
 options.setGrouping(true);
 value = new UnitValue("112233445566778899", Unit.BYTE);
 converted = converter.bytes(value);
 f.formatUnit(converted, buffer, options);
 
-//> "102,075.7TB"
+//>  "102,075.7TB"
 
 options = new UnitFormatOptions(UnitFormat.LONG).setGrouping(true);
 f = CLDR.get().getNumberFormatter(CLDR.Locale.fr);
 f.formatUnit(converted, buffer, options);
 
-//> "102075,7 téraoctets"
+//>  "102075,7 téraoctets"
 ```
 
 #### Unit sequence formatting
@@ -398,33 +402,33 @@ UnitValue degrees = new UnitValue("13.536613", Unit.DEGREE);
 List<UnitValue> angle = converter.sequence(degrees, UnitConstants.ANGLE_FACTORS);
 System.out.println(angle);
 
-//> [UnitValue(13, DEGREE), UnitValue(32, ARC_MINUTE), UnitValue(11.8068, ARC_SECOND)]
+//>  [UnitValue(13, DEGREE), UnitValue(32, ARC_MINUTE), UnitValue(11.8068, ARC_SECOND)]
 
 NumberFormatter fmt = CLDR.get().getNumberFormatter(CLDR.Locale.en_US);
 fmt.formatUnits(angle, buffer, longOptions);
 
-//> "13 degrees 32 arcminutes 11.8 arcseconds"
+//>  "13 degrees 32 arcminutes 11.8 arcseconds"
 
 buffer.setLength(0);
 fmt.formatUnits(angle, buffer, narrowOptions);
 
-//> "13° 32′ 11.8″"
+//>  "13° 32′ 11.8″"
 
 buffer.setLength(0);
 UnitValue days = new UnitValue("753", Unit.DAY);
 List<UnitValue> duration = converter.sequence(days, UnitConstants.DURATION_FACTORS);
 fmt.formatUnits(duration, buffer, longOptions);
 
-//> "2 years 22 days 12 hours 21 minutes 36 seconds"
+//>  "2 years 22 days 12 hours 21 minutes 36 seconds"
 
 fmt.formatUnits(duration, buffer, narrowOptions);
 
-//> "2y 22d 12h 21m 36s"
+//>  "2y 22d 12h 21m 36s"
 
 fmt = CLDR.get().getNumberFormatter(CLDR.Locale.ko);
 fmt.formatUnits(duration, buffer, narrowOptions);
 
-//> "2년 22일 12시간 21분 36초"
+//>  "2년 22일 12시간 21분 36초"
 ```
 
 #### Formatting with custom unit factor sets
@@ -436,22 +440,22 @@ UnitFactorSet durationFactors = new UnitFactorSet(UnitFactors.DURATION, Unit.WEE
 duration = converter.sequence(days, durationFactors);
 System.out.println(duration);
 
-//> [UnitValue(107, WEEK), UnitValue(104.4, HOUR)]
+//>  [UnitValue(107, WEEK), UnitValue(104.4, HOUR)]
 
 fmt.formatUnits(duration, buffer, longOptions);
 
-//> "107 weeks 104.4 hours"
+//>  "107 weeks 104.4 hours"
 
 UnitValue inches = new UnitValue("1234567", Unit.INCH);
 UnitFactorSet lengthFactors = new UnitFactorSet(UnitFactors.LENGTH, Unit.MILE, Unit.FOOT);
 List<UnitValue> length = converter.sequence(inches, lengthFactors);
 System.out.println(length);
 
-//> [UnitValue(19, MILE), UnitValue(2560.583333333333, FOOT)]
+//>  [UnitValue(19, MILE), UnitValue(2560.583333333333, FOOT)]
 
 fmt.formatUnits(length, buffer, narrowOptions);
 
-//> "19mi 2560.6′"
+//>  "19mi 2560.6′"
 ```
 
 #### Switching on Metric vs English
@@ -471,8 +475,8 @@ for (CLDR.Locale locale : new CLDR.Locale[] { CLDR.Locale.en_CA, CLDR.Locale.en_
     buffer.append('\n');
 }
 
-//> "en-CA 31 kilometers 358 meters 0.2 centimeters"
-//> "en-US 19 miles 853 yards 1 foot 7 inches"
+//>  "en-CA 31 kilometers 358 meters 0.2 centimeters"
+//>  "en-US 19 miles 853 yards 1 foot 7 inches"
 ```
 
 ### Currency formatting
@@ -486,30 +490,30 @@ CurrencyFormatOptions options = new CurrencyFormatOptions();
 f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 System.out.println(buffer);
 
-//> "$1.00"
+//>  "$1.00"
 
 n = new BigDecimal("-1");
 options = new CurrencyFormatOptions(CurrencyFormatStyle.ACCOUNTING);
 f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 
-//> "($1.00)"
+//>  "($1.00)"
 
 n = new BigDecimal("69900");
 options = new CurrencyFormatOptions(CurrencyFormatStyle.NAME);
 f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 
-//> "69,900.00 US dollars"
+//>  "69,900.00 US dollars"
 
 options = new CurrencyFormatOptions(CurrencyFormatStyle.CODE);
 f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 
-//> "69,900.00 USD"
+//>  "69,900.00 USD"
 
 n = new BigDecimal("1.491");
 options = new CurrencyFormatOptions().setRoundMode(NumberRoundMode.CEIL);
 f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 
-//> "$1.50"
+//>  "$1.50"
 
 options = new CurrencyFormatOptions(CurrencyFormatStyle.SHORT)
     .setFormatMode(NumberFormatMode.SIGNIFICANT_MAXFRAC)
@@ -517,16 +521,16 @@ options = new CurrencyFormatOptions(CurrencyFormatStyle.SHORT)
 n = new BigDecimal("1200");
 f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 
-//> "$1.2K"
+//>  "$1.2K"
 
 n = new BigDecimal("999999");
 f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
 
-//> "$1M"
+//>  "$1M"
 
 f.formatCurrency(n, CLDR.Currency.EUR, buffer, options);
 
-//> "€1M"
+//>  "€1M"
 ```
 
 ### Message Formatter
@@ -554,12 +558,12 @@ MessageArgs args = MessageArgs.newBuilder()
 msg.format(args, buf);
 System.out.println(buf);
 
-//> "Transmission of 1.1GB took 3 hours 25 minutes 45 seconds"
+//>  "Transmission of 1.1GB took 3 hours 25 minutes 45 seconds"
 
 msg = new MessageFormat(CLDR.Locale.fr_FR, tzParis, format);
 msg.format(args, buf);
 
-//> "Transmission of 1,1 Go took 3 heures 25 minutes 45 secondes"
+//>  "Transmission of 1,1 Go took 3 heures 25 minutes 45 secondes"
 ```
 
 #### Positional or named arguments
@@ -581,7 +585,7 @@ args = MessageArgs.newBuilder()
     .build();
 msg.format(args, buf);
 
-//> "The total for the product you ordered is $1,234.56 on Tuesday, June 27, 2017 at 1:22:04 PM Eastern Daylight Time."
+//>  "The total for the product you ordered is $1,234.56 on Tuesday, June 27, 2017 at 1:22:04 PM Eastern Daylight Time."
 
 msg = new MessageFormat(CLDR.Locale.en_US, tzNewYork, format);
 args = MessageArgs.newBuilder()
@@ -591,7 +595,7 @@ args = MessageArgs.newBuilder()
     .build();
 msg.format(args, buf);
 
-//> "The total for the 23 products you ordered is $1,234.56 on Tuesday, June 27, 2017 at 1:22:04 PM Eastern Daylight Time."
+//>  "The total for the 23 products you ordered is $1,234.56 on Tuesday, June 27, 2017 at 1:22:04 PM Eastern Daylight Time."
 ```
 
 #### Date time intervals
@@ -610,7 +614,7 @@ args = MessageArgs.newBuilder()
     .build();
 msg.format(args, buf);
 
-//> "The event takes place from Nov 2 – 4 and we hope to raise €1M for our foundation."
+//>  "The event takes place from Nov 2 – 4 and we hope to raise €1M for our foundation."
 ```
 
 #### Plural ordinals
@@ -626,7 +630,7 @@ args = MessageArgs.newBuilder()
     .build();
 msg.format(args, buf);
 
-//> "Congratulations, you came in 3rd place, up from 27th, that's quite an improvement!"
+//>  "Congratulations, you came in 3rd place, up from 27th, that's quite an improvement!"
 ```
 
 #### Selection
@@ -640,7 +644,7 @@ args = MessageArgs.newBuilder()
     .build();
 msg.format(args, buf);
 
-//> "Sally has successfully enabled her account."
+//>  "Sally has successfully enabled her account."
 
 args = MessageArgs.newBuilder()
     .add("name", "Squarespace")
@@ -648,5 +652,5 @@ args = MessageArgs.newBuilder()
     .build();
 msg.format(args, buf);
 
-//> "Squarespace has successfully enabled their account."
+//>  "Squarespace has successfully enabled their account."
 ```
