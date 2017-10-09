@@ -74,42 +74,75 @@ This implements [enhanced language matching](http://www.unicode.org/reports/tr35
 
 ```java
 LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
-CLDR.Locale locale = matcher.match("es-AR");
-System.out.println(locale);
+Match match = matcher.match("es-AR");
+System.out.println(match.bundleId() + "  distance=" + match.distance());
+
+//>  "es-419  distance=4"
+
+match = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
+System.out.println(match.bundleId());
 
 //>  "es-419"
 
-locale = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
-
-//>  "es-419"
-
-locale = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
+match = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
+System.out.println(match.bundleId());
 
 //>  "es"
 
-locale = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
+match = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
+System.out.println(match.bundleId());
 
 //>  "es-PT"
 
-locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
+match = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
+System.out.println(match.bundleId());
 
 //>  "en"
 
-locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
+match = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
+System.out.println(match.bundleId());
 
 //>  "en-GB"
 
-locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
+match = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
+System.out.println(match.bundleId());
 
 //>  "en-US"
 
-locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
+match = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
+System.out.println(match.bundleId());
 
 //>  "en-GB"
 
-locale = new LanguageMatcher("en_US, fr_FR, de_DE").match("fr");
+match = new LanguageMatcher("en_US, fr_FR, de_DE").match("fr");
+System.out.println(match.bundleId());
 
 //>  "fr_FR"
+```
+
+#### Default returns maximum distance
+
+```java
+matcher = new LanguageMatcher("en-US, en-GB, de-DE");
+match = matcher.match("zh");
+System.out.println(match);
+
+//>  Match(en-US, 100)
+```
+
+#### Return all distances below the threshold
+
+```java
+matcher = new LanguageMatcher("zh, zh-TW, zh-HK");
+List<Match> matches = matcher.matches("zh-MO");
+System.out.println(matches);
+
+//>  [Match(zh-HK, 4), Match(zh-TW, 5), Match(zh, 23)]
+
+matches = matcher.matches("zh-MO", 15);
+System.out.println(matches);
+
+//>  [Match(zh-HK, 4), Match(zh-TW, 5)]
 ```
 
 ### Accessing Formatters

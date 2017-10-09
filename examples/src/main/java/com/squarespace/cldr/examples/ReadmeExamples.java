@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.LanguageMatcher;
+import com.squarespace.cldr.LanguageMatcher.Match;
 import com.squarespace.cldr.MessageArgs;
 import com.squarespace.cldr.MessageFormat;
 import com.squarespace.cldr.StringMessageArg;
@@ -54,50 +55,71 @@ public class ReadmeExamples {
 
   private static void matching() {
     LanguageMatcher matcher = new LanguageMatcher("es-419, es-ES, es-PT");
-    String locale = matcher.match("es-AR");
-    System.out.println(locale);
+    Match match = matcher.match("es-AR");
+    System.out.println(match.bundleId() + "  distance=" + match.distance());
     
-    //> "es-419"
+    //>  "es-419  distance=4"
     
-    locale = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
-    System.out.println(locale);
+    match = new LanguageMatcher("es, es-419, es-PT").match("es-MX");
+    System.out.println(match.bundleId());
     
-    //> "es-419"
+    //>  "es-419"
 
-    locale = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
-    System.out.println(locale);
+    match = new LanguageMatcher("es, es-419, es-MX").match("es-PT");
+    System.out.println(match.bundleId());
     
-    //> "es"
+    //>  "es"
 
-    locale = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
-    System.out.println(locale);
+    match = new LanguageMatcher("es-419, es-PT, es-MX").match("es");
+    System.out.println(match.bundleId());
     
-    //> "es-PT"
+    //>  "es-PT"
 
-    locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
-    System.out.println(locale);
+    match = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-VI");
+    System.out.println(match.bundleId());
     
-    //> "en"
+    //>  "en"
     
-    locale = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
-    System.out.println(locale);
+    match = new LanguageMatcher("en, en-GU, en-IN, en-GB").match("en-AU");
+    System.out.println(match.bundleId());
     
-    //> "en-GB"
+    //>  "en-GB"
     
-    locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
-    System.out.println(locale);
+    match = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-019");
+    System.out.println(match.bundleId());
     
-    //> "en-US"
+    //>  "en-US"
     
-    locale = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
-    System.out.println(locale);
+    match = new LanguageMatcher("en-US, en-GU, en-IN, en-GB").match("en-150");
+    System.out.println(match.bundleId());
     
-    //> "en-GB"
+    //>  "en-GB"
     
-    locale = new LanguageMatcher("en_US, fr_FR, de_DE").match("fr");
-    System.out.println(locale);
+    match = new LanguageMatcher("en_US, fr_FR, de_DE").match("fr");
+    System.out.println(match.bundleId());
     
-    //> "fr_FR"
+    //>  "fr_FR"
+
+    // Default returns maximum distance
+
+    matcher = new LanguageMatcher("en-US, en-GB, de-DE");
+    match = matcher.match("zh");
+    System.out.println(match);
+
+    //>  Match(en-US, 100)
+    
+    // Get access to all distances below the threshold
+    
+    matcher = new LanguageMatcher("zh, zh-TW, zh-HK");
+    List<Match> matches = matcher.matches("zh-MO");
+    System.out.println(matches);
+    
+    //>  [Match(zh-HK, 4), Match(zh-TW, 5), Match(zh, 23)]
+    
+    matches = matcher.matches("zh-MO", 15);
+    System.out.println(matches);
+    
+    //>  [Match(zh-HK, 4), Match(zh-TW, 5)]
   }
   
   private static void locales() {

@@ -16,8 +16,8 @@ import com.squarespace.cldr.LanguageMatch.Pattern;
  */
 class DistanceTable {
 
-  private static final int MAX_DISTANCE = 100;
-  private static final int DEFAULT_THRESHOLD = 50;
+  public static final int MAX_DISTANCE = 100;
+  public static final int DEFAULT_THRESHOLD = 50;
   private static final String WILDCARD = "*";
 
   private static final PartitionTable PARTITION_TABLE = PartitionTable.get();
