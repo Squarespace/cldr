@@ -9,12 +9,21 @@
 
 # asymmetric distance with en-GB based on https://unicode.org/cldr/trac/changeset/13628
 
+en-US ; en-US ; 0
 en-US ; en-GB ; 3 ; 5
 en-US ; en-VI ; 4
 en-US ; en-IN ; 5
+en-US ; en-ZA ; 5
 
+en-GB ; en-GB ; 0
+en-GB ; en-ZA ; 3 ; 4
 en-GB ; en-IN ; 3 ; 4
 en-GB ; en-VI ; 5
+
+en-IN ; en-ZA ; 4
+en-IN ; en-VI ; 5
+
+en-VI ; en-PR ; 4
 
 
 ####
