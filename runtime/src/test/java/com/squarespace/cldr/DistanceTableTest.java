@@ -14,28 +14,30 @@ import org.testng.annotations.Test;
 
 public class DistanceTableTest {
 
-  private static final boolean DEBUG = false;
-  
   private final DistanceTable distanceTable = DistanceTable.get();
   
   @Test
   public void testCases() throws IOException {
+    StringBuilder buf = new StringBuilder();
     for (Case c : load()) {
-      run(c.desired, c.supported, c.distanceD_S);
-      run(c.supported, c.desired, c.distanceS_D);
+      buf.append(run(c.desired, c.supported, c.distanceD_S));
+      buf.append(run(c.supported, c.desired, c.distanceS_D));
     }
-  }
+
+    if (buf.length() > 0) {
+      Assert.fail("Some distance test cases failed:\n\n" + buf);
+    }
+ }
   
-  private void run(String desiredTag, String supportedTag, int distance) {
+  private String run(String desiredTag, String supportedTag, int distance) {
     CLDR.Locale desired = CLDR.get().resolve(desiredTag);
     CLDR.Locale supported = CLDR.get().resolve(supportedTag);
     int actual = distanceTable.distance(desired, supported);
-    String message = supported + "  ;  " + desired + "  ;  " + distance;
-    if (DEBUG) {
-      System.err.println(message + "   #  actual: " + actual);
+    
+    if (actual != distance) {
+      return supported + "  ;  " + desired + "  ;  " + distance + " # FAIL: actual " + actual + "\n";
     }
-    Assert.assertEquals(actual, distance, 
-        "For distance(desired=" + desired + ", supported=" + supported + ")");
+    return "";
   }
 
   private static List<Case> load() throws IOException {

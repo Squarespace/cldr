@@ -19,9 +19,6 @@ class PartitionTable {
   // Partition identifier's base character Greek alpha.
   private static final char BASE_ID = '\u03b1';
 
-  // Set containing a single element that will force a lookup on ANY.
-  private static final Set<String> EMPTY_PARTITION = Collections.singleton("");
-  
   // Since this is a pre-generated mapping based on external data keep one
   // application-wide instance.
   private static final PartitionTable INSTANCE = new PartitionTable();
@@ -120,7 +117,7 @@ class PartitionTable {
   
   public Set<String> getRegionPartition(String region) {
     Set<String> result = territoryToPartition.get(region);
-    return result == null ? macroRegionToPartitions.getOrDefault(region, EMPTY_PARTITION) : result;
+    return result == null ? macroRegionToPartitions.getOrDefault(region, Collections.emptySet()) : result;
   }
 
   @Override

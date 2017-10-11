@@ -53,6 +53,20 @@ public class LanguageMatcherTest {
     matchlist("es-MX, es-419, es-ES", "es-AR", "es-419:4  es-MX:4  es-ES:5");
     
     matchlist("zh-HK, zh-TW, zh", "zh-MO", "zh-HK:4  zh-TW:5  zh:23");
+    
+    // Cases based on https://unicode.org/cldr/trac/ticket/10148
+    matchlist("en-US", "en-GB", "en-US:3");
+    matchlist("en-IN", "en-GB", "en-IN:4");
+    
+    matchlist("en-GB", "en-US", "en-GB:5");
+    
+    matchlist("en-IN, en-US", "en-GB", "en-US:3  en-IN:4");
+    matchlist("en-GB, en-US", "en-IN", "en-GB:3  en-US:5");
+    matchlist("en-GB, en-US", "en-VI", "en-US:4  en-GB:5");
+    
+    matchlist("en-US, en-GB, en-VI", "en-IN", "en-GB:3  en-US:5  en-VI:5");
+    matchlist("en-US, en-IN, en-VI", "en-GB", "en-US:3  en-IN:4  en-VI:5");
+    matchlist("en-IN, en-GB, en-US", "en-VI", "en-US:4  en-GB:5  en-IN:5");
   }
   
   @Test

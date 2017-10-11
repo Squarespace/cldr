@@ -93,44 +93,99 @@ class DistanceTable {
    * will return the maximum distance.
    */
   public int distance(CLDR.Locale desired, CLDR.Locale supported, int threshold) {
+    // Query the top level LANGUAGE
     boolean langEquals = desired.language().equals(supported.language());
     Node node = distanceMap.get(desired.language(), supported.language());
+    if (node == null) {
+      node = distanceMap.get(ANY, ANY);
+    }
     int distance = node.wildcard() ? (langEquals ? 0 : node.distance()) : node.distance();
     
     if (distance >= threshold) {
       return MAX_DISTANCE;
     }
     
+    // Go to the next level SCRIPT
     DistanceMap map = node.map();
 
     boolean scriptEquals = desired.script().equals(supported.script());
     node = map.get(desired.script(), supported.script());
+    if (node == null) {
+      node = map.get(ANY, ANY);
+    }
     distance += node.wildcard() ? (scriptEquals ? 0 : node.distance()) : node.distance();
     
     if (distance >= threshold) {
       return MAX_DISTANCE;
     }
-    
+
+    // Go to the next level TERRITORY
     map = node.map();
 
     // If the territories happen to be equal, distance is 0 so we're done.
     if (desired.territory().equals(supported.territory())) {
       return distance;
     }
+
+    // Check if the map contains a distance between these two regions.
+    node = map.get(desired.territory(), supported.territory());
+    if (node == null) {
+      // Compare the desired region against supported partitions, and vice-versa.
+      node = scanTerritory(map, desired.territory(), supported.territory());
+    }
+    if (node != null) {
+      distance += node.distance();
+      return distance < threshold ? distance : MAX_DISTANCE;
+    }
     
     // Find the maximum distance between the partitions.
     int maxDistance = 0;
 
     // These partition sets are always guaranteed to exist and contain at least 1 member.
+    boolean match = false;
     Set<String> desiredPartitions = PARTITION_TABLE.getRegionPartition(desired.territory());
     Set<String> supportedPartitions = PARTITION_TABLE.getRegionPartition(supported.territory());
+
     for (String desiredPartition : desiredPartitions) {
       for (String supportedPartition : supportedPartitions) {
         node = map.get(desiredPartition, supportedPartition);
-        maxDistance = Math.max(maxDistance, node.distance());
+        if (node != null) {
+          maxDistance = Math.max(maxDistance, node.distance());
+          match = true;
+        }
       }
     }
-    return distance + maxDistance;
+
+    if (!match) {
+      node = map.get(ANY, ANY);
+      maxDistance = Math.max(maxDistance, node.distance());
+    }
+    
+    distance += maxDistance;
+    return distance < threshold ? distance : MAX_DISTANCE;
+  }
+  
+  /**
+   * Scan the desired region against the supported partitions and vice versa.
+   * Return the first matching node.
+   */
+  private Node scanTerritory(DistanceMap map, String desired, String supported) {
+    Node node;
+    for (String partition : PARTITION_TABLE.getRegionPartition(desired)) {
+      node = map.get(partition, supported);
+      if (node != null) {
+        return node;
+      }
+    }
+    
+    for (String partition : PARTITION_TABLE.getRegionPartition(supported)) {
+      node = map.get(desired, partition);
+      if (node != null) {
+        return node;
+      }
+    }
+    
+    return null;
   }
 
   private void index(Pattern desired, Pattern supported, int distance) {
@@ -165,7 +220,7 @@ class DistanceTable {
 
         want = key(desired.script());
         have = key(supported.script());
-        node = node.map().put(want, have, want.equals(ANY) ? 50 : 0);
+        node = node.map().put(want, have, want.equals(ANY) ? DEFAULT_THRESHOLD : 0);
         node.init();
         
         want = key(desired.territory());

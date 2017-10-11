@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 public class LanguageMatcher {
 
   private static final Pattern COMMA_SPACE = Pattern.compile("[,\\s]+");
+  private static final CLDR.Locale UNDEFINED = MetaLocale.parse("und-Zzzz-ZZ");
   
   private static final CLDR CLDR_INSTANCE = CLDR.get();
   private static final Map<CLDR.Locale, Integer> PARADIGM_LOCALES = buildParadigmLocales();
@@ -229,10 +230,16 @@ public class LanguageMatcher {
   }
   
   private static List<Entry> convert(Stream<String> stream) {
-    return stream.map(s -> s.trim())
-        .filter(s -> !s.isEmpty())
-        .map(s -> new Entry(s, CLDR_INSTANCE.resolve(s)))
-        .collect(Collectors.toList());
+    return stream.map(LanguageMatcher::convert).collect(Collectors.toList());
+  }
+
+  private static Entry convert(String tag) {
+    tag = tag.trim();
+    MetaLocale meta = (MetaLocale) CLDR_INSTANCE.fromLanguageTag(tag);
+    if (meta.hasLanguage() || meta.hasScript() || meta.hasTerritory()) {
+      return new Entry(tag, CLDR_INSTANCE.resolve(meta));
+    }
+    return new Entry(tag, UNDEFINED);
   }
   
   private static Map<CLDR.Locale, Integer> buildParadigmLocales() {

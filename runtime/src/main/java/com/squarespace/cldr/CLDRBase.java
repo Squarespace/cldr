@@ -61,6 +61,27 @@ abstract class CLDRBase {
   }
   
   /**
+   * Expand the given locale by adding likely subtags.
+   */
+  public CLDR.Locale resolve(CLDR.Locale locale) {
+    return resolve((MetaLocale)locale);
+  }
+
+  /**
+   * Parse the language tag into a CLDR locale object.
+   */
+  public CLDR.Locale fromLanguageTag(String languageTag) {
+    return MetaLocale.fromLanguageTag(languageTag);
+  }
+
+  /**
+   * Convert the Java locale to a CLDR locale object.
+   */
+  public CLDR.Locale fromJavaLocale(java.util.Locale javaLocale) {
+    return MetaLocale.fromJavaLocale(javaLocale);
+  }
+  
+  /**
    * Produce the minimal representation of this locale by removing likely subtags.
    */
   public CLDR.Locale minimize(CLDR.Locale locale) {

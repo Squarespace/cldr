@@ -47,9 +47,6 @@ public class DistanceMap implements Iterable<Node> {
   
   public Node get(String want, String have) {
     int index = search(want, have, false);
-    if (index == -1) {
-      index = search(ANY, ANY, false);
-    }
     return index == -1 ? null : nodes[index];
   }
 
