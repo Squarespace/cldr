@@ -16,7 +16,7 @@ public class DistanceTableTest {
 
   private static final boolean DEBUG = false;
   
-  private final DistanceTable distanceTable = new DistanceTable();
+  private final DistanceTable distanceTable = DistanceTable.get();
   
   @Test
   public void testCases() throws IOException {
