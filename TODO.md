@@ -1,6 +1,11 @@
 
 # TODO
 
+### Add more benchmarks of key functions
+
+Language matching, resolving, etc.
+
+
 ### Complete enhanced language matching and related todos
 
 * Support new !enUS / GB distance, matching a partition to a region.
