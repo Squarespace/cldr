@@ -7,7 +7,7 @@
 #  supported  ;  desired  ;  dist(d, s)  ; dist(s, d) if different
 
 
-# asymmetric distance with en-GB based on https://unicode.org/cldr/trac/changeset/13628
+# asymmetric distance with en-GB per https://unicode.org/cldr/trac/ticket/10148
 
 en-US ; en-US ; 0
 en-US ; en-GB ; 3 ; 5
