@@ -10,6 +10,36 @@ See: http://cldr.unicode.org/
 
 License: [Apache 2.0](LICENSE)
 
+# Using the library
+
+Maven:
+
+```xml
+<dependency>
+    <groupId>com.squarespace.cldr</groupId>
+    <artifactId>cldr-runtime</artifactId>
+    <version>0.0.22</version>
+</dependency>
+```
+
+Gradle:
+
+```groovy
+compile 'com.squarespace.cldr:cldr-runtime:0.0.22'
+```
+
+# Compiling
+
+Clone the source code including the relevant [unicode-cldr](https://github.com/unicode-cldr) JSON submodules, generate the code, compile and run all test cases.
+
+```shell
+git clone --recursive git@github.com:Squarespace/cldr.git
+cd cldr
+./gradlew check
+```
+
+# Usage examples
+
 ### Resolving Locales
 
 Given an IETF BCP 47 language tag, Java locale string or object, the resolver substitutes language and territory
