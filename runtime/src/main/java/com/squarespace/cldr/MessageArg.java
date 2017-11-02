@@ -1,6 +1,7 @@
 package com.squarespace.cldr;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 
 
 /**
@@ -53,4 +54,11 @@ public interface MessageArg {
    */
   String currency();
 
+  /**
+   * Retrieves the time zone associated with this argument. This lets us format
+   * datetime's with multiple timezones in a single MessageFormat.
+   *
+   * If returning null, the system wide ZoneId will be assumed by MessageFormat.
+   */
+  ZoneId timeZone();
 }

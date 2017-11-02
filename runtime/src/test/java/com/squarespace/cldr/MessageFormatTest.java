@@ -5,7 +5,9 @@ import static com.squarespace.cldr.CLDR.Locale.fr_FR;
 import static com.squarespace.cldr.CLDR.Locale.pl;
 import static org.testng.Assert.assertEquals;
 
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -162,7 +164,7 @@ public class MessageFormatTest {
     msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args(money("1234", "USD"))), "$1.23K");
     assertEquals(format(msg, args(money("999990", "USD"))), "$999.99K");
-    
+
     // Invalid currency
     assertEquals(format(msg, args(money("1234", "XYZ"))), "");
   }
@@ -183,6 +185,15 @@ public class MessageFormatTest {
     String format = "{0 datetime date:long time:medium}";
     MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
     assertEquals(format(msg, args("1498583746000")), "June 27, 2017 at 1:15:46 PM");
+  }
+
+  @Test
+  public void testMultiTimezones() {
+    String format = "{0 datetime date:long time:medium} ({1 datetime date:long time:medium} UTC)";
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args(zoneDateTime("1498583746000", ZoneId.of("America/New_York")),
+        zoneDateTime("1498583746000", ZoneId.of("Etc/UTC")))),
+        "June 27, 2017 at 1:15:46 PM (June 27, 2017 at 5:15:46 PM UTC)");
   }
 
   @Test
@@ -217,6 +228,12 @@ public class MessageFormatTest {
   private static MessageArg money(String value, String currency) {
     StringMessageArg arg = new StringMessageArg(value);
     arg.setCurrency(currency);
+    return arg;
+  }
+
+  private static MessageArg zoneDateTime(String value, ZoneId zoneId) {
+    StringMessageArg arg = new StringMessageArg(value);
+    arg.setTimeZone(zoneId);
     return arg;
   }
 
