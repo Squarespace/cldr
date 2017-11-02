@@ -1,6 +1,7 @@
 package com.squarespace.cldr;
 
 import java.math.BigDecimal;
+import java.time.ZoneId;
 
 
 /**
@@ -13,6 +14,7 @@ public class StringMessageArg implements MessageArg {
   private final String value;
   private BigDecimal decimalValue;
   private String currency;
+  private ZoneId timeZone;
 
   public StringMessageArg(String value) {
     this.value = value;
@@ -22,6 +24,7 @@ public class StringMessageArg implements MessageArg {
   public void reset() {
     this.decimalValue = null;
     this.currency = null;
+    this.timeZone = null;
   }
   
   @Override
@@ -58,6 +61,15 @@ public class StringMessageArg implements MessageArg {
 
   public void setCurrency(String currency) {
     this.currency = currency;
+  }
+
+  @Override
+  public ZoneId timeZone() {
+    return timeZone;
+  }
+
+  public void setTimeZone(ZoneId timeZone) {
+    this.timeZone = timeZone;
   }
 
 }

@@ -718,6 +718,7 @@ public class MessageFormat {
    */
   private ZonedDateTime parseDateTime(MessageArg arg) {
     long instant = arg.asLong();
+    ZoneId timeZone = arg.timeZone() != null ? arg.timeZone() : this.timeZone;
     return ZonedDateTime.ofInstant(Instant.ofEpochMilli(instant), timeZone);
   }
   
