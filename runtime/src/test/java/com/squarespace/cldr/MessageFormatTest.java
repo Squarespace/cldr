@@ -5,9 +5,7 @@ import static com.squarespace.cldr.CLDR.Locale.fr_FR;
 import static com.squarespace.cldr.CLDR.Locale.pl;
 import static org.testng.Assert.assertEquals;
 
-import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
@@ -40,6 +38,15 @@ public class MessageFormatTest {
         assertEquals(format(msg, args("1")), prefix);
       }
     }
+  }
+  
+  @Test
+  public void testHideTag() {
+    String plural = "0 plural =2{is two} one{# is one} few{# is few} many{# is many} other{# is other}";
+    String format = "{city} {-city} {--city} {state} {-{{state}}} {-" + plural + "}";
+    MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    MessageArgs args = args().add("state", "California").add("city", "Los Angeles").build();
+    assertEquals(format(msg, args), "Los Angeles {city} {-city} California {{{state}}} {" + plural + "}");
   }
 
   @Test

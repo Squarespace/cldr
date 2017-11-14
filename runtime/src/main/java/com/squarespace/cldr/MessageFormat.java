@@ -84,6 +84,16 @@ import com.squarespace.compiler.text.Scanner.Stream;
  *                 ^_______________________________________________^               ^_^
  *                               ^__________^       ^_____________^
  *
+ * You can also mark a tag to hide it from the processor. This can be handy if you need to
+ * include text inside the message that is a syntactically-valid tag, but is intended
+ * to be ignored and processed at a later time, possibly by a different engine.
+ * 
+ *   "This message ignores {-value} a tag.".
+ * 
+ * After formatting this would produce:
+ * 
+ *   "This message ignores {value} a tag."
+ * 
  */
 public class MessageFormat {
 
@@ -312,6 +322,16 @@ public class MessageFormat {
     tag.pos++;
     tag.end--;
 
+    // If this tag has been hidden from the processor, skip over the '-' and
+    // emit the tag body.
+    if (tag.peek() == Chars.MINUS_SIGN) {
+      tag.pos++;
+      buf.append('{');
+      buf.append(tag.token());
+      buf.append('}');
+      return;
+    }
+    
     List<MessageArg> args = getArgs();
     if (args == null || args.size() == 0) {
       return;
