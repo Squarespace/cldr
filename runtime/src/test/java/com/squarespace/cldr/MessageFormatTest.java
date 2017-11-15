@@ -42,9 +42,13 @@ public class MessageFormatTest {
   
   @Test
   public void testHideTag() {
-    String plural = "0 plural =2{is two} one{# is one} few{# is few} many{# is many} other{# is other}";
-    String format = "{city} {-city} {--city} {state} {-{{state}}} {-" + plural + "}";
+    String format = "{0}{a}{-0}{-a}{}{-}{--}{---}";
     MessageFormat msg = new MessageFormat(en_US, NY_ZONE, format);
+    assertEquals(format(msg, args().add("a", "A").build()), "AA{0}{a}{}{-}{--}");
+
+    String plural = "0 plural =2{is two} one{# is one} few{# is few} many{# is many} other{# is other}";
+    format = "{city} {-city} {--city} {state} {-{{state}}} {-" + plural + "}";
+    msg = new MessageFormat(en_US, NY_ZONE, format);
     MessageArgs args = args().add("state", "California").add("city", "Los Angeles").build();
     assertEquals(format(msg, args), "Los Angeles {city} {-city} California {{{state}}} {" + plural + "}");
   }
