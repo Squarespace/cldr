@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import com.squarespace.cldr.CLDR;
 import com.squarespace.cldr.LanguageMatcher;
@@ -46,6 +47,7 @@ public class ReadmeExamples {
     datetime();
     datetimeIntervals();
     messages();
+    names();
     numbers();
     numbersCompact();
     currencies();
@@ -299,6 +301,36 @@ public class ReadmeExamples {
     System.out.println(buf);
     
     //> Squarespace has successfully enabled their account.
+  }
+  
+  private static void names() {
+    CLDR cldr = CLDR.get();
+    BiFunction<String, String, String> getDisplayName = (language, code) -> {
+      CLDR.Locale locale = cldr.resolve(language);
+      CLDR.Currency currency = CLDR.Currency.fromString(code);
+      NumberFormatter f = cldr.getNumberFormatter(locale);
+      return f.getCurrencyDisplayName(currency);
+    };
+    
+    String name = getDisplayName.apply("es-ES", "USD");
+    System.out.println(name);
+    
+    //> "dólar estadounidense"
+    
+    name = getDisplayName.apply("en-US", "JPY");
+    System.out.println(name);
+    
+    //> "Japanese Yen"
+    
+    name = getDisplayName.apply("es-419", "ARS");
+    System.out.println(name);
+    
+    //> "peso argentino"
+
+    name = getDisplayName.apply("zh-ZH", "CNY");
+    System.out.println(name);
+    
+    //> "人民币"
   }
 
   private static void numbers() {

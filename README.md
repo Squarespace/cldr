@@ -596,6 +596,34 @@ f.formatCurrency(n, CLDR.Currency.EUR, buffer, options);
 //>  "€1M"
 ```
 
+#### Currency display names
+
+```java
+CLDR cldr = CLDR.get();
+BiFunction<String, String, String> getDisplayName = (language, code) -> {
+  CLDR.Locale locale = cldr.resolve(language);
+  CLDR.Currency currency = CLDR.Currency.fromString(code);
+  NumberFormatter f = cldr.getNumberFormatter(locale);
+  return f.getCurrencyDisplayName(currency);
+};
+
+String name = getDisplayName.apply("es-ES", "USD");
+
+//> "dólar estadounidense"
+
+name = getDisplayName.apply("en-US", "JPY");
+
+//> "Japanese Yen"
+
+name = getDisplayName.apply("es-419", "ARS");
+
+//> "peso argentino"
+
+name = getDisplayName.apply("zh-ZH", "CNY");
+
+//> "人民币"
+```
+
 ### Message Formatter
 
 The `MessageFormat` class allows you to extract localized strings from your application
