@@ -596,6 +596,33 @@ f.formatCurrency(n, CLDR.Currency.EUR, buffer, options);
 //>  "€1M"
 ```
 
+#### Currency fraction digit defaulting
+
+Currency fraction digits will be defaulted for specific currencies, e.g.
+USD uses 2 while JPY uses 0. Use the options if you need to override the
+defaults, for example when displaying exchange rates.
+
+```java
+options = new CurrencyFormatOptions(CurrencyFormatStyle.CODE);
+
+n = new BigDecimal("123.4567");
+
+f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
+
+//> 123.46 USD
+
+f.formatCurrency(n, CLDR.Currency.JPY, buffer, options);
+
+//> 123 JPY
+
+options = new CurrencyFormatOptions(CurrencyFormatStyle.CODE)
+    .setMinimumFractionDigits(3);
+
+f.formatCurrency(n, CLDR.Currency.JPY, buffer, options);
+
+//> 123.457 JPY
+```
+
 #### Currency display names
 
 ```java

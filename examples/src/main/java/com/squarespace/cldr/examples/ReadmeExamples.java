@@ -609,7 +609,6 @@ public class ReadmeExamples {
     System.out.println(buffer);
     
     //> 69,900.00 USD
-    
 
     n = new BigDecimal("1.491");
     options = new CurrencyFormatOptions().setRoundMode(NumberRoundMode.CEIL);
@@ -645,6 +644,36 @@ public class ReadmeExamples {
     System.out.println(buffer);
     
     //> €1M
+    
+    // Currency minimum fraction digits will be defaulted for specific currencies.
+    
+    options = new CurrencyFormatOptions(CurrencyFormatStyle.CODE);
+
+    n = new BigDecimal("123.4567");
+
+    buffer.setLength(0);
+    f.formatCurrency(n, CLDR.Currency.USD, buffer, options);
+    System.out.println(buffer);
+
+    //> 123.46 USD
+    
+    buffer.setLength(0);
+    f.formatCurrency(n, CLDR.Currency.JPY, buffer, options);
+    System.out.println(buffer);
+
+    //> 123 JPY
+
+    // If you do need to show fractions of YEN (displaying exchange
+    // rates, etc) use options
+
+    options = new CurrencyFormatOptions(CurrencyFormatStyle.CODE)
+        .setMinimumFractionDigits(3);
+
+    buffer.setLength(0);
+    f.formatCurrency(n, CLDR.Currency.JPY, buffer, options);
+    System.out.println(buffer);
+
+    //> 123.457 JPY
   }
   
   private static void datetimeIntervals() {
