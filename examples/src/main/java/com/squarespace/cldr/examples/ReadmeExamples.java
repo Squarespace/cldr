@@ -368,14 +368,21 @@ public class ReadmeExamples {
     
     //> 10,000.00
 
-    n = new BigDecimal("0.5");
+    n = new BigDecimal("12.345");
     
     buffer.setLength(0);
-    options = new DecimalFormatOptions().setStyle(DecimalFormatStyle.PERCENT);
+    options = new DecimalFormatOptions().setStyle(DecimalFormatStyle.PERCENT).setGrouping(true);
     f.formatDecimal(n, buffer, options);
     System.out.println(buffer);
     
-    //> 50%
+    //> 1,234%
+    
+    buffer.setLength(0);
+    options = new DecimalFormatOptions().setStyle(DecimalFormatStyle.PERCENT_SCALED).setGrouping(true);
+    f.formatDecimal(n, buffer, options);
+    System.out.println(buffer);
+    
+    //> 12%
   }
 
   private static void numbersCompact() {

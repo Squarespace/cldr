@@ -1,5 +1,8 @@
 package com.squarespace.cldr.numbers;
 
+import static com.squarespace.cldr.numbers.DecimalFormatStyle.PERCENT;
+import static com.squarespace.cldr.numbers.DecimalFormatStyle.PERCENT_SCALED;
+import static com.squarespace.cldr.numbers.DecimalFormatStyle.PERMILLE;
 import static com.squarespace.cldr.numbers.NumberFormatMode.SIGNIFICANT_MAXFRAC;
 import static com.squarespace.cldr.numbers.NumberFormattingUtils.integerDigits;
 
@@ -263,10 +266,16 @@ abstract class NumberFormatterBase implements NumberFormatter {
       }
       
       case PERCENT:
+      case PERCENT_SCALED:
       case PERMILLE:
+      case PERMILLE_SCALED:
       {
-        n = n.movePointRight(style == DecimalFormatStyle.PERCENT ? 2 : 3);
-        String symbol = style == DecimalFormatStyle.PERCENT ? params.percent : params.perMille;
+        // In default modes, scale the number. Otherwise assume it is already scaled
+        // appropriately.
+        if (style == PERCENT || style == PERMILLE) {
+          n = n.movePointRight(style == PERCENT ? 2 : 3);
+        }
+        String symbol = (style == PERCENT) || (style == PERCENT_SCALED) ? params.percent : params.perMille;
         NumberPattern pattern = select(n, percentStandard);
         DigitBuffer number = new DigitBuffer();
         setup(params, pattern, n, number, options, null, formatMode, grouping, -1, -1, -1);

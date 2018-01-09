@@ -2,7 +2,9 @@ package com.squarespace.cldr.numbers;
 
 import static com.squarespace.cldr.numbers.DecimalFormatStyle.LONG;
 import static com.squarespace.cldr.numbers.DecimalFormatStyle.PERCENT;
+import static com.squarespace.cldr.numbers.DecimalFormatStyle.PERCENT_SCALED;
 import static com.squarespace.cldr.numbers.DecimalFormatStyle.PERMILLE;
+import static com.squarespace.cldr.numbers.DecimalFormatStyle.PERMILLE_SCALED;
 import static com.squarespace.cldr.numbers.DecimalFormatStyle.SHORT;
 
 import java.util.List;
@@ -68,6 +70,25 @@ public class NumberFormatterDecimalTest_en_US extends NumberFormatterTestBase {
   }
   
   @Test
+  public void testPercentScaledDefault() {
+    DecimalFormatOptions options = decimal(PERCENT_SCALED).setGrouping(true);
+    test(CLDR.Locale.en_US, options, NUMBERS, pairs(
+        pair("0%", "0%"),
+        pair("1%", "-1%"),
+        pair("1%", "-1%"),
+        pair("3%", "-3%"),
+        pair("990%", "-990%"),
+        pair("1,200%", "-1,200%"),
+        pair("12,345%", "-12,345%"),
+        pair("99,999%", "-99,999%"),
+        pair("999,999%", "-999,999%"),
+        pair("1,200,000%", "-1,200,000%"),
+        pair("10,000,000,001%", "-10,000,000,001%"),
+        pair("9,223,372,036,854,775,807%", "-9,223,372,036,854,775,807%")
+    ));
+  }
+  
+  @Test
   public void testPermilleDefault() {
     DecimalFormatOptions options = decimal(PERMILLE).setGrouping(true);
     test(CLDR.Locale.en_US, options, NUMBERS, pairs(
@@ -85,7 +106,26 @@ public class NumberFormatterDecimalTest_en_US extends NumberFormatterTestBase {
         pair("9,223,372,036,854,775,807,000‰", "-9,223,372,036,854,775,807,000‰")
     ));
   }
-  
+
+  @Test
+  public void testPermilleScaledDefault() {
+    DecimalFormatOptions options = decimal(PERMILLE_SCALED).setGrouping(true);
+    test(CLDR.Locale.en_US, options, NUMBERS, pairs(
+        pair("0‰", "0‰"),
+        pair("1‰", "-1‰"),
+        pair("1‰", "-1‰"),
+        pair("3‰", "-3‰"),
+        pair("990‰", "-990‰"),
+        pair("1,200‰", "-1,200‰"),
+        pair("12,345‰", "-12,345‰"),
+        pair("99,999‰", "-99,999‰"),
+        pair("999,999‰", "-999,999‰"),
+        pair("1,200,000‰", "-1,200,000‰"),
+        pair("10,000,000,001‰", "-10,000,000,001‰"),
+        pair("9,223,372,036,854,775,807‰", "-9,223,372,036,854,775,807‰")
+    ));
+  }
+
   @Test
   public void testShortDefault() {
     DecimalFormatOptions options = decimal(SHORT).setGrouping(true);

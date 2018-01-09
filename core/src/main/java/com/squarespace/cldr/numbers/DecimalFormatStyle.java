@@ -5,7 +5,9 @@ public enum DecimalFormatStyle {
 
   DECIMAL,
   PERCENT,
+  PERCENT_SCALED,
   PERMILLE,
+  PERMILLE_SCALED,
   SHORT,
   LONG
   ;
@@ -15,8 +17,14 @@ public enum DecimalFormatStyle {
       case "percent":
         return PERCENT;
 
+      case "percent-scaled":
+        return PERCENT_SCALED;
+
       case "permille":
         return PERMILLE;
+
+      case "permille-scaled":
+        return PERMILLE_SCALED;
 
       case "short":
         return SHORT;
