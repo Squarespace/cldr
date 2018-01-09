@@ -366,7 +366,7 @@ options = new DecimalFormatOptions().setStyle(DecimalFormatStyle.PERCENT).setGro
 f.formatDecimal(n, buffer, options);
 System.out.println(buffer);
 
-//> 1,234%
+//>  "1,234%"
 ```
 
 #### Indicate number is already scaled in percent and permille styles
@@ -375,7 +375,7 @@ System.out.println(buffer);
 options = new DecimalFormatOptions().setStyle(DecimalFormatStyle.PERCENT_SCALED).setGrouping(true);
 f.formatDecimal(n, buffer, options);
 
-//> 12%
+//>  "12%"
 ```
 
 #### Compact forms
