@@ -33,8 +33,6 @@ abstract class NumberFormatterBase implements NumberFormatter {
 
   protected static final Map<String, NumberPattern> NUMBER_PATTERN_CACHE = new ConcurrentHashMap<>();
   protected static final Map<String, List<FieldPattern.Node>> UNIT_PATTERN_CACHE = new ConcurrentHashMap<>();
-  protected static final NumberPatternParser PATTERN_PARSER = new NumberPatternParser();
-  protected static final WrapperPatternParser WRAPPER_PARSER = new WrapperPatternParser();
   protected static final PluralRules PLURAL_RULES = CLDR.get().getPluralRules();
   protected static final NumberFormatterParams GENERIC_PARAMS = new NumberFormatterParams();
   private static final char NBSP = '\u00a0';
@@ -442,11 +440,11 @@ abstract class NumberFormatterBase implements NumberFormatter {
    * Parse a string as a number pattern.
    */
   protected static NumberPattern parse(String pattern) {
-    return NUMBER_PATTERN_CACHE.computeIfAbsent(pattern, s -> PATTERN_PARSER.parse(pattern));
+    return NUMBER_PATTERN_CACHE.computeIfAbsent(pattern, s -> new NumberPatternParser().parse(s));
   }
 
   protected static List<FieldPattern.Node> unitPattern(String pattern) {
-    return UNIT_PATTERN_CACHE.computeIfAbsent(pattern,  s -> WRAPPER_PARSER.parseWrapper(pattern));
+    return UNIT_PATTERN_CACHE.computeIfAbsent(pattern,  s -> new WrapperPatternParser().parseWrapper(pattern));
   }
   
   protected void setup(
