@@ -1,4 +1,10 @@
 
+# Archived
+
+This project has been archived in favor of https://github.com/Squarespace/cldr-engine-java
+
+-----
+
 squarespace-cldr - Java CLDR code generation.
 
 WARNING: This code is a work in progress and the API may change.
